@@ -1,0 +1,24 @@
+﻿using System.Text.Json.Serialization;
+
+namespace Library.API.Models;
+
+public class Lesson
+{
+    public Lesson(string title, string description, bool isCompleted)
+    {
+        Title = title;
+        Description = description;
+        IsCompleted = isCompleted;
+    }
+
+    public int LessonId { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public bool IsCompleted { get; set; }
+
+    // Relationship
+    public int CourseId { get; set; }
+    public Course Course { get; set; } = null!;
+
+    public List<Unit> Units { get; set; } = new();
+}

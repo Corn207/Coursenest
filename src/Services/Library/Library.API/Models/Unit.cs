@@ -1,0 +1,24 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
+namespace Library.API.Models;
+
+[Table("Units")]
+public abstract class Unit
+{
+    public Unit(string title, int orderIndex, bool isCompleted)
+    {
+        Title = title;
+        OrderIndex = orderIndex;
+        IsCompleted = isCompleted;
+    }
+
+    public int UnitId { get; set; }
+    public string Title { get; set; }
+    public int OrderIndex { get; set; }
+    public bool IsCompleted { get; set; }
+
+    // Relationship
+    public int LessonId { get; set; }
+    public Lesson Lesson { get; set; } = null!;
+}
