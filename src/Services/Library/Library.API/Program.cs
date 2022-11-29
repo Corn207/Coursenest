@@ -13,7 +13,7 @@ builder.Configuration.HandleEnvironmentVariables(new[]
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<LibraryContext>(options =>
+builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["ConnectionStrings"], builder =>
     {
@@ -35,7 +35,7 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
+    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
     if (bool.TrueString == builder.Configuration["Migrate"])
     {

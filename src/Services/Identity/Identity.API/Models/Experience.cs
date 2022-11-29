@@ -1,15 +1,16 @@
 ﻿namespace Identity.API.Models;
 
-public class Education
+public class Experience
 {
-    public Education(string schoolName)
+    public Experience(string name, string title)
     {
-        SchoolName = schoolName;
+        Name = name;
+        Title = title;
     }
 
-    public int EducationId { get; set; }
-    public string SchoolName { get; set; }
-    public string? Degree { get; set; }
+    public int ExperienceId { get; set; }
+    public string Name { get; set; }
+    public string Title { get; set; }
     public DateTime Started { get; set; }
     public DateTime? Ended { get; set; }
 

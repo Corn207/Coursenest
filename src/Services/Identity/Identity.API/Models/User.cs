@@ -24,9 +24,9 @@ public class User
     public int ImageId { get; set; }
     public Image Image { get; set; } = null!;
 
-    public List<Education> Educations { get; set; } = new();
-    public List<Work> Works { get; set; } = new();
-    public List<Role> Roles { get; set; } = new();
+    public List<Experience> Experiences { get; set; } = new();
+
+    public List<int> InterestedTopics { get; set; } = new();
 }
 
 public enum Gender

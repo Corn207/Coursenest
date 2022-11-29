@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Library.API.Models;
+﻿namespace UserData.API.Models;
 
 public class Question
 {
@@ -14,8 +12,8 @@ public class Question
     public int Point { get; set; }
 
     // Relationship
-    public int ExamId { get; set; }
-    public Exam Exam { get; set; } = null!;
+    public int SubmissionId { get; set; }
+    public Submission Submission { get; set; } = null!;
 
-    public List<Choice> Choices { get; set; } = new();
+    public List<Answer> Answers { get; set; } = new();
 }

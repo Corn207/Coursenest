@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.API.Contexts;
 
-public class LibraryContext : DbContext
+public class DataContext : DbContext
 {
-    public LibraryContext(DbContextOptions<LibraryContext> opts) : base(opts)
+    public DataContext(DbContextOptions<DataContext> opts) : base(opts)
     {
     }
 
@@ -17,5 +17,5 @@ public class LibraryContext : DbContext
     public DbSet<Material> Materials { get; set; }
     public DbSet<Exam> Exams { get; set; }
     public DbSet<Question> Questions { get; set; }
-    public DbSet<Answer> Answers { get; set; }
+    public DbSet<Choice> Answers { get; set; }
 }

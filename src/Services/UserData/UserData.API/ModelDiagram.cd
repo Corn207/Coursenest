@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="UserData.API.Models.Answer">
+    <Position X="10" Y="1.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAgAAAAAAAAAAAAAAAAAAAAAEAAIQAAQAAAA=</HashCode>
+      <FileName>Models\Answer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.Checkpoint">
+    <Position X="8" Y="4" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEiAAgAAQAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Checkpoint.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.Comment">
+    <Position X="12.75" Y="4.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAAAACAQAAAAAAAAAAAAkAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Comment.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.Criterion">
+    <Position X="5.25" Y="5.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAEAACAQAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Criterion.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.EnrolledCourse">
+    <Position X="2" Y="1.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>EAAEAAAACAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Models\EnrolledCourse.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.InstructorFollow">
+    <Position X="12.75" Y="1.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAABAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Models\InstructorFollow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.Question">
+    <Position X="7.75" Y="1.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAgAAACAQAAAAAAAAAAAAAQAAAAAQAAAA=</HashCode>
+      <FileName>Models\Question.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.Rating">
+    <Position X="2" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AEAEAAAAAgAIAAAAAAAAAAgAAAAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Rating.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.Submission">
+    <Position X="5.25" Y="1.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AACAAEAAAAAABEAACAAAAAAAAAAAAAQEAAAAAAEAoAQ=</HashCode>
+      <FileName>Models\Submission.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

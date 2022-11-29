@@ -4,7 +4,7 @@ namespace Library.API.Contexts;
 
 public static class DataSeeding
 {
-    public static void Seeding(this LibraryContext context)
+    public static void Seeding(this DataContext context)
     {
         var categories = new[]
         {

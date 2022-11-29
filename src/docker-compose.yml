@@ -41,6 +41,12 @@ services:
     ports:
       - "1433:1433"
 
+  authentication.api:
+    image: ${DOCKER_REGISTRY-}authenticationapi
+    build:
+      context: .
+      dockerfile: Services/Authentication/Authentication.API/Dockerfile
+
 networks:
   frontend:
   backend:

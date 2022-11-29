@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
-  <Class Name="Library.API.Models.Answer">
+  <Class Name="Library.API.Models.Choice">
     <Position X="22.75" Y="7.25" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>ABAAAAAAAgAAAAAAAAAAAAAAAAAAAAAEAAIAAAQAAAA=</HashCode>
-      <FileName>Models\Answer.cs</FileName>
+      <HashCode>AAEAAAAAAgAAAAAAAAAAAAAAAAAAAAAEAAIAAAQAAAA=</HashCode>
+      <FileName>Models\Choice.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Library.API.Models.Category">
@@ -17,7 +17,7 @@
   <Class Name="Library.API.Models.Course">
     <Position X="12.5" Y="3.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAEAAAAAAAgAEEAAAAQAAECAAAAABAAAAAQgCAAAAA=</HashCode>
+      <HashCode>AAAEAAAAAAAgAEEAAAAQAAECAAAAABACAAAQgCAAAAA=</HashCode>
       <FileName>Models\Course.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -31,7 +31,7 @@
   <Class Name="Library.API.Models.Lesson">
     <Position X="14.75" Y="3.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAEAAAAAAAgAEAAAIAAAAAAAAAAABAAEAAAAAAAAAA=</HashCode>
+      <HashCode>AAAEAAAAAAAgAEAAAIAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
       <FileName>Models\Lesson.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -45,7 +45,7 @@
   <Class Name="Library.API.Models.Question">
     <Position X="20.5" Y="7.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAgAAgAAAAAAAAAAAAAAAAABAQAAAAASAAAA=</HashCode>
+      <HashCode>AAAAAAAAAgAAgAAABAAAAAAAAAAAAABAAAAAAASAAAA=</HashCode>
       <FileName>Models\Question.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -64,9 +64,9 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Library.API.Models.Unit">
-    <Position X="16.75" Y="3.5" Width="1.75" />
+    <Position X="16.75" Y="3.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAEAAAAAASAAAAAAAABAAAAAEAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAEAAAAAASAAAAAAAAAAAAAAEAAAAAAA=</HashCode>
       <FileName>Models\Unit.cs</FileName>
     </TypeIdentifier>
   </Class>

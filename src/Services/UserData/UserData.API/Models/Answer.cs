@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Library.API.Models;
+﻿namespace UserData.API.Models;
 
 public class Answer
 {
@@ -11,7 +9,8 @@ public class Answer
 
     public int AnswerId { get; set; }
     public string Content { get; set; }
-    public bool IsCorrect { get; set; }
+    public bool? IsCorrect { get; set; }
+    public bool? IsChosen { get; set; }
 
     // Relationship
     public int QuestionId { get; set; }

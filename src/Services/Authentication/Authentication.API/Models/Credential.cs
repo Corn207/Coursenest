@@ -14,4 +14,6 @@ public class Credential
 
     // Relationship
     public int UserId { get; set; }
+
+    public List<Role> Roles { get; set; } = new();
 }

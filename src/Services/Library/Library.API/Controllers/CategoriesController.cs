@@ -14,9 +14,9 @@ namespace Library.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly LibraryContext _context;
+        private readonly DataContext _context;
 
-        public CategoriesController(LibraryContext context)
+        public CategoriesController(DataContext context)
         {
             _context = context;
         }

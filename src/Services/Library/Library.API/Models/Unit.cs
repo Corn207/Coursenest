@@ -14,7 +14,6 @@ public abstract class Unit
     public int UnitId { get; set; }
     public string Title { get; set; }
     public int OrderIndex { get; set; }
-    public bool IsCompleted { get; set; }
 
     // Relationship
     public int LessonId { get; set; }
