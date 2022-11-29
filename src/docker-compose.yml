@@ -6,10 +6,41 @@ services:
     build:
       context: .
       dockerfile: GatewayAPI/Dockerfile
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "20702:80"
+    depends_on:
+      - library.api
 
-  #library.api:
-  #  image: ${DOCKER_REGISTRY-}libraryapi
-  #  build:
-  #    context: .
-  #    dockerfile: Services/Library/Library.API/Dockerfile
+  library.api:
+    image: ${DOCKER_REGISTRY-}libraryapi
+    build:
+      context: .
+      dockerfile: Services/Library/Library.API/Dockerfile
+    environment:
+      ConnectionStrings: "Server=sqldata;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;"
+      RecreateDatabase: "T"
+      Seeding: "T"
+    networks:
+      - backend
+    ports:
+      - "20700:80"
+    depends_on:
+      - sqldata
 
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+      MSSQL_SA_PASSWORD: "Pass@word"
+    networks:
+      - backend
+    ports:
+      - "1433:1433"
+
+networks:
+  frontend:
+  backend:
