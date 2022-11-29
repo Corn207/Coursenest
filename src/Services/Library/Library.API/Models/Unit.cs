@@ -6,11 +6,9 @@ namespace Library.API.Models;
 [Table("Units")]
 public abstract class Unit
 {
-    public Unit(string title, int orderIndex, bool isCompleted)
+    public Unit(string title)
     {
         Title = title;
-        OrderIndex = orderIndex;
-        IsCompleted = isCompleted;
     }
 
     public int UnitId { get; set; }

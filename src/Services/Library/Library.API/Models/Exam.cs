@@ -4,13 +4,8 @@ namespace Library.API.Models;
 
 public class Exam : Unit
 {
-    public Exam(
-        string title,
-        int orderIndex,
-        bool isCompleted,
-        TimeSpan timeLimit) : base(title, orderIndex, isCompleted)
+    public Exam(string title) : base(title)
     {
-        TimeLimit = timeLimit;
     }
 
     public TimeSpan TimeLimit { get; set; }

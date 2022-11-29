@@ -4,10 +4,9 @@ namespace Library.API.Models;
 
 public class Question
 {
-    public Question(string content, int point)
+    public Question(string content)
     {
         Content = content;
-        Point = point;
     }
 
     public int QuestionId { get; set; }

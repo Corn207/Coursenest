@@ -2,15 +2,9 @@
 
 public class Material : Unit
 {
-    public Material(
-        string title,
-        int orderIndex,
-        bool isCompleted,
-        string content,
-        TimeSpan approximateTime) : base(title, orderIndex, isCompleted)
+    public Material(string title, string content) : base(title)
     {
         Content = content;
-        ApproximateTime = approximateTime;
     }
 
     public string Content { get; set; }

@@ -4,10 +4,9 @@ namespace Library.API.Models;
 
 public class Answer
 {
-    public Answer(string content, bool isCorrect)
+    public Answer(string content)
     {
         Content = content;
-        IsCorrect = isCorrect;
     }
 
     public int AnswerId { get; set; }

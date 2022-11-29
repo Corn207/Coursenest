@@ -4,11 +4,10 @@ namespace Library.API.Models;
 
 public class Lesson
 {
-    public Lesson(string title, string description, bool isCompleted)
+    public Lesson(string title, string description)
     {
         Title = title;
         Description = description;
-        IsCompleted = isCompleted;
     }
 
     public int LessonId { get; set; }

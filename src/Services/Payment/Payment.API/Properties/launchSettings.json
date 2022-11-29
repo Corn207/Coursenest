@@ -1,12 +1,14 @@
 {
   "profiles": {
-    "GatewayAPI": {
+    "Payment.API": {
       "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7072;http://localhost:5202"
+      "applicationUrl": "http://localhost:5208"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -18,8 +20,9 @@
     },
     "Docker": {
       "commandName": "Docker",
-      "publishAllPorts": true,
-      "useSSL": true
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "publishAllPorts": true
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",
@@ -27,8 +30,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:63282",
-      "sslPort": 44368
+      "applicationUrl": "http://localhost:53635",
+      "sslPort": 0
     }
   }
 }
