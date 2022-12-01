@@ -15,7 +15,11 @@
     </TypeIdentifier>
   </Class>
   <Class Name="UserData.API.Models.Comment">
+<<<<<<< HEAD
+    <Position X="10" Y="4" Width="2" />
+=======
     <Position X="12.75" Y="4.75" Width="2" />
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
     <TypeIdentifier>
       <HashCode>AAAAAAAAAgAAAAAACAQAAAAAAAAAAAAkAAAAAAAAAAA=</HashCode>
       <FileName>Models\Comment.cs</FileName>
@@ -29,12 +33,18 @@
     </TypeIdentifier>
   </Class>
   <Class Name="UserData.API.Models.EnrolledCourse">
+<<<<<<< HEAD
+    <Position X="1.75" Y="1.25" Width="3" />
+=======
     <Position X="2" Y="1.25" Width="2.25" />
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
     <TypeIdentifier>
       <HashCode>EAAEAAAACAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
       <FileName>Models\EnrolledCourse.cs</FileName>
     </TypeIdentifier>
   </Class>
+<<<<<<< HEAD
+=======
   <Class Name="UserData.API.Models.InstructorFollow">
     <Position X="12.75" Y="1.25" Width="2.25" />
     <TypeIdentifier>
@@ -42,6 +52,7 @@
       <FileName>Models\InstructorFollow.cs</FileName>
     </TypeIdentifier>
   </Class>
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
   <Class Name="UserData.API.Models.Question">
     <Position X="7.75" Y="1.25" Width="2" />
     <TypeIdentifier>
@@ -50,7 +61,11 @@
     </TypeIdentifier>
   </Class>
   <Class Name="UserData.API.Models.Rating">
+<<<<<<< HEAD
+    <Position X="1.75" Y="5" Width="1.75" />
+=======
     <Position X="2" Y="3.25" Width="1.75" />
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
     <TypeIdentifier>
       <HashCode>AEAEAAAAAgAIAAAAAAAAAAgAAAAAAAQAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Rating.cs</FileName>
@@ -63,5 +78,29 @@
       <FileName>Models\Submission.cs</FileName>
     </TypeIdentifier>
   </Class>
+<<<<<<< HEAD
+  <Class Name="UserData.API.Models.CompletedUnit">
+    <Position X="1.75" Y="3.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAgAAAAAAAAAAAAAAAAEAAAAAgA=</HashCode>
+      <FileName>Models\CompletedUnit.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.FollowedCourse">
+    <Position X="12.75" Y="1.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAgAAAAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\FollowedCourse.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UserData.API.Models.FollowedTopic">
+    <Position X="12.75" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEAAAAAAAAAAgCAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\FollowedTopic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+=======
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

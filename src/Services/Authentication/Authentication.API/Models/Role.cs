@@ -1,4 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+<<<<<<< HEAD
+
+namespace Authentication.API.Models;
+=======
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
 
 namespace Authentication.API.Models;
 

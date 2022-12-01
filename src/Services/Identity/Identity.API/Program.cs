@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+using APICommonLibrary;
+=======
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
 using Identity.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +28,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.Services.OverwriteDatabase<DataContext>();
 }
 
 app.UseAuthorization();

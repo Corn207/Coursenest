@@ -5,8 +5,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings": "Data Source=(localdb)\\MSSQLLocalDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5250"
@@ -24,20 +23,6 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "publishAllPorts": true
-    },
-    "Seeding (Kestrel)": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "Migrating": "F",
-        "Seeding": "1",
-        "ConnectionStrings": "Server=(localdb)\\mssqllocaldb;Database=LibraryDB;Trusted_Connection=True;User=sa;Password=adminpwd;Integrated Security=False",
-        "RecreateDatabase": "T"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5250"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",

@@ -15,12 +15,26 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Identity.API.Models.User">
+<<<<<<< HEAD
+    <Position X="8" Y="1.75" Width="3" />
+=======
     <Position X="8.75" Y="1.75" Width="2.25" />
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAAECAAAIAQAgACAAQABEAAAAIAAAAAIA=</HashCode>
       <FileName>Models\User.cs</FileName>
     </TypeIdentifier>
   </Class>
+<<<<<<< HEAD
+  <Class Name="Identity.API.Models.InterestedTopic">
+    <Position X="8" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAACAAAAAAAAgCAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\InterestedTopic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+=======
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
   <Enum Name="Identity.API.Models.Gender">
     <Position X="11.25" Y="4.75" Width="1.5" />
     <TypeIdentifier>

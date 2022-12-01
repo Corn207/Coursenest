@@ -18,4 +18,8 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\APICommonLibrary\APICommonLibrary.csproj" />
+  </ItemGroup>
+
 </Project>

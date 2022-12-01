@@ -1,15 +1,9 @@
-using Library.API;
+using APICommonLibrary;
 using Library.API.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.HandleEnvironmentVariables(new[]
-{
-    ("Migrating", false),
-    ("RecreateDatabase", false),
-    ("Seeding", false)
-});
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -31,8 +25,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.Services.OverwriteDatabase<DataContext>();
 }
 
+<<<<<<< HEAD
+=======
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DataContext>();
@@ -55,6 +53,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
 app.UseAuthorization();
 
 app.MapControllers();

@@ -26,7 +26,11 @@ public class User
 
     public List<Experience> Experiences { get; set; } = new();
 
+<<<<<<< HEAD
+    public List<InterestedTopic> InterestedTopics { get; set; } = new();
+=======
     public List<int> InterestedTopics { get; set; } = new();
+>>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
 }
 
 public enum Gender
