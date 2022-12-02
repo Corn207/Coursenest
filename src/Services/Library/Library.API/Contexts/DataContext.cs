@@ -17,10 +17,6 @@ public class DataContext : DbContext
     public DbSet<Material> Materials { get; set; }
     public DbSet<Exam> Exams { get; set; }
     public DbSet<Question> Questions { get; set; }
-<<<<<<< HEAD
     public DbSet<Choice> Choices { get; set; }
     public DbSet<Image> Images { get; set; }
-=======
-    public DbSet<Choice> Answers { get; set; }
->>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
 }

@@ -29,31 +29,6 @@ if (app.Environment.IsDevelopment())
     app.Services.OverwriteDatabase<DataContext>();
 }
 
-<<<<<<< HEAD
-=======
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-    if (bool.TrueString == builder.Configuration["Migrate"])
-    {
-        db.Database.Migrate();
-    }
-
-    if (bool.TrueString == builder.Configuration["RecreateDatabase"])
-    {
-        db.Database.EnsureDeleted();
-        db.Database.EnsureCreated();
-    }
-
-    if (bool.TrueString == builder.Configuration["Seeding"])
-    {
-        db.Seeding();
-    }
-}
-
-
->>>>>>> 8f2d456107893510f74a5d3eedbdad6da5b6fe3d
 app.UseAuthorization();
 
 app.MapControllers();
