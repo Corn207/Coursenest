@@ -14,14 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Migrations\InitialCreate.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Migrations\InitialCreate.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0">

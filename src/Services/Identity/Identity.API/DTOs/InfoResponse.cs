@@ -2,5 +2,6 @@
 
 public record InfoResponse(
     int UserId,
-    string FullName
+    string FullName,
+    ImageResponse? Avatar
     );

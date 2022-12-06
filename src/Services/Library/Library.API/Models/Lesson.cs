@@ -13,6 +13,7 @@ public class Lesson
     public int LessonId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
+    public int OrderIndex { get; set; }
 
     // Relationship
     public int CourseId { get; set; }

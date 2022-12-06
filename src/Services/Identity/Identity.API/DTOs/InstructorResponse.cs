@@ -4,5 +4,6 @@ public record InstructorResponse(
     int UserId,
     string FullName,
     string? Title,
-    string? AboutMe
-    )
+    string? AboutMe,
+    ImageResponse? Avatar
+    );

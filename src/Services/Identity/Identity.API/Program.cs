@@ -14,6 +14,7 @@ builder.Services.AddDbContext<DataContext>(options =>
         //builder.EnableRetryOnFailure(1, TimeSpan.FromSeconds(3), null);
     });
 });
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -25,9 +26,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    app.Services.OverwriteDatabase<DataContext>();
 }
+
+app.Services.EnsureCreated<DataContext>();
 
 app.UseAuthorization();
 

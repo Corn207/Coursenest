@@ -20,7 +20,9 @@ public class Submission
 
 
     // Relationship
-    public int OwnerUserId { get; set; }
+    public int StudentUserId { get; set; }
+
+    public int InstructorUserId { get; set; }
 
     public List<Question> Questions { get; set; } = new();
 
