@@ -1,6 +1,6 @@
 ﻿namespace Identity.API.DTOs;
 
-public record AddUserRequest(
+public record UserPostRequest(
     string Email,
     string FullName
     );

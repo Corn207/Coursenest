@@ -1,6 +1,6 @@
 ﻿namespace Identity.API.DTOs;
 
-public record ProfileResponse(
+public record UserProfileResponse(
     int UserId,
     string Email,
     string? Phonenumber,
@@ -11,6 +11,7 @@ public record ProfileResponse(
     DateTime? DateOfBirth,
     string? Location,
     ImageResponse? Avatar,
-    List<ExperienceDTO> Experiences,
-    List<int> InterestedTopicIds
+    List<ExperienceResponse> Experiences,
+    List<int> InterestedTopicIds,
+    List<int> FollowedTopicIds
     );

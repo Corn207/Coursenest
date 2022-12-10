@@ -1,8 +1,8 @@
 ﻿namespace Identity.API.Models;
 
-public class InterestedTopic
+public class FollowedTopic
 {
-    public int InterestedTopicId { get; set; }
+    public int FollowedTopicId { get; set; }
     
     // Relationship
     public int TopicId { get; set; }

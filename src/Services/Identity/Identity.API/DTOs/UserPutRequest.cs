@@ -1,6 +1,6 @@
 ﻿namespace Identity.API.DTOs;
 
-public record EditUserRequest(
+public record UserPutRequest(
     string? Email,
     string? Phonenumber,
     string? FullName,

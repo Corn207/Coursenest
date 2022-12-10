@@ -1,9 +1,7 @@
 ﻿namespace Identity.API.DTOs;
 
-public record InstructorResponse(
+public record UserInfoResponse(
     int UserId,
     string FullName,
-    string? Title,
-    string? AboutMe,
     ImageResponse? Avatar
     );

@@ -17,6 +17,8 @@ public class User
     public Gender? Gender { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public string? Location { get; set; }
+    public DateTime Created { get; set; }
+    public DateTime LastModified { get; set; }
 
     // Relationship
     public int? AvatarImageId { get; set; }
@@ -25,6 +27,8 @@ public class User
     public List<Experience> Experiences { get; set; } = new();
 
     public List<InterestedTopic> InterestedTopics { get; set; } = new();
+
+    public List<FollowedTopic> FollowedTopics { get; set; } = new();
 }
 
 public enum Gender

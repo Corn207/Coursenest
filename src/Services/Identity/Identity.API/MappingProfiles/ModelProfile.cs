@@ -13,34 +13,40 @@ public class ModelProfile : Profile
                 nameof(ImageResponse.URI),
                 options => options.MapFrom(src => $"data:{src.MediaType};base64," + Convert.ToBase64String(src.Data)));
 
-        CreateMap<Experience, ExperienceDTO>();
+        CreateMap<Experience, ExperienceResponse>();
 
-        CreateMap<User, ProfileResponse>()
+        CreateMap<User, UserProfileResponse>()
             .ForCtorParam(
-                nameof(ProfileResponse.Avatar),
+                nameof(UserProfileResponse.Avatar),
                 option => option.MapFrom(src => src.AvatarImage))
             .ForCtorParam(
-                nameof(ProfileResponse.InterestedTopicIds),
-                option => option.MapFrom(src => src.InterestedTopics.Select(x => x.TopicId)));
-
-        CreateMap<User, InfoResponse>()
+                nameof(UserProfileResponse.InterestedTopicIds),
+                option => option.MapFrom(src => src.InterestedTopics.Select(x => x.TopicId)))
             .ForCtorParam(
-                nameof(ProfileResponse.Avatar),
+                nameof(UserProfileResponse.FollowedTopicIds),
+                option => option.MapFrom(src => src.FollowedTopics.Select(x => x.TopicId)));
+
+        CreateMap<User, UserInfoResponse>()
+            .ForCtorParam(
+                nameof(UserInfoResponse.Avatar),
                 option => option.MapFrom(src => src.AvatarImage));
 
-        CreateMap<User, InstructorResponse>()
+        CreateMap<User, UserInstructorResponse>()
             .ForCtorParam(
-                nameof(ProfileResponse.Avatar),
+                nameof(UserInstructorResponse.Avatar),
                 option => option.MapFrom(src => src.AvatarImage));
 
         CreateMap<User, UserResponse>();
 
-        CreateMap<EditUserRequest, User>()
+
+        CreateMap<UserPutRequest, User>()
             .ForAllMembers(options =>
             {
                 options.Condition((source, destination, member) => member != null);
             });
 
-        CreateMap<AddUserRequest, User>();
+        CreateMap<UserPostRequest, User>();
+
+        CreateMap<ExperiencePostRequest, Experience>();
     }
 }
