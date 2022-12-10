@@ -36,7 +36,7 @@ namespace Identity.API.Controllers
         public async Task<ActionResult<UserProfileResponse>> GetUserProfile(int id)
         {
             var user = await _context.Users
-                .Include(x => x.AvatarImage)
+                .Include(x => x.Avatar)
                 .Include(x => x.Experiences)
                 .Include(x => x.InterestedTopics)
                 .Include(x => x.FollowedTopics)
@@ -51,7 +51,7 @@ namespace Identity.API.Controllers
         public async Task<ActionResult<UserInfoResponse>> GetUserInfo(int id)
         {
             var user = await _context.Users
-                .Include(x => x.AvatarImage)
+                .Include(x => x.Avatar)
                 .FirstOrDefaultAsync(x => x.UserId == id);
             if (user == null) return NotFound();
 
@@ -63,7 +63,7 @@ namespace Identity.API.Controllers
         public async Task<ActionResult<UserInstructorResponse>> GetUserInstructor(int id)
         {
             var user = await _context.Users
-                .Include(x => x.AvatarImage)
+                .Include(x => x.Avatar)
                 .FirstOrDefaultAsync(x => x.UserId == id);
             if (user == null) return NotFound();
 
@@ -81,7 +81,14 @@ namespace Identity.API.Controllers
 
             // TODO Add user -> Check other microservice can add credential
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict(new { message = $"Existed email ({request.Email}) with userId ({user.UserId})." });
+            }
 
             return Created("", null);
         }
@@ -106,7 +113,11 @@ namespace Identity.API.Controllers
             {
                 throw;
             }
-
+            catch (DbUpdateException)
+            {
+                return Conflict(new { message = $"Existed email ({request.Email}) with userId ({user.UserId})." });
+            }
+            
             return NoContent();
         }
 

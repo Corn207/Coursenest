@@ -25,6 +25,7 @@ namespace Identity.API.Controllers
         public async Task<ActionResult<User>> PostAvatar(int id, IFormFile formFile)
         {
             var user = await _context.Users
+                .Include(x => x.Avatar)
                 .FirstOrDefaultAsync(x => x.UserId == id);
             if (user == null) return NotFound();
 
@@ -34,7 +35,7 @@ namespace Identity.API.Controllers
             using var memoryStream = new MemoryStream();
             await formFile.CopyToAsync(memoryStream);
 
-            user.AvatarImage = new Image(MIME, memoryStream.ToArray());
+            user.Avatar = new Avatar(MIME, memoryStream.ToArray());
             user.LastModified = DateTime.Now;
 
             await _context.SaveChangesAsync();

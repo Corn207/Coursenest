@@ -1,9 +1,10 @@
-﻿namespace Identity.API.Models;
+﻿using Microsoft.EntityFrameworkCore;
 
+namespace Identity.API.Models;
+
+[PrimaryKey(nameof(UserId), nameof(TopicId))]
 public class FollowedTopic
 {
-    public int FollowedTopicId { get; set; }
-    
     // Relationship
     public int TopicId { get; set; }
 

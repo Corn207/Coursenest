@@ -27,7 +27,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.Services.EnsureCreated<DataContext>();
+if (app.Configuration["EnsureOverwrite"] == "True")
+{
+    app.Services.EnsureOverwrite<DataContext>();
+}
+else
+{
+    app.Services.EnsureCreated<DataContext>();
+}
 
 app.UseAuthorization();
 

@@ -10,7 +10,7 @@ public class DataContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
-    public DbSet<Image> Images { get; set; }
+    public DbSet<Avatar> Avatars { get; set; }
     public DbSet<Experience> Experience { get; set; }
     public DbSet<InterestedTopic> InterestedTopics { get; set; }
     public DbSet<FollowedTopic> FollowedTopics { get; set; }

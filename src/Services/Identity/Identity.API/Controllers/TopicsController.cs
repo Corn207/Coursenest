@@ -39,14 +39,21 @@ namespace Identity.API.Controllers
             user.InterestedTopics.Add(new InterestedTopic() { TopicId = topicId });
             user.LastModified = DateTime.Now;
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict(new { message = $"Existed topicId ({topicId}) with userId ({userId})." });
+            }
 
             return Created("", null);
         }
 
 
         // DELETE: api/Users/5/Topics/Interested/5
-        [HttpDelete("{userId}/Topics/Interested/{id}")]
+        [HttpDelete("{userId}/Topics/Interested/{topicId}")]
         public async Task<IActionResult> DeleteTopicInterested(int userId, int topicId)
         {
             var topic = await _context.InterestedTopics
@@ -72,14 +79,21 @@ namespace Identity.API.Controllers
             user.FollowedTopics.Add(new FollowedTopic() { TopicId = topicId });
             user.LastModified = DateTime.Now;
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict(new { message = $"Existed topicId ({topicId}) with userId ({userId})." });
+            }
 
             return Created("", null);
         }
 
 
         // DELETE: api/Users/5/Topics/Followed/5
-        [HttpDelete("{userId}/Topics/Followed/{id}")]
+        [HttpDelete("{userId}/Topics/Followed/{topicId}")]
         public async Task<IActionResult> DeleteTopicFollowed(int userId, int topicId)
         {
             var topic = await _context.FollowedTopics

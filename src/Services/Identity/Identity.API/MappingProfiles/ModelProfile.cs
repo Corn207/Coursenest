@@ -8,7 +8,7 @@ public class ModelProfile : Profile
 {
     public ModelProfile()
     {
-        CreateMap<Image, ImageResponse>()
+        CreateMap<Avatar, ImageResponse>()
             .ForCtorParam(
                 nameof(ImageResponse.URI),
                 options => options.MapFrom(src => $"data:{src.MediaType};base64," + Convert.ToBase64String(src.Data)));
@@ -18,7 +18,7 @@ public class ModelProfile : Profile
         CreateMap<User, UserProfileResponse>()
             .ForCtorParam(
                 nameof(UserProfileResponse.Avatar),
-                option => option.MapFrom(src => src.AvatarImage))
+                option => option.MapFrom(src => src.Avatar))
             .ForCtorParam(
                 nameof(UserProfileResponse.InterestedTopicIds),
                 option => option.MapFrom(src => src.InterestedTopics.Select(x => x.TopicId)))
@@ -29,12 +29,12 @@ public class ModelProfile : Profile
         CreateMap<User, UserInfoResponse>()
             .ForCtorParam(
                 nameof(UserInfoResponse.Avatar),
-                option => option.MapFrom(src => src.AvatarImage));
+                option => option.MapFrom(src => src.Avatar));
 
         CreateMap<User, UserInstructorResponse>()
             .ForCtorParam(
                 nameof(UserInstructorResponse.Avatar),
-                option => option.MapFrom(src => src.AvatarImage));
+                option => option.MapFrom(src => src.Avatar));
 
         CreateMap<User, UserResponse>();
 

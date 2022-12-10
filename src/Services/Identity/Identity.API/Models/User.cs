@@ -1,5 +1,9 @@
-﻿namespace Identity.API.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Policy;
 
+namespace Identity.API.Models;
+
+[Index(nameof(Email), IsUnique = true)]
 public class User
 {
     public User(string email, string fullName)
@@ -21,8 +25,7 @@ public class User
     public DateTime LastModified { get; set; }
 
     // Relationship
-    public int? AvatarImageId { get; set; }
-    public Image? AvatarImage { get; set; } = null!;
+    public Avatar? Avatar { get; set; } = null!;
 
     public List<Experience> Experiences { get; set; } = new();
 

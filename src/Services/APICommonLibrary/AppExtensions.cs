@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace APICommonLibrary;
 public static class AppExtensions
 {
-    public static TContext OverwriteDatabase<TContext>(this IServiceProvider service, Action<TContext>? context = null) where TContext : DbContext
+    public static TContext EnsureOverwrite<TContext>(this IServiceProvider service, Action<TContext>? context = null) where TContext : DbContext
     {
         using var scope = service.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TContext>();
