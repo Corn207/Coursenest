@@ -1,0 +1,23 @@
+_id: req_8a7dd53771c74514b0ae4b1461e2d8cd
+type: Request
+parentId: fld_9ce42241adcd4d378c06a98d1bcc9140
+modified: 1671775498890
+created: 1671775347885
+url: http://localhost:21000/auth/logout
+name: usrbasic
+description: ""
+method: POST
+body: {}
+parameters: []
+headers: []
+authentication:
+  type: bearer
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIxIiwiZXhwIjoxNjcxNzcxNzk0fQ.f4EJU-yfNV41iFuYbJuIrSGlDIsWEJtjV7dMVchSuSE
+metaSortKey: -1671756403563.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

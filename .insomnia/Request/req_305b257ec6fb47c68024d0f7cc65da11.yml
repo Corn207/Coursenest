@@ -1,0 +1,24 @@
+_id: req_305b257ec6fb47c68024d0f7cc65da11
+type: Request
+parentId: fld_9ce42241adcd4d378c06a98d1bcc9140
+modified: 1671778403539
+created: 1671774239365
+url: http://localhost:21000/auth/logout
+name: usrfull
+description: ""
+method: POST
+body: {}
+parameters: []
+headers: []
+authentication:
+  type: bearer
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI3IiwiUm9sZXMiOlsiU3R1ZGVudCIsIkluc3RydWN0b3IiLCJQdWJsaXNoZXIiLCJBZG1pbiJdLCJleHAiOjE2NzE3NzQ3MDR9.kRUcg2f_4pTmXruPv7MEidhO_PRVsNzkjJN9kLWJP5g
+  prefix: ""
+metaSortKey: -1671774239365
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

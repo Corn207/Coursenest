@@ -1,0 +1,21 @@
+_id: req_83c7ef32c9f64fa0a2c54157caf378d8
+type: Request
+parentId: fld_9ce42241adcd4d378c06a98d1bcc9140
+modified: 1671775369207
+created: 1671775360659
+url: http://localhost:21000/auth/logout
+name: no token
+description: ""
+method: POST
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: -1671747485662.75
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

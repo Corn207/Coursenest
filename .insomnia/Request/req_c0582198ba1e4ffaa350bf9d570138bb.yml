@@ -1,0 +1,29 @@
+_id: req_c0582198ba1e4ffaa350bf9d570138bb
+type: Request
+parentId: fld_d272c89ab71a4bc69073050f70e274c5
+modified: 1671774011422
+created: 1671738567762
+url: http://localhost:21000/auth/login
+name: usrfull
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"username": "usrfull",
+    	"password": "pwd"
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication: {}
+metaSortKey: -1671738567762
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,0 +1,29 @@
+_id: req_9a6b08d02a7e41faa73928c372ab73d8
+type: Request
+parentId: fld_d272c89ab71a4bc69073050f70e274c5
+modified: 1671775336945
+created: 1671775331702
+url: http://localhost:21000/auth/login
+name: usrbasic
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"username": "usrbasic",
+    	"password": "pwd"
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication: {}
+metaSortKey: -1671738567712
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
