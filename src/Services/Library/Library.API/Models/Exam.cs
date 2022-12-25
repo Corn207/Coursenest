@@ -8,7 +8,6 @@ public class Exam : Unit
     {
     }
 
-    public TimeSpan TimeLimit { get; set; }
 
     // Relationship
     public List<Question> Questions { get; set; } = new();

@@ -8,5 +8,4 @@ public class Material : Unit
     }
 
     public string Content { get; set; }
-    public TimeSpan ApproximateTime { get; set; }
 }

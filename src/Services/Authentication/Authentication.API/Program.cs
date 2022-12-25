@@ -1,19 +1,30 @@
 using APICommonLibrary;
+using APICommonLibrary.Options;
 using Authentication.API.Contexts;
-using Authentication.API.Models;
+using Authentication.API.Options;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddDbContext<DbContext, DataContext>();
 builder.Services.AddControllers();
-builder.Services.AddDbContext<DataContext>(options =>
+
+builder.Services.AddOptions<ConnectionOptions>()
+	.Bind(builder.Configuration.GetSection(ConnectionOptions.SectionName))
+	.ValidateDataAnnotations();
+builder.Services.AddOptions<DatabaseOptions>()
+	.Bind(builder.Configuration.GetSection(DatabaseOptions.SectionName))
+	.ValidateDataAnnotations();
+builder.Services.AddOptions<JwtOptions>()
+	.Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
+	.ValidateDataAnnotations();
+
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddMassTransit(x =>
 {
-    options.UseSqlServer(builder.Configuration["ConnectionStrings"], builder =>
-    {
-        //builder.EnableRetryOnFailure(1, TimeSpan.FromSeconds(3), null);
-    });
+	x.UsingConfiguredRabbitMq(builder.Configuration);
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -24,25 +35,14 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-    app.Services.OverwriteDatabase<DataContext>(context =>
-    {
-        var cred = new Credential("testUser", "testPass")
-        {
-            UserId = 1
-        };
-        cred.Roles.Add(new Role() { Expiry = DateTime.Now, Type = RoleType.Student });
-
-        context.Credentials.Add(cred);
-        context.SaveChanges();
-    });
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
-
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Services.Startup();
 
 app.Run();

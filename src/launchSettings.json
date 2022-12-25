@@ -1,0 +1,43 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "authentication.api": "StartDebugging",
+        "gatewayapi": "StartDebugging",
+        "database": "StartWithoutDebugging",
+        "messagebus": "StartWithoutDebugging",
+        "identity.api": "StartDebugging"
+      }
+    },
+    "AuthAPI GW": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "authentication.api",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "authentication.api": "StartDebugging",
+        "database": "StartWithoutDebugging",
+        "gatewayapi": "StartDebugging",
+        "messagebus": "StartWithoutDebugging",
+        "identity.api": "DoNotStart"
+      }
+    },
+    "AuthAPI Integration": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "authentication.api",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "authentication.api": "StartDebugging",
+        "database": "StartWithoutDebugging",
+        "gatewayapi": "StartDebugging",
+        "identity.api": "StartDebugging",
+        "messagebus": "StartWithoutDebugging"
+      }
+    }
+  }
+}

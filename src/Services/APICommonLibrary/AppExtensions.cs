@@ -1,29 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using APICommonLibrary.Options;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace APICommonLibrary;
 public static class AppExtensions
 {
-    public static TContext EnsureOverwrite<TContext>(this IServiceProvider service, Action<TContext>? context = null) where TContext : DbContext
-    {
-        using var scope = service.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<TContext>();
+	public static void Startup(this IServiceProvider service)
+	{
+		using var scope = service.CreateScope();
+		var context = scope.ServiceProvider.GetRequiredService<DbContext>();
+		var databaseOptions = service.GetRequiredService<IOptions<DatabaseOptions>>();
 
-        db.Database.EnsureDeleted();
-        db.Database.EnsureCreated();
-
-        context?.Invoke(db);
-        return db;
-    }
-
-    public static TContext EnsureCreated<TContext>(this IServiceProvider service, Action<TContext>? context = null) where TContext : DbContext
-    {
-        using var scope = service.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<TContext>();
-
-        db.Database.EnsureCreated();
-
-        context?.Invoke(db);
-        return db;
-    }
+		if (databaseOptions.Value.Overwrite)
+		{
+			context.Database.EnsureDeleted();
+			context.Database.EnsureCreated();
+		}
+		else if (databaseOptions.Value.Create)
+		{
+			context.Database.EnsureCreated();
+		}
+	}
 }

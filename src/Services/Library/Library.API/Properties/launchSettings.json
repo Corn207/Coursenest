@@ -23,6 +23,28 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "publishAllPorts": true
+    },
+    "EnsureOverwrite": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "EnsureOverwrite": "True"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5250"
+    },
+    "EnsureCreated": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "EnsureCreated": "True"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5250"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",

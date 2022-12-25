@@ -17,7 +17,7 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payment.API", "Services\Payment\Payment.API\Payment.API.csproj", "{5A4FFA1E-842A-4C02-A579-40C358D8C1D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APICommonLibrary", "Services\APICommonLibrary\APICommonLibrary.csproj", "{37A3B8C6-9610-4B70-9AC9-662108D1C74C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APICommonLibrary", "Services\APICommonLibrary\APICommonLibrary.csproj", "{37A3B8C6-9610-4B70-9AC9-662108D1C74C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,6 @@
-﻿namespace Identity.API.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Identity.API.Models;
 
 public class Avatar
 {
@@ -8,11 +10,11 @@ public class Avatar
         Data = data;
     }
 
-    public int AvatarId { get; set; }
     public string MediaType { get; set; }
     public byte[] Data { get; set; }
 
     // Relationship
+    [Key]
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 }

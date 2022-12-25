@@ -15,19 +15,22 @@ public class Course
     public string Title { get; set; }
     public string Description { get; set; }
     public string About { get; set; }
-    public DateTime LastUpdated { get; set; }
     public CourseTier Tier { get; set; }
     public bool IsApproved { get; set; }
+    public DateTime Created { get; set; }
+    public DateTime LastModified { get; set; }
 
     // Relationship
     public int TopicId { get; set; }
     public Topic Topic { get; set; } = null!;
 
-    public int PublisherUserId { get; set; }
-
     public Image Image { get; set; } = null!;
 
     public List<Lesson> Lessons { get; set; } = new();
+
+    public List<Rating> Ratings { get; set; } = new();
+
+    public int PublisherUserId { get; set; }
 }
 
 public enum CourseTier

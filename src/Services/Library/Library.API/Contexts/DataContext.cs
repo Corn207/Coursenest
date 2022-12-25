@@ -19,4 +19,5 @@ public class DataContext : DbContext
     public DbSet<Question> Questions { get; set; }
     public DbSet<Choice> Choices { get; set; }
     public DbSet<Image> Images { get; set; }
+    public DbSet<Rating> Ratings { get; set; }
 }

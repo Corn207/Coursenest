@@ -1,4 +1,6 @@
-﻿namespace Library.API.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Library.API.Models;
 
 public class Image
 {
@@ -8,7 +10,11 @@ public class Image
         Data = data;
     }
 
-    public int Id { get; set; }
     public string MediaType { get; set; }
     public byte[] Data { get; set; }
+
+    // Relationship
+    [Key]
+    public int CourseId { get; set; }
+    public Course Course { get; set; } = null!;
 }

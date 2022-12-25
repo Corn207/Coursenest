@@ -4,23 +4,42 @@ services:
   gatewayapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - Jwt__Key=Yh2k7QSu4l8CZg5p
     ports:
-      - "80"
-      - "443"
+      - "21000:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-  #library.api:
-  #  environment:
-  #    - ASPNETCORE_ENVIRONMENT=Development
-  #  ports:
-  #    - "80"
-
 
   authentication.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Connections__Database=Server=database;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - Connections__MessageBus=messagebus
+      - Database__Overwrite=true
+      - Database__Seed=true
+      - Jwt__SecretKey=1234567890123456
+      - Jwt__AccessTokenLifetime=10
+      - Jwt__RefreshTokenLifetime=60
     ports:
-      - "80"
+      - "21001:80"
 
+  identity.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Connections__Database=Server=database;Database=IdentityDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - Connections__MessageBus=messagebus
+      - Database__Overwrite=true
+      - Database__Seed=true
+    ports:
+      - "21002:80"
+
+  database:
+    environment:
+      - MSSQL_SA_PASSWORD=Pass@word
+    ports:
+      - "1433:1433"
+
+  messagebus:
+    ports:
+      - "5672:5672"
+      - "15672:15672"

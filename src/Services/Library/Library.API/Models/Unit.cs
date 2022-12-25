@@ -6,16 +6,17 @@ namespace Library.API.Models;
 [Table("Units")]
 public abstract class Unit
 {
-    public Unit(string title)
-    {
-        Title = title;
-    }
+	public Unit(string title)
+	{
+		Title = title;
+	}
 
-    public int UnitId { get; set; }
-    public string Title { get; set; }
-    public int OrderIndex { get; set; }
+	public int UnitId { get; set; }
+	public string Title { get; set; }
+	public int OrderIndex { get; set; }
+	public TimeSpan RequiredTime { get; set; }
 
-    // Relationship
-    public int LessonId { get; set; }
-    public Lesson Lesson { get; set; } = null!;
+	// Relationship
+	public int LessonId { get; set; }
+	public Lesson Lesson { get; set; } = null!;
 }

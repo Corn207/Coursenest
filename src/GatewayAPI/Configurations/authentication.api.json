@@ -1,0 +1,64 @@
+﻿{
+  "Routes": [
+    {
+      "UpstreamPathTemplate": "/auth/login",
+      "UpstreamHttpMethod": [ "POST" ],
+
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "authentication.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/authenticate/login"
+    },
+    {
+      "UpstreamPathTemplate": "/auth/logout",
+      "UpstreamHttpMethod": [ "POST" ],
+
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "authentication.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/authenticate/logout",
+
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Roles": "Admin"
+      },
+      "AddHeadersToRequest": {
+        "UserId": "Claims[UserId] > value"
+      }
+    },
+
+    {
+      "UpstreamPathTemplate": "/profile",
+      "UpstreamHttpMethod": [ "POST" ],
+
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "authentication.api",
+          "Port": 80
+        }
+      ],
+      "DownstreamPathTemplate": "/user/full?userid={id}",
+
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+
+      "ChangeDownstreamPathTemplate": {
+        "id": "Claims[UserId] > value"
+      }
+    }
+  ]
+}

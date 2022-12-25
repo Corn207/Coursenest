@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  gatewayapi:
+    environment:
+      - Jwt__Key=Yh2k7QSu4l8CZg5p
+    ports:
+      - "21000:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+
+  authentication.api:
+    environment:
+      - ConnectionStrings=Server=sqldata;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - Jwt__Key=Yh2k7QSu4l8CZg5p
+      - Jwt__Lifetime=5
+
+  sqldata:
+    environment:
+      - MSSQL_SA_PASSWORD=Pass@word
