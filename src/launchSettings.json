@@ -8,21 +8,8 @@
         "gatewayapi": "StartDebugging",
         "database": "StartWithoutDebugging",
         "messagebus": "StartWithoutDebugging",
-        "identity.api": "StartDebugging"
-      }
-    },
-    "AuthAPI GW": {
-      "commandName": "DockerCompose",
-      "commandVersion": "1.0",
-      "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "authentication.api",
-      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
-      "serviceActions": {
-        "authentication.api": "StartDebugging",
-        "database": "StartWithoutDebugging",
-        "gatewayapi": "StartDebugging",
-        "messagebus": "StartWithoutDebugging",
-        "identity.api": "DoNotStart"
+        "identity.api": "StartDebugging",
+        "library.api": "StartDebugging"
       }
     },
     "AuthAPI Integration": {
@@ -34,8 +21,24 @@
       "serviceActions": {
         "authentication.api": "StartDebugging",
         "database": "StartWithoutDebugging",
-        "gatewayapi": "StartDebugging",
-        "identity.api": "StartDebugging",
+        "gatewayapi": "DoNotStart",
+        "identity.api": "DoNotStart",
+        "messagebus": "StartWithoutDebugging",
+        "library.api": "StartDebugging"
+      }
+    },
+    "Library.API": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "library.api",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "authentication.api": "DoNotStart",
+        "database": "StartWithoutDebugging",
+        "gatewayapi": "DoNotStart",
+        "identity.api": "DoNotStart",
+        "library.api": "StartDebugging",
         "messagebus": "StartWithoutDebugging"
       }
     }

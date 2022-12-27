@@ -1,38 +1,21 @@
 {
-  "profiles": {
-    "Authentication.API": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5283"
-    },
-    "Docker": {
-      "commandName": "Docker",
-      "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-      "publishAllPorts": true
-    },
-    "Seed Data": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "Connections__Database": "Server=localhost;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;",
-        "Connections__MessageBus": "localhost",
-        "Database__Overwrite": "true",
-        "Database__Seed": "true",
-        "Jwt__SecretKey": "12345678",
-        "Jwt__AccessTokenLifetime": "10",
-        "Jwt__RefreshTokenLifetime": "60"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5283"
-    }
-  },
-  "$schema": "https://json.schemastore.org/launchsettings.json"
+	"profiles": {
+		"Authentication.API": {
+			"commandName": "Project",
+			"launchBrowser": true,
+			"launchUrl": "swagger",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+			"dotnetRunMessages": true,
+			"applicationUrl": "http://localhost:5283"
+		},
+		"Docker": {
+			"commandName": "Docker",
+			"launchBrowser": true,
+			"launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+			"publishAllPorts": true
+		}
+	},
+	"$schema": "https://json.schemastore.org/launchsettings.json"
 }

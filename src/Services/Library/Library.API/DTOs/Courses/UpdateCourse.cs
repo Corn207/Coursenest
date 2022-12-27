@@ -1,0 +1,18 @@
+﻿using Library.API.Infrastructure.Entities;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Library.API.DTOs.Courses;
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+public record UpdateCourse
+{
+	public string? Title { get; set; }
+	public string? Description { get; set; }
+	public string? About { get; set; }
+	public CourseTier? Tier { get; set; }
+	public int? TopicId { get; set; }
+
+	[FromHeader]
+	public int PublisherUserId { get; set; }
+}

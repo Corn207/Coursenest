@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace APICommonLibrary.Options;
+
+#nullable disable
+
 public class ConnectionOptions
 {
-	public const string SectionName = "Connections";
-
-	public string Database { get; set; } = string.Empty;
-
-	public string MessageBus { get; set; } = string.Empty;
+	[Required]
+	public string Database { get; set; }
+	[Required]
+	public string MessageBus { get; set; }
 }

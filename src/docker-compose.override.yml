@@ -7,14 +7,12 @@ services:
       - Jwt__Key=Yh2k7QSu4l8CZg5p
     ports:
       - "21000:80"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
 
   authentication.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Connections__Database=Server=database;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Connections__MessageBus=messagebus
+      - Connection__Database=Server=database;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - Connection__MessageBus=messagebus
       - Database__Overwrite=true
       - Database__Seed=true
       - Jwt__SecretKey=1234567890123456
@@ -26,12 +24,22 @@ services:
   identity.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Connections__Database=Server=database;Database=IdentityDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Connections__MessageBus=messagebus
+      - Connection__Database=Server=database;Database=IdentityDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - Connection__MessageBus=messagebus
       - Database__Overwrite=true
       - Database__Seed=true
     ports:
       - "21002:80"
+
+  library.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Connection__Database=Server=database;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - Connection__MessageBus=messagebus
+      - Database__Overwrite=true
+      - Database__Seed=true
+    ports:
+      - "21003:80"
 
   database:
     environment:

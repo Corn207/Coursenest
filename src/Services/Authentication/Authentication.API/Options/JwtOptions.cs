@@ -2,6 +2,8 @@
 
 namespace Authentication.API.Options;
 
+#nullable disable
+
 public class JwtOptions
 {
 	public const string SectionName = "Jwt";
@@ -9,7 +11,7 @@ public class JwtOptions
 	[Required]
 	[RegularExpression(@"^[a-zA-Z0-9]{8,32}$",
 		ErrorMessage = "Value for {0} must be ^[a-zA-Z0-9]{8,32}$.")]
-	public string SecretKey { get; set; } = string.Empty;
+	public string SecretKey { get; set; }
 
 	[Required]
 	[Range(1, int.MaxValue,

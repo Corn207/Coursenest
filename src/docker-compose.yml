@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   gatewayapi:
-    image: gatewayapi
+    image: ${DOCKER_REGISTRY-}gatewayapi
     build:
       context: .
       dockerfile: GatewayAPI/Dockerfile
@@ -11,7 +11,7 @@ services:
       - backend
 
   authentication.api:
-    image: authenticationapi
+    image: ${DOCKER_REGISTRY-}authenticationapi
     build:
       context: .
       dockerfile: Services/Authentication/Authentication.API/Dockerfile
@@ -22,10 +22,21 @@ services:
       - messagebus
 
   identity.api:
-    image: identityapi
+    image: ${DOCKER_REGISTRY-}identityapi
     build:
       context: .
       dockerfile: Services/Identity/Identity.API/Dockerfile
+    networks:
+      - backend
+    depends_on:
+      - database
+      - messagebus
+
+  library.api:
+    image: ${DOCKER_REGISTRY-}libraryapi
+    build:
+      context: .
+      dockerfile: Services/Library/Library.API/Dockerfile
     networks:
       - backend
     depends_on:
@@ -48,3 +59,4 @@ services:
 networks:
   frontend:
   backend:
+

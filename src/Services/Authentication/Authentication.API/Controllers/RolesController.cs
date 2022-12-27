@@ -1,87 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Authentication.API.DTOs;
+using Authentication.API.Infrastructure.Contexts;
+using Authentication.API.Infrastructure.Entities;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Authentication.API.Contexts;
-using Authentication.API.Models;
-using Authentication.API.DTOs;
-using AutoMapper;
-using System.Composition;
 
 namespace Authentication.API.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("[controller]")]
 	[ApiController]
 	public class RolesController : ControllerBase
 	{
-		private readonly DataContext _context;
 		private readonly IMapper _mapper;
+		private readonly DataContext _context;
 
-		public RolesController(DataContext context, IMapper mapper)
+		public RolesController(IMapper mapper, DataContext context)
 		{
-			_context = context;
 			_mapper = mapper;
+			_context = context;
 		}
 
 
-		// GET: api/Roles/5
+		// GET: /roles/5
 		[HttpGet("{userId}")]
-		public async Task<ActionResult<IEnumerable<RoleDTO>>> GetRoles(int userId)
+		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAll(int userId)
 		{
-			var cred = await _context.Credentials
-				.FindAsync(userId);
-			if (cred == null) return NotFound();
+			var exist = await _context.Credentials
+				.AsNoTracking()
+				.AnyAsync(x => x.UserId == userId);
+			if (!exist) return NotFound();
 
-			await _context.Entry(cred)
-				.Collection(x => x.Roles)
-				.LoadAsync();
+			var results = await _context.Roles
+				.AsNoTracking()
+				.Where(x => x.CredentialUserId == userId)
+				.Select(x => _mapper.Map<RoleResult>(x))
+				.ToListAsync();
 
-			return Ok(cred.Roles.Select(x => _mapper.Map<RoleDTO>(x)));
+			return Ok(results);
+		}
+
+		// GET: /roles/me
+		[HttpGet("me")]
+		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAllMe([FromHeader] int userId)
+		{
+			var exist = await _context.Credentials
+				.AsNoTracking()
+				.AnyAsync(x => x.UserId == userId);
+			if (!exist) return NotFound();
+
+			var results = await _context.Roles
+				.AsNoTracking()
+				.Where(x => x.CredentialUserId == userId)
+				.Select(x => _mapper.Map<RoleResult>(x))
+				.ToListAsync();
+
+			return Ok(results);
 		}
 
 
-		// PUT: api/Roles/5
-		[HttpPut("{userId}")]
-		public async Task<IActionResult> PutRole(int userId, IEnumerable<RoleDTO> dTOs)
+		// POST: /roles/5
+		[HttpPost("{credentialUserId}")]
+		public async Task<ActionResult> Set(SetRole dto)
 		{
-			var cred = await _context.Credentials
-				.FindAsync(userId);
-			if (cred == null) return NotFound();
+			var exist = await _context.Credentials
+				.AsNoTracking()
+				.AnyAsync(x => x.UserId == dto.CredentialUserId);
+			if (!exist) return NotFound();
 
-			await _context.Entry(cred)
-				.Collection(x => x.Roles)
-				.LoadAsync();
-
-			foreach (var dTO in dTOs)
-			{
-				var role = cred.Roles.FirstOrDefault(x => x.Type == dTO.Type);
-				if (role == null)
-				{
-					role = new Role() { CredentialUserId = userId };
-					cred.Roles.Add(role);
-				}
-
-				role.Expiry = dTO.Expiry;
-			}
+			var result = _mapper.Map<Role>(dto);
+			_context.Update(result);
 
 			await _context.SaveChangesAsync();
 
-			return NoContent();
-		}
-
-
-		// DELETE: api/Roles/5
-		[HttpDelete("{userId}")]
-		public async Task<IActionResult> DeleteRole(int userId, RoleType type)
-		{
-			var affected = await _context.Roles
-				.Where(x => x.CredentialUserId == userId && x.Type == type)
-				.ExecuteDeleteAsync();
-
-			return affected > 0 ? NoContent() : NotFound();
+			return CreatedAtAction(nameof(GetAll), dto.CredentialUserId, result);
 		}
 	}
 }
