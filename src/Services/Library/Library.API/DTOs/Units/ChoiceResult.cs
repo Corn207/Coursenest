@@ -1,8 +1,9 @@
-﻿namespace Library.API.DTOs.Courses;
+﻿namespace Library.API.DTOs.Units;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-public record RatingStatResult
+
+public record ChoiceResult
 {
-	public double AverageStars { get; set; }
-	public int Total { get; set; }
+	public string Content { get; set; }
+	public bool IsCorrect { get; set; }
 }

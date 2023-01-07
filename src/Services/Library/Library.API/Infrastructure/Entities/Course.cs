@@ -12,6 +12,8 @@ public class Course
 	public bool IsApproved { get; set; }
 	public DateTime Created { get; set; }
 	public DateTime LastModified { get; set; }
+	public float RatingAverage { get; set; }
+	public int RatingTotal { get; set; }
 
 	// Relationship
 	public int? TopicId { get; set; }

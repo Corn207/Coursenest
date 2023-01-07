@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace APICommonLibrary.Validations;
 
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter, AllowMultiple = false)]
 public class MaxSizeAttribute : ValidationAttribute
 {
 	private static readonly string[] suffixes = { "B", "KB", "MB", "GB", "TB" };

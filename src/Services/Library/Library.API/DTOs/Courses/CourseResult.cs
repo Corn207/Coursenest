@@ -10,6 +10,7 @@ public record CourseResult
 	public string Title { get; set; }
 	public string Description { get; set; }
 	public CourseTier Tier { get; set; }
-	public ImageResult Cover { get; set; }
-	public RatingStatResult RatingStat { get; set; }
+	public ImageResult? Cover { get; set; }
+	public float RatingAverage { get; set; }
+	public int RatingTotal { get; set; }
 }

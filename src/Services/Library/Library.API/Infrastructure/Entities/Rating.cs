@@ -8,16 +8,11 @@ namespace Library.API.Infrastructure.Entities;
 public class Rating
 {
 	public int Stars { get; set; }
-
 	public string Content { get; set; }
-
 	public DateTime Created { get; set; }
 
 	// Relationship
 	public int CourseId { get; set; }
-
 	public Course Course { get; set; }
-
-	// External
 	public int UserId { get; set; }
 }

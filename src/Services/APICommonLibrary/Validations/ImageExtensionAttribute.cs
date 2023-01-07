@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace APICommonLibrary.Validations;
 
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter, AllowMultiple = false)]
 public class ImageExtensionAttribute : ValidationAttribute
 {
 	protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)

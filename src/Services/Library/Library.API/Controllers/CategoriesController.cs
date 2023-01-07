@@ -27,63 +27,66 @@ namespace Library.API.Controllers
 		{
 			var results = await _context.Categories
 				.AsNoTracking()
-				.Include(x => x.Subcategories)
-				.ThenInclude(x => x.Topics)
+				.Select(x => _mapper.Map<CategoryResult>(x))
 				.ToListAsync();
 
-			return Ok(results.Select(x => _mapper.Map<CategoryResult>(x)));
+			return Ok(results);
 		}
-
 
 		// GET: /categories
 		[HttpGet()]
-		public async Task<ActionResult<IEnumerable<CategoryResult>>> GetAll()
+		public async Task<ActionResult<IEnumerable<IdContentResult>>> GetAll()
 		{
 			var results = await _context.Categories
 				.AsNoTracking()
+				.Select(x => _mapper.Map<IdContentResult>(x))
 				.ToListAsync();
 
-			return Ok(results.Select(x => _mapper.Map<CategoryResult>(x)));
+			return Ok(results);
 		}
-
 
 		// GET: /categories/5
 		[HttpGet("{categoryId}")]
-		public async Task<ActionResult<CategoryResult>> Get(int categoryId)
+		public async Task<ActionResult<IdContentResult>> Get(int categoryId)
 		{
 			var result = await _context.Categories
 				.AsNoTracking()
-				.Include(x => x.Subcategories)
-				.FirstOrDefaultAsync(x => x.CategoryId == categoryId);
+				.Where(x => x.CategoryId == categoryId)
+				.Select(x => _mapper.Map<IdContentResult>(x))
+				.FirstOrDefaultAsync();
+			if (result == null) return NotFound();
 
-			return _mapper.Map<CategoryResult>(result);
+			return result;
 		}
 
 
 		// POST: /categories
 		[HttpPost]
-		public async Task<ActionResult> Create(string content)
+		public async Task<ActionResult<IdContentResult>> Create(string content)
 		{
-			var result = new Category() { Content = content };
+			var category = new Category() { Content = content };
 
-			_context.Categories.Add(result);
+			_context.Categories.Add(category);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), result.CategoryId, result);
+			return CreatedAtAction(nameof(Get), category.CategoryId,
+				_mapper.Map<IdContentResult>(category));
 		}
 
 
 		// PUT: /categories/5
 		[HttpPut("{categoryId}")]
-		public async Task<ActionResult> Update(int categoryId, string content)
+		public async Task<ActionResult<IdContentResult>> Update(int categoryId, string content)
 		{
-			var result = await _context.Categories.FindAsync(categoryId);
-			if (result == null) return NotFound();
+			var category = await _context.Categories.FindAsync(categoryId);
+			if (category == null) return NotFound();
 
-			result.Content = content;
+			category.Content = content;
 			await _context.SaveChangesAsync();
 
-			return NoContent();
+			var result = _mapper.Map<IdContentResult>(category);
+
+			return result;
 		}
 
 
@@ -104,54 +107,59 @@ namespace Library.API.Controllers
 
 		// GET: /subcategories
 		[HttpGet("/subcategories")]
-		public async Task<ActionResult<IEnumerable<SubcategoryResult>>> GetAllSubcategory()
+		public async Task<ActionResult<IEnumerable<IdContentResult>>> GetAllSubcategory(int categoryId)
 		{
 			var results = await _context.Subcategories
 				.AsNoTracking()
+				.Where(x => x.CategoryId == categoryId)
+				.Select(x => _mapper.Map<IdContentResult>(x))
 				.ToListAsync();
 
-			return Ok(results.Select(x => _mapper.Map<SubcategoryResult>(x)));
+			return Ok(results);
 		}
-
 
 		// GET: /subcategories/5
 		[HttpGet("/subcategories/{subcategoryId}")]
-		public async Task<ActionResult<SubcategoryDetailedResult>> GetSubcategory(int subcategoryId)
+		public async Task<ActionResult<IdContentResult>> GetSubcategory(int subcategoryId)
 		{
 			var result = await _context.Subcategories
 				.AsNoTracking()
-				.Include(x => x.Category)
-				.Include(x => x.Topics)
-				.FirstOrDefaultAsync(x => x.SubcategoryId == subcategoryId);
+				.Where(x => x.CategoryId == subcategoryId)
+				.Select(x => _mapper.Map<IdContentResult>(x))
+				.FirstOrDefaultAsync();
+			if (result == null) return NotFound();
 
-			return _mapper.Map<SubcategoryDetailedResult>(result);
+			return result;
 		}
 
 
 		// POST: /subcategories
 		[HttpPost("/subcategories")]
-		public async Task<ActionResult> CreateSubcategory(CreateSubcategory dto)
+		public async Task<ActionResult<IdContentResult>> CreateSubcategory(CreateParentIdContent dto)
 		{
-			var result = new Subcategory() { Content = dto.Content, CategoryId = dto.CategoryId };
+			var subcategory = new Subcategory() { Content = dto.Content, CategoryId = dto.ParentId };
 
-			_context.Subcategories.Add(result);
+			_context.Subcategories.Add(subcategory);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetSubcategory), result.SubcategoryId, result);
+			return CreatedAtAction(nameof(GetSubcategory), subcategory.SubcategoryId,
+				_mapper.Map<IdContentResult>(subcategory));
 		}
 
 
 		// PUT: /subcategories/5
 		[HttpPut("/subcategories/{subcategoryId}")]
-		public async Task<ActionResult> UpdateSubcategory(int subcategoryId, string content)
+		public async Task<ActionResult<IdContentResult>> UpdateSubcategory(int subcategoryId, string content)
 		{
-			var result = await _context.Subcategories.FindAsync(subcategoryId);
-			if (result == null) return NotFound();
+			var subcategory = await _context.Subcategories.FindAsync(subcategoryId);
+			if (subcategory == null) return NotFound();
 
-			result.Content = content;
+			subcategory.Content = content;
 			await _context.SaveChangesAsync();
 
-			return NoContent();
+			var result = _mapper.Map<IdContentResult>(subcategory);
+
+			return result;
 		}
 
 
@@ -169,18 +177,18 @@ namespace Library.API.Controllers
 
 
 
-
 		// GET: /topics
 		[HttpGet("/topics")]
-		public async Task<ActionResult<IEnumerable<TopicResult>>> GetAllTopic()
+		public async Task<ActionResult<IEnumerable<IdContentResult>>> GetAllTopic(int subcategoryId)
 		{
 			var results = await _context.Topics
 				.AsNoTracking()
+				.Where(x => x.SubcategoryId == subcategoryId)
+				.Select(x => _mapper.Map<IdContentResult>(x))
 				.ToListAsync();
 
-			return Ok(results.Select(x => _mapper.Map<TopicResult>(x)));
+			return Ok(results);
 		}
-
 
 		// GET: /topics/5
 		[HttpGet("/topics/{topicId}")]
@@ -188,38 +196,42 @@ namespace Library.API.Controllers
 		{
 			var result = await _context.Topics
 				.AsNoTracking()
-				.Include(x => x.Subcategory)
-				.ThenInclude(x => x.Category)
-				.FirstOrDefaultAsync(x => x.TopicId == topicId);
+				.Where(x => x.TopicId == topicId)
+				.Select(x => _mapper.Map<TopicDetailedResult>(x))
+				.FirstOrDefaultAsync();
+			if (result == null) return NotFound();
 
-			return _mapper.Map<TopicDetailedResult>(result);
+			return result;
 		}
 
 
 		// POST: /topics
 		[HttpPost("/topics")]
-		public async Task<ActionResult> CreateTopic(CreateTopic dto)
+		public async Task<ActionResult<IdContentResult>> CreateTopic(CreateParentIdContent dto)
 		{
-			var result = new Topic() { Content = dto.Content, SubcategoryId = dto.SubcategoryId };
+			var topic = new Topic() { Content = dto.Content, SubcategoryId = dto.ParentId };
 
-			_context.Topics.Add(result);
+			_context.Topics.Add(topic);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetTopic), result.TopicId, result);
+			return CreatedAtAction(nameof(GetTopic), topic.TopicId,
+				_mapper.Map<IdContentResult>(topic));
 		}
 
 
 		// PUT: /topics/5
 		[HttpPut("/topics/{topicId}")]
-		public async Task<ActionResult> UpdateTopic(int topicId, string content)
+		public async Task<ActionResult<IdContentResult>> UpdateTopic(int topicId, string content)
 		{
-			var result = await _context.Topics.FindAsync(topicId);
-			if (result == null) return NotFound();
+			var topic = await _context.Topics.FindAsync(topicId);
+			if (topic == null) return NotFound();
 
-			result.Content = content;
+			topic.Content = content;
 			await _context.SaveChangesAsync();
 
-			return NoContent();
+			var result = _mapper.Map<IdContentResult>(topic);
+
+			return result;
 		}
 
 

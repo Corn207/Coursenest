@@ -14,5 +14,6 @@ public record CourseDetailedResult
 	public DateTime LastModified { get; set; }
 	public int? TopicId { get; set; }
 	public int PublisherUserId { get; set; }
-	// TODO [Courses.DetailedResult] Summary every Units
+	public float RatingAverage { get; set; }
+	public int RatingTotal { get; set; }
 }

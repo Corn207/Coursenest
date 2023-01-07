@@ -6,7 +6,5 @@ public record SubcategoryResult
 {
 	public int SubcategoryId { get; set; }
 	public string Content { get; set; }
-
-	// Relationship
-	public List<TopicResult> Topics { get; set; }
+	public List<IdContentResult> Topics { get; set; }
 }

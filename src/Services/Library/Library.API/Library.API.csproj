@@ -31,8 +31,4 @@
 	<ProjectReference Include="..\..\APICommonLibrary\APICommonLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-	<Folder Include="DTOs\Lessons\" />
-  </ItemGroup>
-
 </Project>
