@@ -4,6 +4,6 @@
 
 public record AccessTokenResult
 {
-	public string Token { get; set; }
-	public DateTime Expiry { get; set; }
+	public string AccessToken { get; set; }
+	public DateTime AccessTokenExpiry { get; set; }
 }

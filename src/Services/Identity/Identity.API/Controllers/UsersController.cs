@@ -1,5 +1,6 @@
 ﻿using APICommonLibrary.Constants;
 using APICommonLibrary.MessageBus.Commands;
+using APICommonLibrary.Validations;
 using AutoMapper;
 using Identity.API.DTOs;
 using Identity.API.Infrastructure.Contexts;
@@ -44,7 +45,8 @@ namespace Identity.API.Controllers
 
 		// GET: /users/5
 		[HttpGet("{userId}")]
-		public async Task<ActionResult<UserResult>> Get(int userId)
+		public async Task<ActionResult<UserResult>> Get(
+			int userId)
 		{
 			var result = await _context.Users
 				.AsNoTracking()
@@ -58,7 +60,8 @@ namespace Identity.API.Controllers
 
 		// GET: /users/5/profile
 		[HttpGet("{userId}/profile")]
-		public async Task<ActionResult<UserProfileResult>> GetProfile(int userId)
+		public async Task<ActionResult<UserProfileResult>> GetProfile(
+			int userId)
 		{
 			var exist = await _context.Users
 				.AsNoTracking()
@@ -79,7 +82,8 @@ namespace Identity.API.Controllers
 
 		// GET: /users/5/instructor
 		[HttpGet("{userId}/instructor")]
-		public async Task<ActionResult<UserInstructorResult>> GetInstructor(int userId)
+		public async Task<ActionResult<UserInstructorResult>> GetInstructor(
+			int userId)
 		{
 			var result = await _context.Users
 				.AsNoTracking()
@@ -94,7 +98,9 @@ namespace Identity.API.Controllers
 
 		// PUT: /users/me
 		[HttpPut("me")]
-		public async Task<ActionResult> Update([FromHeader] int userId, UpdateUser dto)
+		public async Task<ActionResult> Update(
+			[FromHeader] int userId,
+			UpdateUser dto)
 		{
 			var result = await _context.Users
 				.FirstOrDefaultAsync(x => x.UserId == userId);
@@ -117,7 +123,8 @@ namespace Identity.API.Controllers
 
 		// DELETE: /users/5
 		[HttpDelete("{userId}")]
-		public async Task<ActionResult> Delete(int userId)
+		public async Task<ActionResult> Delete(
+			int userId)
 		{
 			var result = await _context.Users
 				.Where(x => x.UserId == userId)
@@ -130,26 +137,25 @@ namespace Identity.API.Controllers
 
 		// PUT: /users/me/cover
 		[HttpPut("me/cover")]
-		public async Task<ActionResult> UpdateCover(UpdateAvatar dto)
+		public async Task<ActionResult> UpdateCover(
+			[FromHeader] int userId,
+			[MaxSize(0, 2 * 1024 * 1024)][ImageExtension] IFormFile FormFile)
 		{
-			var result = await _context.Users
-				.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.UserId == dto.UserId);
-			if (result == null) return NotFound();
+			var user = await _context.Users
+				.FirstOrDefaultAsync(x => x.UserId == userId);
+			if (user == null) return NotFound();
 
 			using var memoryStream = new MemoryStream();
-			await dto.FormFile.CopyToAsync(memoryStream);
+			await FormFile.CopyToAsync(memoryStream);
+			var extension = Path.GetExtension(FormFile.FileName).ToLowerInvariant();
 
-			var extension = Path.GetExtension(dto.FormFile.FileName).ToLowerInvariant();
-			var avatar = new Avatar()
+			user.Avatar = new Avatar()
 			{
 				MediaType = FormFileContants.Extensions.GetValueOrDefault(extension)!,
 				Data = memoryStream.ToArray(),
-				UserId = dto.UserId,
+				UserId = userId,
 			};
-
-			result.LastModified = DateTime.Now;
-			_context.Avatars.Update(avatar);
+			user.LastModified = DateTime.Now;
 
 			//await _context.Avatars.Where(x => x.UserId == dto.UserId).ExecuteDeleteAsync();
 
@@ -168,10 +174,13 @@ namespace Identity.API.Controllers
 
 		// POST: /users/me/interested
 		[HttpPost("me/interested")]
-		public async Task<ActionResult<int>> AddInterestedTopic([FromHeader] int userId, int topicId)
+		public async Task<ActionResult<int>> AddInterestedTopic(
+			[FromHeader] int userId,
+			int topicId)
 		{
-			var result = await _context.Users.FindAsync(userId);
-			if (result == null) return NotFound();
+			var user = await _context.Users
+				.FindAsync(userId);
+			if (user == null) return NotFound();
 
 			var getTopic = new GetTopic() { TopicId = topicId };
 			Response<GetTopicResult> getTopicResponse;
@@ -184,8 +193,7 @@ namespace Identity.API.Controllers
 				return NotFound("TopicId not existed.");
 			}
 
-			result.InterestedTopics.Add(new InterestedTopic() { TopicId = topicId });
-
+			user.InterestedTopics.Add(new InterestedTopic() { TopicId = topicId });
 			await _context.SaveChangesAsync();
 
 			return CreatedAtAction(nameof(GetProfile), userId, topicId);

@@ -28,4 +28,8 @@
 	<ProjectReference Include="..\..\APICommonLibrary\APICommonLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+	<InternalsVisibleTo Include="Authentication.Tests" />
+  </ItemGroup>
+
 </Project>

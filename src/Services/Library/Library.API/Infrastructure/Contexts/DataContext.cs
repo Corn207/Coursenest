@@ -26,8 +26,8 @@ public class DataContext : DbContext
 			.Property(x => x.Order)
 			.HasComputedColumnSql($"[{nameof(Unit.OrderNumerator)}] / [{nameof(Unit.OrderDenominator)}]", stored: true);
 
-		if (_databaseOptions.Value.Seed)
-		{
+		if (_databaseOptions.Value.Seeding)
+		{	//crtl k u
 			// = 5
 			//builder.Entity<Category>().HasData(
 			//	new Category()

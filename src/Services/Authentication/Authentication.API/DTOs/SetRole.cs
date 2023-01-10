@@ -1,5 +1,5 @@
 ﻿using Authentication.API.Infrastructure.Entities;
-using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Authentication.API.DTOs;
 
@@ -7,9 +7,7 @@ namespace Authentication.API.DTOs;
 
 public record SetRole
 {
+	[EnumDataType(typeof(RoleType))]
 	public RoleType Type { get; set; }
 	public DateTime Expiry { get; set; }
-
-	[FromRoute]
-	public int CredentialUserId { get; set; }
 }

@@ -23,7 +23,7 @@ public class CreateUserConsumer : IConsumer<CreateUser>
 		var exist = await _context.Users.AnyAsync(x => x.Email == context.Message.Email);
 		if (exist) throw new ArgumentException("Email existed.");
 
-		var user = _mapper.Map<User>(context);
+		var user = _mapper.Map<User>(context.Message);
 
 		_context.Users.Add(user);
 		await _context.SaveChangesAsync();

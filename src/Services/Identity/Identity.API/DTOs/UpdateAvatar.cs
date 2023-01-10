@@ -13,7 +13,4 @@ public record UpdateAvatar
 	[MaxSize(0, 2 * 1024 * 1024)]
 	[ImageExtension]
 	public IFormFile FormFile { get; set; }
-
-	[FromHeader]
-	public int UserId { get; set; }
 }

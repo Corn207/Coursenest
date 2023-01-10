@@ -1,5 +1,4 @@
 using APICommonLibrary.Extensions;
-using APICommonLibrary.Options;
 using Authentication.API.Consumers;
 using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Options;
@@ -16,7 +15,7 @@ builder.Services.AddDefaultServices<DataContext>(
 		busConfig.AddConsumer<UserDeletedConsumer>();
 	});
 
-builder.Services.AddDefaultOptions<JwtOptions>(builder.Configuration);
+builder.Services.AddRequiredOptions<JwtOptions>(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

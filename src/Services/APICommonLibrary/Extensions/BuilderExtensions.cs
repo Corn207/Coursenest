@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -17,53 +18,117 @@ public static class BuilderExtensions
 		IConfiguration configuration,
 		Action<IBusRegistrationConfigurator>? busConfig = null) where TDbContext : DbContext
 	{
+		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 		services.AddAutoMapper(Assembly.GetCallingAssembly());
 
-		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-
-		services.AddDefaultOptions<ConnectionOptions>(configuration);
-		services.AddDefaultOptions<DatabaseOptions>(configuration);
-
-		var section = Regex.Replace(typeof(ConnectionOptions).Name, @"Options$", string.Empty);
-		var connectionOptions = configuration.GetSection(section).Get<ConnectionOptions>()!;
-
-		services.AddDbContext<DbContext, TDbContext>(options =>
+		var cnnStr = configuration["Database:ConnectionString"];
+		if (!string.IsNullOrWhiteSpace(cnnStr))
 		{
-			options.UseSqlServer(connectionOptions.Database, builder =>
+			services.AddDbContext<DbContext, TDbContext>(builder =>
 			{
-				//builder.EnableRetryOnFailure(1, TimeSpan.FromSeconds(3), null);
+				builder.UseSqlServer(cnnStr, builder =>
+				{
+					//builder.EnableRetryOnFailure(1, TimeSpan.FromSeconds(3), null);
+				});
 			});
-		});
+		}
 
-		services.AddMassTransit(x =>
+		services.AddOptionalOptions<DatabaseOptions>(configuration);
+		services.AddOptionalOptions<MassTransitOptions>(configuration, options =>
 		{
-			x.UsingRabbitMq((context, config) =>
+			services.AddMassTransit(x =>
 			{
-				config.Host(connectionOptions.MessageBus);
-				config.ConfigureEndpoints(context);
-			});
+				x.UsingRabbitMq((context, config) =>
+				{
+					config.Host(options.Host);
+					config.ConfigureEndpoints(context);
+				});
 
-			busConfig?.Invoke(x);
+				busConfig?.Invoke(x);
+			});
 		});
 
 		return services;
 	}
 
+	public static IServiceCollection AddOptionalOptions<TOptions>(
+		this IServiceCollection services,
+		IConfiguration configuration,
+		Action<TOptions>? action = null) where TOptions : class
+	{
+		string sectionName = Regex.Replace(typeof(TOptions).Name, @"Options$", string.Empty);
+		IConfigurationSection section = configuration.GetSection(sectionName);
+		if (section.Exists())
+		{
+			var options = section.Get<TOptions>();
+			if (options != null)
+			{
+				services.AddOptions<TOptions>()
+					.Bind(section)
+					.ValidateDataAnnotations()
+					.ValidateOnStart();
+
+				action?.Invoke(options);
+			}
+		}
+
+		return services;
+	}
+
+	public static IServiceCollection AddRequiredOptions<TOptions>(
+		this IServiceCollection services,
+		IConfiguration configuration,
+		Action<TOptions>? action = null) where TOptions : class
+	{
+		string sectionName = Regex.Replace(typeof(TOptions).Name, @"Options$", string.Empty);
+		IConfigurationSection section;
+		try
+		{
+			section = configuration.GetRequiredSection(sectionName);
+		}
+		catch (Exception)
+		{
+			throw;
+		}
+
+		var instance = (TOptions)(Activator.CreateInstance(typeof(TOptions))
+			?? throw new Exception($"Cannot create instance of type {typeof(TOptions)}."));
+		var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+		var isValid = Validator.TryValidateObject(instance, new ValidationContext(instance), results);
+		if (!isValid)
+		{
+			var errors = string.Join(" ", results.Select(x => x.ErrorMessage));
+			throw new Exception(errors);
+		}
+
+		services.AddOptions<TOptions>()
+			.Bind(section)
+			.ValidateDataAnnotations()
+			.ValidateOnStart();
+
+		action?.Invoke(instance);
+
+		return services;
+	}
+
+
 	public static IApplicationBuilder DatabaseStartup(this IApplicationBuilder app)
 	{
-		var services = app.ApplicationServices;
-		using var scope = services.CreateScope();
-		var context = scope.ServiceProvider.GetRequiredService<DbContext>();
-		var databaseOptions = services.GetRequiredService<IOptions<DatabaseOptions>>();
+		using var scope = app.ApplicationServices.CreateScope();
+		var context = scope.ServiceProvider.GetService<DbContext>();
+		var options = app.ApplicationServices.GetService<IOptions<DatabaseOptions>>();
 
-		if (databaseOptions.Value.Overwrite)
+		if (context != null && options != null)
 		{
-			context.Database.EnsureDeleted();
-			context.Database.EnsureCreated();
-		}
-		else if (databaseOptions.Value.Create)
-		{
-			context.Database.EnsureCreated();
+			if (options.Value.EnsureDeleted)
+			{
+				context.Database.EnsureDeleted();
+			}
+
+			if (options.Value.EnsureCreated)
+			{
+				context.Database.EnsureCreated();
+			}
 		}
 
 		return app;

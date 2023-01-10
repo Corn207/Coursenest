@@ -21,9 +21,10 @@ namespace Authentication.API.Controllers
 		}
 
 
-		// GET: /roles/5
-		[HttpGet("{userId}")]
-		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAll(int userId)
+		// GET: /roles
+		[HttpGet()]
+		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAll(
+			[FromQuery] int userId)
 		{
 			var exist = await _context.Credentials
 				.AsNoTracking()
@@ -41,7 +42,8 @@ namespace Authentication.API.Controllers
 
 		// GET: /roles/me
 		[HttpGet("me")]
-		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAllMe([FromHeader] int userId)
+		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAllMe(
+			[FromHeader] int userId)
 		{
 			var exist = await _context.Credentials
 				.AsNoTracking()
@@ -58,21 +60,34 @@ namespace Authentication.API.Controllers
 		}
 
 
-		// POST: /roles/5
-		[HttpPost("{credentialUserId}")]
-		public async Task<ActionResult> Set(SetRole dto)
+		// PUT: /roles/5
+		[HttpPut("{userId}")]
+		public async Task<ActionResult> Update(
+			int userId,
+			SetRole dto)
 		{
 			var exist = await _context.Credentials
 				.AsNoTracking()
-				.AnyAsync(x => x.UserId == dto.CredentialUserId);
+				.AnyAsync(x => x.UserId == userId);
 			if (!exist) return NotFound();
 
 			var result = _mapper.Map<Role>(dto);
-			_context.Update(result);
+			result.CredentialUserId = userId;
 
+			exist = await _context.Roles
+				.AsNoTracking()
+				.AnyAsync(x => x.CredentialUserId == userId && x.Type == result.Type);
+			if (!exist)
+			{
+				_context.Roles.Add(result);
+			}
+			else
+			{
+				_context.Update(result);
+			}
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetAll), dto.CredentialUserId, result);
+			return CreatedAtAction(nameof(GetAll), userId, null);
 		}
 	}
 }

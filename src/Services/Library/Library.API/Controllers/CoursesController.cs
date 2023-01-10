@@ -179,6 +179,7 @@ namespace Library.API.Controllers
 			using var memoryStream = new MemoryStream();
 			await FormFile.CopyToAsync(memoryStream);
 			var extension = Path.GetExtension(FormFile.FileName).ToLowerInvariant();
+
 			course.Cover = new CourseCover()
 			{
 				MediaType = FormFileContants.Extensions.GetValueOrDefault(extension)!,

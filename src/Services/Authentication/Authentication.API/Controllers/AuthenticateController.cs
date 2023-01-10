@@ -36,10 +36,10 @@ public class AuthenticateController : ControllerBase
 		_createUserClient = createUserClient;
 	}
 
-
 	// POST: /authenticate/register
 	[HttpPost("register")]
-	public async Task<ActionResult> Register(Register dto)
+	public async Task<ActionResult> Register(
+		Register dto)
 	{
 		var exist = await _context.Credentials
 			.AsNoTracking()
@@ -56,6 +56,10 @@ public class AuthenticateController : ControllerBase
 		{
 			return Conflict("Email existed.");
 		}
+		catch (Exception)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError);
+		}
 
 		var result = _mapper.Map<Credential>(dto);
 		result.UserId = createUserResponse.Message.UserId;
@@ -63,14 +67,16 @@ public class AuthenticateController : ControllerBase
 		_context.Credentials.Add(result);
 		await _context.SaveChangesAsync();
 
-		return StatusCode(201);
+		return CreatedAtAction(nameof(Login), null, null);
 	}
 
 	// POST: /authenticate/login
 	[HttpPost("login")]
-	public async Task<ActionResult<TokensResult>> Login(Login request)
+	public async Task<ActionResult<TokensResult>> Login(
+		Login request)
 	{
 		var credential = await _context.Credentials
+			.AsNoTracking()
 			.Include(x => x.Roles)
 			.FirstOrDefaultAsync(x => x.Username == request.Username);
 		if (credential == null) return NotFound();
@@ -84,10 +90,11 @@ public class AuthenticateController : ControllerBase
 		var refreshToken = new RefreshToken()
 		{
 			Token = refreshTokenContent,
-			Expiry = refreshTokenExpiry
+			Expiry = refreshTokenExpiry,
+			CredentialUserId = credential.UserId
 		};
 
-		credential.RefreshTokens.Add(refreshToken);
+		_context.RefreshTokens.Add(refreshToken);
 		await _context.SaveChangesAsync();
 
 		var result = new TokensResult()
@@ -103,44 +110,47 @@ public class AuthenticateController : ControllerBase
 
 	// POST: /authenticate/logout
 	[HttpPost("logout")]
-	public async Task<ActionResult> Logout([FromHeader] int userId)
+	public async Task<ActionResult> Logout(
+		[FromHeader] int userId)
 	{
-		var credential = await _context.Credentials
-			.FindAsync(userId);
-		if (credential == null) return NotFound();
+		var exist = await _context.Credentials
+			.AsNoTracking()
+			.AnyAsync(x => x.UserId == userId);
+		if (!exist) return NotFound();
 
-		credential.RefreshTokens.Clear();
-		await _context.SaveChangesAsync();
+		await _context.RefreshTokens
+			.Where(x => x.CredentialUserId == userId)
+			.ExecuteDeleteAsync();
 
 		return Ok();
 	}
 
 	// POST: /authenticate/refresh
-	[Consumes("text/plain")]
 	[HttpPost("refresh")]
-	public async Task<ActionResult<AccessTokenResult>> Refresh(string refreshTokenContent)
+	public async Task<ActionResult<AccessTokenResult>> Refresh(
+		[FromBody] string token)
 	{
-		var token = await _context.RefreshTokens
-			.FindAsync(refreshTokenContent);
-		if (token == null) return Unauthorized();
-		if (token.Expiry <= DateTime.Now)
+		var refreshToken = await _context.RefreshTokens
+			.FirstOrDefaultAsync(x => x.Token == token);
+		if (refreshToken == null) return NotFound();
+		if (refreshToken.Expiry <= DateTime.Now)
 		{
-			_context.RefreshTokens.Remove(token);
+			_context.RefreshTokens.Remove(refreshToken);
 			await _context.SaveChangesAsync();
 			return Unauthorized();
 		}
 
 		var roles = await _context.Roles
 			.AsNoTracking()
-			.Where(x => x.CredentialUserId == token.CredentialUserId)
+			.Where(x => x.CredentialUserId == refreshToken.CredentialUserId)
 			.ToListAsync();
 
-		(string content, DateTime expiry) = CreateAccessToken(token.CredentialUserId, roles);
+		(string content, DateTime expiry) = CreateAccessToken(refreshToken.CredentialUserId, roles);
 
 		var result = new AccessTokenResult()
 		{
-			Token = content,
-			Expiry = expiry
+			AccessToken = content,
+			AccessTokenExpiry = expiry
 		};
 
 		return result;
@@ -155,14 +165,15 @@ public class AuthenticateController : ControllerBase
 		};
 
 		var validRoles = roles.Where(x => x.Expiry > DateTime.Now);
-		foreach (var role in validRoles)
-		{
-			claims.Add(new Claim("Roles", role.Type.ToString()));
-		}
+		claims.AddRange(validRoles.Select(x => new Claim("Roles", x.Type.ToString())));
 
-		var nearestExpiry = validRoles.Min(x => x.Expiry);
 		var maximumExpiry = DateTime.Now.AddMinutes(_jwtOptions.Value.AccessTokenLifetime);
-		var finalExpiry = (nearestExpiry - maximumExpiry) > TimeSpan.Zero ? maximumExpiry : nearestExpiry;
+		DateTime finalExpiry = maximumExpiry;
+		if (validRoles.Any())
+		{
+			var nearestExpiry = validRoles.Min(x => x.Expiry);
+			finalExpiry = (nearestExpiry - maximumExpiry) > TimeSpan.Zero ? maximumExpiry : nearestExpiry;
+		}
 
 		var helper = new JwtTokenHelper(_jwtOptions.Value.SecretKey, finalExpiry, claims);
 		var content = helper.WriteToken();

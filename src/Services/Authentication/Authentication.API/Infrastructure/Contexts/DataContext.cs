@@ -18,7 +18,7 @@ public class DataContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		if (_databaseOptions.Value.Seed)
+		if (_databaseOptions.Value.Seeding)
 		{
 			builder.Entity<Credential>().HasData(
 				new Credential() { Username = "usrbasic", Password = "pwd", UserId = 1 },

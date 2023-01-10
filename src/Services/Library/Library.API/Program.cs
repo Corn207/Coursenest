@@ -34,3 +34,5 @@ app.MapControllers();
 app.DatabaseStartup();
 
 app.Run();
+
+public partial class Program { }
