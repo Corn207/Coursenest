@@ -20,8 +20,10 @@ public class CreateUserConsumer : IConsumer<CreateUser>
 
 	public async Task Consume(ConsumeContext<CreateUser> context)
 	{
-		var exist = await _context.Users.AnyAsync(x => x.Email == context.Message.Email);
-		if (exist) throw new ArgumentException("Email existed.");
+		var exists = await _context.Users
+			.AsNoTracking()
+			.AnyAsync(x => x.Email == context.Message.Email);
+		if (exists) throw new ArgumentException("Email existed.");
 
 		var user = _mapper.Map<User>(context.Message);
 

@@ -21,8 +21,33 @@ public class DataContext : DbContext
 		if (_databaseOptions.Value.Seeding)
 		{
 			builder.Entity<User>().HasData(
-				new User() { Email = "one@gmail.com", UserId = 1, FullName = "Elizabeth", Created = DateTime.Now, LastModified = DateTime.Now, Gender = Gender.Female },
-				new User() { Email = "two@gmail.com", UserId = 2, FullName = "Emily", Created = DateTime.Now, LastModified = DateTime.Now, Gender = Gender.Female },
+				new User() 
+                { 
+                    Email = "one@gmail.com",
+                    Phonenumber= "0123456789",
+                    UserId = 1, 
+                    FullName = "Elizabeth", 
+                    Created = DateTime.Now, 
+                    LastModified = DateTime.Now, 
+                    Gender = Gender.Female,
+                    Title= "Developer",
+                    DateOfBirth= DateTime.Now,
+                    Location = "Hanoi",
+                    AboutMe = "Corazon Bryant always had an artistic bone in her body. When she was only 2 years old, she would make detailed drawings on her mother's wall. Her mother loved the drawings so much, she decided to keep them"
+                },
+				new User() {
+                    Email = "one@gmail.com",
+                    Phonenumber = "0123456781",
+                    UserId = 2,
+                    FullName = "Mona",
+                    Created = DateTime.Now,
+                    LastModified = DateTime.Now,
+                    Gender = Gender.Female,
+                    Title = "Stdent",
+                    DateOfBirth = DateTime.Now,
+                    Location = "Ho Chi Minh City",
+                    AboutMe = "hello Im Mona, like to meet u!"
+                    },
 				new User() { Email = "three@gmail.com", UserId = 3, FullName = "Emma", Created = DateTime.Now, LastModified = DateTime.Now, Gender = Gender.Female },
 				new User() { Email = "four@gmail.com", UserId = 4, FullName = "Jessica", Created = DateTime.Now, LastModified = DateTime.Now, Gender = Gender.Female },
 				new User() { Email = "five@gmail.comstd", UserId = 5, FullName = "Brian", Created = DateTime.Now, LastModified = DateTime.Now, Gender = Gender.Male },
@@ -51,19 +76,29 @@ public class DataContext : DbContext
                 );
 
             builder.Entity<FollowedTopic>().HasData(
-               new FollowedTopic() { UserId = 1, TopicId = 1 },
-               new FollowedTopic() { UserId = 2, TopicId = 1 },
-               new FollowedTopic() { UserId = 4, TopicId = 3 },
+               new FollowedTopic() { UserId = 3, TopicId = 1 },
                new FollowedTopic() { UserId = 6, TopicId = 1 },
-               new FollowedTopic() { UserId = 5, TopicId = 2 },
+               new FollowedTopic() { UserId = 7, TopicId = 3 },
+               new FollowedTopic() { UserId = 7, TopicId = 1 },
                new FollowedTopic() { UserId = 3, TopicId = 2 },
-               new FollowedTopic() { UserId = 2, TopicId = 4 }
+               new FollowedTopic() { UserId = 6, TopicId = 2 },
+               new FollowedTopic() { UserId = 6, TopicId = 4 }
+                );
+
+            builder.Entity<Achievement>().HasData(
+                 new Achievement() { AchievementId = 1, Title = "Learn Java in 1 hour", Created = DateTime.Now, UserId = 1 },
+                 new Achievement() { AchievementId = 2, Title = "Complete Guide to Realistic Character Creation in Blender", Created = DateTime.Now, UserId = 1 },
+                 new Achievement() { AchievementId = 3, Title = "CComplete Blender Megacourse: Beginner to Expert", Created = DateTime.Now, UserId = 1 },
+                 new Achievement() { AchievementId = 1, Title = "Microsoft Excel - Excel from Beginner to Advanced", Created = DateTime.Now, UserId = 2 },
+                 new Achievement() { AchievementId = 2, Title = "Zero to Hero in Microsoft Excel: Complete Excel guide 2023", Created = DateTime.Now, UserId = 2 },
+                 new Achievement() { AchievementId = 1, Title = "Data Analyst Skillpath: Zero to Hero in Excel, SQL & Python", Created = DateTime.Now, UserId = 4 }
                 );
         }
     }
 
+	public DbSet<Achievement> Achievements { get; set; }
 	public DbSet<Avatar> Avatars { get; set; }
-	public DbSet<Experience> Experience { get; set; }
+	public DbSet<Experience> Experiences { get; set; }
 	public DbSet<InterestedTopic> InterestedTopics { get; set; }
 	public DbSet<FollowedTopic> FollowedTopics { get; set; }
 	public DbSet<User> Users { get; set; }

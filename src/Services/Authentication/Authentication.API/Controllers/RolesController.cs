@@ -2,8 +2,10 @@
 using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Infrastructure.Entities;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static MassTransit.ValidationResultExtensions;
 
 namespace Authentication.API.Controllers
 {
@@ -26,15 +28,15 @@ namespace Authentication.API.Controllers
 		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAll(
 			[FromQuery] int userId)
 		{
-			var exist = await _context.Credentials
+			var exists = await _context.Credentials
 				.AsNoTracking()
 				.AnyAsync(x => x.UserId == userId);
-			if (!exist) return NotFound();
+			if (!exists) return NotFound();
 
 			var results = await _context.Roles
 				.AsNoTracking()
 				.Where(x => x.CredentialUserId == userId)
-				.Select(x => _mapper.Map<RoleResult>(x))
+				.ProjectTo<RoleResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
 			return Ok(results);
@@ -45,15 +47,15 @@ namespace Authentication.API.Controllers
 		public async Task<ActionResult<IEnumerable<RoleResult>>> GetAllMe(
 			[FromHeader] int userId)
 		{
-			var exist = await _context.Credentials
+			var exists = await _context.Credentials
 				.AsNoTracking()
 				.AnyAsync(x => x.UserId == userId);
-			if (!exist) return NotFound();
+			if (!exists) return NotFound();
 
 			var results = await _context.Roles
 				.AsNoTracking()
 				.Where(x => x.CredentialUserId == userId)
-				.Select(x => _mapper.Map<RoleResult>(x))
+				.ProjectTo<RoleResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
 			return Ok(results);
@@ -66,28 +68,26 @@ namespace Authentication.API.Controllers
 			int userId,
 			SetRole dto)
 		{
-			var exist = await _context.Credentials
-				.AsNoTracking()
-				.AnyAsync(x => x.UserId == userId);
-			if (!exist) return NotFound();
+			var credential = await _context.Credentials
+				.Include(x => x.Roles)
+				.FirstOrDefaultAsync(x => x.UserId == userId);
+			if (credential == null) return NotFound();
 
-			var result = _mapper.Map<Role>(dto);
-			result.CredentialUserId = userId;
+			var role = _mapper.Map<Role>(dto);
+			role.CredentialUserId = userId;
 
-			exist = await _context.Roles
-				.AsNoTracking()
-				.AnyAsync(x => x.CredentialUserId == userId && x.Type == result.Type);
-			if (!exist)
+			if (credential.Roles.Any(x => x.Type == dto.Type))
 			{
-				_context.Roles.Add(result);
+				_context.Roles.Update(role);
 			}
 			else
 			{
-				_context.Update(result);
+				_context.Roles.Add(role);
 			}
+
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetAll), userId, null);
+			return CreatedAtAction(nameof(GetAll), new { userId }, null);
 		}
 	}
 }

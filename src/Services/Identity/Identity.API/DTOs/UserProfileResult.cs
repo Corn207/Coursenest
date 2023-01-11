@@ -16,6 +16,7 @@ public record UserProfileResult
 	public DateTime? DateOfBirth { get; set; }
 	public string? Location { get; set; }
 	public ImageResult? Avatar { get; set; }
+	public IEnumerable<AchievementResult> Achievements { get; set; }
 	public IEnumerable<ExperienceResult> Experiences { get; set; }
 	public IEnumerable<int> InterestedTopics { get; set; }
 }

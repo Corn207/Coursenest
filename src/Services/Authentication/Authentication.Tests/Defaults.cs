@@ -17,7 +17,7 @@ public static class Defaults
 			new Credential() { Username = "usrnonad", Password = "pwd", UserId = 6 },
 			new Credential() { Username = "usrfull", Password = "pwd", UserId = 7 }
 		};
-		context.AddRange(creds);
+		context.Credentials.AddRange(creds);
 
 		var roles = new List<Role>()
 		{
@@ -33,6 +33,6 @@ public static class Defaults
 			new Role() { CredentialUserId = 7, Type = RoleType.Publisher, Expiry = DateTime.Now.AddHours(1) },
 			new Role() { CredentialUserId = 7, Type = RoleType.Admin, Expiry = DateTime.Now.AddHours(1) }
 		};
-		context.AddRange(roles);
+		context.Roles.AddRange(roles);
 	};
 }

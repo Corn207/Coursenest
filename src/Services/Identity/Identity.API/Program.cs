@@ -1,6 +1,11 @@
 using APICommonLibrary.Extensions;
+using Identity.API;
 using Identity.API.Consumers;
 using Identity.API.Infrastructure.Contexts;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Data.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +17,7 @@ builder.Services.AddDefaultServices<DataContext>(
 	busConfig =>
 	{
 		busConfig.AddConsumer<CreateUserConsumer>();
+		busConfig.AddConsumer<CreateUserAchievementConsumer>();
 	});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -2,6 +2,7 @@
 using APICommonLibrary.MessageBus.Commands;
 using APICommonLibrary.Validations;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Identity.API.DTOs;
 using Identity.API.Infrastructure.Contexts;
 using Identity.API.Infrastructure.Entities;
@@ -32,15 +33,29 @@ namespace Identity.API.Controllers
 
 		// GET: /users
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<UserResult>>> GetAll()
+		public async Task<ActionResult<IEnumerable<UserResult>>> GetAll(
+			[FromQuery] UserQuery query)
 		{
 			var results = await _context.Users
 				.AsNoTracking()
-				.Include(x => x.Avatar)
-				.Select(x => _mapper.Map<UserResult>(x))
+				.Where(x => string.IsNullOrWhiteSpace(query.FullName) || x.FullName.Contains(query.FullName))
+				.Skip(query.Page * query.PageSize)
+				.Take(query.PageSize)
+				.ProjectTo<UserResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
 			return results;
+		}
+
+		// GET: /users/count
+		[HttpGet("count")]
+		public async Task<ActionResult<int>> GetCount()
+		{
+			var result = await _context.Users
+				.AsNoTracking()
+				.CountAsync();
+
+			return result;
 		}
 
 		// GET: /users/5
@@ -50,8 +65,7 @@ namespace Identity.API.Controllers
 		{
 			var result = await _context.Users
 				.AsNoTracking()
-				.Include(x => x.Avatar)
-				.Select(x => _mapper.Map<UserResult>(x))
+				.ProjectTo<UserResult>(_mapper.ConfigurationProvider)
 				.FirstOrDefaultAsync(x => x.UserId == userId);
 			if (result == null) return NotFound();
 
@@ -63,17 +77,9 @@ namespace Identity.API.Controllers
 		public async Task<ActionResult<UserProfileResult>> GetProfile(
 			int userId)
 		{
-			var exist = await _context.Users
-				.AsNoTracking()
-				.AnyAsync(x => x.UserId == userId);
-			if (!exist) return NotFound();
-
 			var result = await _context.Users
 				.AsNoTracking()
-				.Include(x => x.Avatar)
-				.Include(x => x.Experiences)
-				.Include(x => x.InterestedTopics)
-				.Select(x => _mapper.Map<UserProfileResult>(x))
+				.ProjectTo<UserProfileResult>(_mapper.ConfigurationProvider)
 				.FirstOrDefaultAsync(x => x.UserId == userId);
 			if (result == null) return NotFound();
 
@@ -87,8 +93,7 @@ namespace Identity.API.Controllers
 		{
 			var result = await _context.Users
 				.AsNoTracking()
-				.Include(x => x.Avatar)
-				.Select(x => _mapper.Map<UserInstructorResult>(x))
+				.ProjectTo<UserInstructorResult>(_mapper.ConfigurationProvider)
 				.FirstOrDefaultAsync(x => x.UserId == userId);
 			if (result == null) return NotFound();
 
@@ -172,15 +177,16 @@ namespace Identity.API.Controllers
 		}
 
 
-		// POST: /users/me/interested
-		[HttpPost("me/interested")]
+		// POST: /users/me/interest/2
+		[HttpPost("me/interest/{topicId}")]
 		public async Task<ActionResult<int>> AddInterestedTopic(
 			[FromHeader] int userId,
 			int topicId)
 		{
-			var user = await _context.Users
-				.FindAsync(userId);
-			if (user == null) return NotFound();
+			var exists = await _context.Users
+				.AsNoTracking()
+				.AnyAsync(x => x.UserId == userId);
+			if (!exists) return NotFound();
 
 			var getTopic = new GetTopic() { TopicId = topicId };
 			Response<GetTopicResult> getTopicResponse;
@@ -193,22 +199,28 @@ namespace Identity.API.Controllers
 				return NotFound("TopicId not existed.");
 			}
 
-			user.InterestedTopics.Add(new InterestedTopic() { TopicId = topicId });
-			await _context.SaveChangesAsync();
+			var topic = new InterestedTopic() { UserId = userId, TopicId = topicId };
 
-			return CreatedAtAction(nameof(GetProfile), userId, topicId);
+			_context.InterestedTopics.Add(topic);
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception)
+			{
+				return Conflict("InterestedTopic existed.");
+			}
+
+			return CreatedAtAction(nameof(GetProfile), new { userId }, topicId);
 		}
 
 
-		// DELETE: /users/me/interested
-		[HttpDelete("me/interested")]
-		public async Task<ActionResult> DeleteInterestedTopic([FromHeader] int userId, int topicId)
+		// DELETE: /users/me/interest/5
+		[HttpDelete("me/interest/{topicId}")]
+		public async Task<ActionResult> DeleteInterestedTopic(
+			[FromHeader] int userId,
+			int topicId)
 		{
-			var exist = await _context.Users
-				.AsNoTracking()
-				.AnyAsync(x => x.UserId == userId);
-			if (!exist) return NotFound();
-
 			var result = await _context.InterestedTopics
 				.Where(x => x.UserId == userId && x.TopicId == topicId)
 				.ExecuteDeleteAsync();
@@ -218,12 +230,16 @@ namespace Identity.API.Controllers
 		}
 
 
-		// POST: /users/me/followed
-		[HttpPost("me/followed")]
-		public async Task<ActionResult<int>> AddFollowedTopic([FromHeader] int userId, int topicId)
+		// POST: /users/me/follow/2
+		[HttpPost("me/follow/{topicId}")]
+		public async Task<ActionResult<int>> AddFollowedTopic(
+			[FromHeader] int userId,
+			int topicId)
 		{
-			var result = await _context.Users.FindAsync(userId);
-			if (result == null) return NotFound();
+			var exists = await _context.Users
+				.AsNoTracking()
+				.AnyAsync(x => x.UserId == userId);
+			if (!exists) return NotFound();
 
 			var getTopic = new GetTopic() { TopicId = topicId };
 			Response<GetTopicResult> getTopicResponse;
@@ -236,23 +252,28 @@ namespace Identity.API.Controllers
 				return NotFound("TopicId not existed.");
 			}
 
-			result.FollowedTopics.Add(new FollowedTopic() { TopicId = topicId });
+			var topic = new FollowedTopic() { UserId = userId, TopicId = topicId };
 
-			await _context.SaveChangesAsync();
+			_context.FollowedTopics.Add(topic);
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception)
+			{
+				return Conflict("FollowedTopic existed.");
+			}
 
-			return CreatedAtAction(nameof(GetProfile), userId, topicId);
+			return CreatedAtAction(nameof(GetProfile), new { userId }, topicId);
 		}
 
 
-		// DELETE: /users/me/followed
-		[HttpDelete("me/followed")]
-		public async Task<ActionResult> DeleteFollowedTopic([FromHeader] int userId, int topicId)
+		// DELETE: /users/me/follow/2
+		[HttpDelete("me/follow/{topicId}")]
+		public async Task<ActionResult> DeleteFollowedTopic(
+			[FromHeader] int userId,
+			int topicId)
 		{
-			var exist = await _context.Users
-				.AsNoTracking()
-				.AnyAsync(x => x.UserId == userId);
-			if (!exist) return NotFound();
-
 			var result = await _context.FollowedTopics
 				.Where(x => x.UserId == userId && x.TopicId == topicId)
 				.ExecuteDeleteAsync();
@@ -264,32 +285,34 @@ namespace Identity.API.Controllers
 
 		// POST: /users/me/experiences
 		[HttpPost("me/experiences")]
-		public async Task<ActionResult<ExperienceResult>> AddExperience([FromHeader] int userId, CreateExperience dto)
+		public async Task<ActionResult<ExperienceResult>> AddExperience(
+			[FromHeader] int userId,
+			CreateExperience dto)
 		{
 			var user = await _context.Users.FindAsync(userId);
 			if (user == null) return NotFound();
 
-			var result = _mapper.Map<Experience>(dto);
+			var experience = _mapper.Map<Experience>(dto);
+			experience.UserId = userId;
 
-			user.Experiences.Add(result);
+			_context.Experiences.Add(experience);
 			user.LastModified = DateTime.Now;
 
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetProfile), userId, _mapper.Map<ExperienceResult>(result));
+			var result = _mapper.Map<ExperienceResult>(experience);
+
+			return CreatedAtAction(nameof(GetProfile), new { userId }, result);
 		}
 
 
-		// DELETE: /users/me/experiences
-		[HttpDelete("me/experiences")]
-		public async Task<ActionResult> DeleteExperience([FromHeader] int userId, int experienceId)
+		// DELETE: /users/me/experiences/2
+		[HttpDelete("me/experiences/{experienceId}")]
+		public async Task<ActionResult> DeleteExperience(
+			[FromHeader] int userId,
+			int experienceId)
 		{
-			var exist = await _context.Users
-				.AsNoTracking()
-				.AnyAsync(x => x.UserId == userId);
-			if (!exist) return NotFound();
-
-			var result = await _context.Experience
+			var result = await _context.Experiences
 				.Where(x => x.UserId == userId && x.ExperienceId == experienceId)
 				.ExecuteDeleteAsync();
 			if (result == 0) return NotFound("ExperienceId not existed.");

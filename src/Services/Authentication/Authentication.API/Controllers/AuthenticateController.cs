@@ -23,17 +23,20 @@ public class AuthenticateController : ControllerBase
 	private readonly IOptions<JwtOptions> _jwtOptions;
 	private readonly DataContext _context;
 	private readonly IRequestClient<CreateUser> _createUserClient;
+	private readonly IRequestClient<GetTopic> _getTopicClient;
 
 	public AuthenticateController(
 		IMapper mapper,
 		IOptions<JwtOptions> jwtOptions,
 		DataContext context,
-		IRequestClient<CreateUser> createUserClient)
+		IRequestClient<CreateUser> createUserClient,
+		IRequestClient<GetTopic> getTopicClient)
 	{
 		_mapper = mapper;
 		_jwtOptions = jwtOptions;
 		_context = context;
 		_createUserClient = createUserClient;
+		_getTopicClient = getTopicClient;
 	}
 
 	// POST: /authenticate/register
@@ -41,16 +44,33 @@ public class AuthenticateController : ControllerBase
 	public async Task<ActionResult> Register(
 		Register dto)
 	{
-		var exist = await _context.Credentials
+		var exists = await _context.Credentials
 			.AsNoTracking()
 			.AnyAsync(x => x.Username == dto.Username);
-		if (exist) return Conflict("Username existed.");
+		if (exists) return Conflict("Username existed.");
+
+		foreach (var id in dto.InterestedTopicIds)
+		{
+			try
+			{
+				var getTopic = new GetTopic() { TopicId = id };
+				var getTopicResponse = await _getTopicClient.GetResponse<GetTopicResult>(getTopic);
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound($"TopicId ({id}) not existed.");
+			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
 
 		var createUser = _mapper.Map<CreateUser>(dto);
-		Response<CreateUserResult> createUserResponse;
+		Response<CreateUserResult> createUserResult;
 		try
 		{
-			createUserResponse = await _createUserClient.GetResponse<CreateUserResult>(createUser);
+			createUserResult = await _createUserClient.GetResponse<CreateUserResult>(createUser);
 		}
 		catch (ArgumentException)
 		{
@@ -61,10 +81,10 @@ public class AuthenticateController : ControllerBase
 			return StatusCode(StatusCodes.Status500InternalServerError);
 		}
 
-		var result = _mapper.Map<Credential>(dto);
-		result.UserId = createUserResponse.Message.UserId;
+		var credential = _mapper.Map<Credential>(dto);
+		credential.UserId = createUserResult.Message.UserId;
 
-		_context.Credentials.Add(result);
+		_context.Credentials.Add(credential);
 		await _context.SaveChangesAsync();
 
 		return CreatedAtAction(nameof(Login), null, null);

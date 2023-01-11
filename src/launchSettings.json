@@ -56,6 +56,21 @@
         "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging"
       }
+    },
+    "Identity.API": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "identity.api",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "authentication.api": "DoNotStart",
+        "database": "StartWithoutDebugging",
+        "gatewayapi": "DoNotStart",
+        "identity.api": "StartDebugging",
+        "library.api": "DoNotStart",
+        "messagebus": "StartWithoutDebugging"
+      }
     }
   }
 }

@@ -28,6 +28,11 @@ public class DefaultProfile : Profile
 		CreateMap<User, UserProfileResult>();
 		CreateMap<User, UserInstructorResult>();
 
+		// Achievement
+		CreateMap<CreateUserAchievement, Achievement>();
+
+		CreateMap<Achievement, AchievementResult>();
+
 		// Avatar
 		CreateMap<Avatar, ImageResult>()
 			.ForMember(

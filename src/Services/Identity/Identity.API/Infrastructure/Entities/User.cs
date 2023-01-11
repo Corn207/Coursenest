@@ -21,6 +21,7 @@ public class User
 
 	// Relationship
 	public Avatar? Avatar { get; set; }
+	public List<Achievement> Achievements { get; set; }
 	public List<Experience> Experiences { get; set; }
 	public List<InterestedTopic> InterestedTopics { get; set; }
 	public List<FollowedTopic> FollowedTopics { get; set; }

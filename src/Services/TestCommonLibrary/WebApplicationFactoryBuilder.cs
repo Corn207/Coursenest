@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using MassTransit.Testing;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,8 @@ public class WebApplicationFactoryBuilder
 					_sqliteInMemoryAction?.Invoke(services);
 					_massTransitAction?.Invoke(services);
 				});
+
+				config.UseEnvironment("Development");
 			});
 
 		if (_massTransitAction != null)

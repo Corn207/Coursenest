@@ -4,6 +4,7 @@ using Authentication.API.Infrastructure.Contexts;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
+using System.Net;
 using TestCommonLibrary;
 
 namespace Authentication.Tests;
@@ -28,36 +29,49 @@ public class AuthenticateControllerTests
 				{
 					return context.RespondAsync(new CreateUserResult()
 					{
-						UserId = 1
+						UserId = 8
+					});
+				});
+
+				x.AddHandler<GetTopic>(context =>
+				{
+					return context.RespondAsync(new GetTopicResult()
+					{
+						TopicId = 8,
+						Content = "Test Topic"
 					});
 				});
 			})
 			.BuildAsync<Program>();
-		_factory.DatabaseInitialize();
+		await _factory.DatabaseInitializeAsync(Defaults.Database);
 
 		_client = _factory.CreateClient();
 	}
 
 
 	[Test, Order(1)]
-	public async Task Post_Register_ReturnsOk()
+	public async Task Register_Returns201()
 	{
-		// Act
-		var response = await _client.PostAsync("/authenticate/register", JsonContent.Create(new Register()
+		// Arrange
+		var content = JsonContent.Create(new Register()
 		{
 			Username = "usrtest",
 			Password = "pwdtest",
 			Email = "testuser@test.com",
 			Fullname = "Test Smith",
 			InterestedTopicIds = new[] { 1 }
-		}));
+		});
+
+		// Act
+		var response = await _client.PostAsync("/authenticate/register", content);
 
 		// Assert
-		Assert.That(response.IsSuccessStatusCode);
+		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 	}
 
+
 	[Test, Order(2)]
-	public async Task Post_Login_ReturnsTokensResult()
+	public async Task Login_ReturnsTokensResult()
 	{
 		// Arrange
 		var content = JsonContent.Create(new Login()
@@ -69,8 +83,8 @@ public class AuthenticateControllerTests
 		// Act
 		var response = await _client.PostAsync("/authenticate/login", content);
 		response.EnsureSuccessStatusCode();
-		var responseString = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<TokensResult>(responseString);
+		var body = await response.Content.ReadAsStringAsync();
+		var result = JsonConvert.DeserializeObject<TokensResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -78,18 +92,21 @@ public class AuthenticateControllerTests
 		_refreshToken = result.RefreshToken;
 	}
 
+
 	[Test, Order(4)]
-	public async Task Post_Logout_ReturnsOk()
+	public async Task Logout_ReturnsOk()
 	{
 		// Arrange
-		_client.DefaultRequestHeaders.Add("UserId", "1");
+		var client = _factory.CreateClient();
+		client.DefaultRequestHeaders.Add("UserId", "8");
 
 		// Act
-		var response = await _client.PostAsync("/authenticate/logout", null);
+		var response = await client.PostAsync("/authenticate/logout", null);
 
 		// Assert
 		Assert.That(response.IsSuccessStatusCode);
 	}
+
 
 	[Test, Order(3)]
 	public async Task Post_Refresh_ReturnsAccessTokenResult()
@@ -100,8 +117,8 @@ public class AuthenticateControllerTests
 		// Act
 		var response = await _client.PostAsync("/authenticate/refresh", content);
 		response.EnsureSuccessStatusCode();
-		var responseString = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<AccessTokenResult>(responseString);
+		var body = await response.Content.ReadAsStringAsync();
+		var result = JsonConvert.DeserializeObject<AccessTokenResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
