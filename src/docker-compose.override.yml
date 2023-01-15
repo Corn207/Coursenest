@@ -12,7 +12,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureDeleted=true
       - Database__EnsureCreated=true
       - MassTransit__Host=messagebus
       - Jwt__SecretKey=1234567890123456
@@ -25,7 +24,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=IdentityDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureDeleted=true
       - Database__EnsureCreated=true
       - MassTransit__Host=messagebus
     ports:
@@ -35,15 +33,23 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureDeleted=true
       - Database__EnsureCreated=true
       - MassTransit__Host=messagebus
     ports:
       - "21003:80"
 
+  payment.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MassTransit__Host=messagebus
+    ports:
+      - "21004:80"
+
   database:
     environment:
       - MSSQL_SA_PASSWORD=Pass@word
+    volumes:
+      - coursenest-dev:/var/opt/mssql
     ports:
       - "1433:1433"
 
@@ -51,3 +57,7 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+volumes:
+  coursenest-dev:
+    external: true

@@ -1,4 +1,5 @@
 ﻿using APICommonLibrary.MessageBus.Commands;
+using APICommonLibrary.MessageBus.Responses;
 using AutoMapper;
 using Identity.API.Infrastructure.Contexts;
 using Identity.API.Infrastructure.Entities;
@@ -23,11 +24,17 @@ public class CreateUserAchievementConsumer : IConsumer<CreateUserAchievement>
 		var exists = await _context.Users
 			.AsNoTracking()
 			.AnyAsync(x => x.UserId == context.Message.UserId);
-		if (!exists) throw new ArgumentException("User's not existed.");
+		if (!exists)
+		{
+			await context.RespondAsync(new NotFound() { Message = $"UserId: {context.Message.UserId} not existed." });
+			return;
+		}
 
 		var achievement = _mapper.Map<Achievement>(context.Message);
-
 		_context.Achievements.Add(achievement);
+
 		await _context.SaveChangesAsync();
+
+		await context.RespondAsync(new Created() { Id = achievement.AchievementId });
 	}
 }

@@ -6,10 +6,11 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Coursenest/src/Services/Library/Library.API/Library.API.csproj", "Coursenest/src/Services/Library/Library.API/"]
-RUN dotnet restore "Coursenest/src/Services/Library/Library.API/Library.API.csproj"
+COPY ["Services/Library/Library.API/Library.API.csproj", "Services/Library/Library.API/"]
+COPY ["Services/APICommonLibrary/APICommonLibrary.csproj", "Services/APICommonLibrary/"]
+RUN dotnet restore "Services/Library/Library.API/Library.API.csproj"
 COPY . .
-WORKDIR "/src/Coursenest/src/Services/Library/Library.API"
+WORKDIR "/src/Services/Library/Library.API"
 RUN dotnet build "Library.API.csproj" -c Release -o /app/build
 
 FROM build AS publish

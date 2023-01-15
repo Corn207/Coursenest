@@ -5,14 +5,14 @@ using Library.API.Infrastructure.Contexts;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
-
 builder.Services.AddDefaultServices<DataContext>(
 	builder.Configuration,
 	busConfig =>
 	{
-		busConfig.AddConsumer<GetTopicConsumer>();
+		busConfig.AddConsumer<CheckTopicsConsumer>();
 	});
+
+builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -27,6 +27,8 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+app.UseCors();
+
 app.UseAuthorization();
 
 app.MapControllers();
@@ -34,5 +36,3 @@ app.MapControllers();
 app.DatabaseStartup();
 
 app.Run();
-
-public partial class Program { }

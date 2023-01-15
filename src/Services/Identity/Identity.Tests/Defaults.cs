@@ -179,27 +179,27 @@ public static class Defaults
 			new Achievement()
 			{
 				AchievementId = 3,
-				Title = "CComplete Blender Megacourse: Beginner to Expert",
+				Title = "Complete Blender Megacourse: Beginner to Expert",
 				Created = DateTime.Now,
 				UserId = 1
 			},
 			new Achievement()
 			{
-				AchievementId = 1,
+				AchievementId = 4,
 				Title = "Microsoft Excel - Excel from Beginner to Advanced",
 				Created = DateTime.Now,
 				UserId = 2
 			},
 			new Achievement()
 			{
-				AchievementId = 2,
+				AchievementId = 5,
 				Title = "Zero to Hero in Microsoft Excel: Complete Excel guide 2023",
 				Created = DateTime.Now,
 				UserId = 2
 			},
 			new Achievement()
 			{
-				AchievementId = 1,
+				AchievementId = 6,
 				Title = "Data Analyst Skillpath: Zero to Hero in Excel, SQL & Python",
 				Created = DateTime.Now,
 				UserId = 4

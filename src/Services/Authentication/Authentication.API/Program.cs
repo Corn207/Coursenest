@@ -6,16 +6,17 @@ using Authentication.API.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
-
 builder.Services.AddDefaultServices<DataContext>(
 	builder.Configuration,
 	busConfig =>
 	{
+		busConfig.AddConsumer<ExtendRoleConsumer>();
 		busConfig.AddConsumer<UserDeletedConsumer>();
 	});
 
 builder.Services.AddRequiredOptions<JwtOptions>(builder.Configuration);
+
+builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -29,6 +30,8 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseAuthorization();
 

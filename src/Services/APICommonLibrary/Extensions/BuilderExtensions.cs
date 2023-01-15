@@ -15,13 +15,52 @@ using System.Text.RegularExpressions;
 namespace APICommonLibrary.Extensions;
 public static class BuilderExtensions
 {
+	public static IServiceCollection AddMinimalDefaultServices(
+		this IServiceCollection services,
+		IConfiguration configuration,
+		Action<IBusRegistrationConfigurator>? busConfig = null)
+	{
+		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+		services.AddCors(options =>
+			options.AddDefaultPolicy(configure =>
+			{
+				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+			})
+		);
+
+		services.AddOptionalOptions<MassTransitOptions>(configuration, options =>
+		{
+			services.AddMassTransit(x =>
+			{
+				x.UsingRabbitMq((context, config) =>
+				{
+					config.Host(options.Host);
+					config.ConfigureEndpoints(context);
+				});
+
+				busConfig?.Invoke(x);
+			});
+		});
+
+		return services;
+	}
+
 	public static IServiceCollection AddDefaultServices<TDbContext>(
 		this IServiceCollection services,
 		IConfiguration configuration,
 		Action<IBusRegistrationConfigurator>? busConfig = null) where TDbContext : DbContext
 	{
 		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+		services.AddCors(options =>
+			options.AddDefaultPolicy(configure =>
+			{
+				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+			})
+		);
+
 		services.AddAutoMapper(Assembly.GetCallingAssembly());
+
+		services.AddOptionalOptions<DatabaseOptions>(configuration);
 
 		var cnnStr = configuration["Database:ConnectionString"];
 		if (!string.IsNullOrWhiteSpace(cnnStr))
@@ -51,7 +90,6 @@ public static class BuilderExtensions
 			});
 		}
 
-		services.AddOptionalOptions<DatabaseOptions>(configuration);
 		services.AddOptionalOptions<MassTransitOptions>(configuration, options =>
 		{
 			services.AddMassTransit(x =>

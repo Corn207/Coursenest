@@ -1,10 +1,9 @@
 using APICommonLibrary.MessageBus.Commands;
+using APICommonLibrary.MessageBus.Responses;
 using Identity.API.DTOs;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.CodeAnalysis;
 using System.Net;
-using System.Text.Json;
 using TestCommonLibrary;
 
 namespace Identity.Tests;
@@ -21,14 +20,7 @@ public class UsersControllerTests
 		_factory = await new WebApplicationFactoryBuilder()
 			.AddMassTransitTestHarness(x =>
 			{
-				x.AddHandler<GetTopic>(context =>
-				{
-					return context.RespondAsync(new GetTopicResult()
-					{
-						TopicId = 1,
-						Content = "Javascript"
-					});
-				});
+				x.AddHandler<CheckTopics>(context => context.RespondAsync(new Existed()));
 			})
 			.BuildAsync<Program>();
 		await _factory.DatabaseInitializeAsync(Defaults.Database);
@@ -61,10 +53,7 @@ public class UsersControllerTests
 		var queryString = QueryString.Create(queries);
 
 		// Act
-		var response = await _client.GetAsync("/users" + queryString.ToString());
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var results = JsonSerializer.Deserialize<IEnumerable<UserResult>>(body);
+		var results = await _client.GetFromJsonAsync<IEnumerable<UserResult>>("/users" + queryString.ToString());
 
 		// Assert
 		Assert.That(results, Is.Not.Null);
@@ -85,23 +74,16 @@ public class UsersControllerTests
 	}
 
 
-	public static readonly object[] GetData = new[]
-	{
-		new object[] { 2, "Mona" },
-		new object[] { 3, "Emma" }
-	};
 	[Test]
-	[TestCaseSource(nameof(GetData))]
+	[TestCase(2, "Mona")]
+	[TestCase(3, "Emma")]
 	public async Task Get_ReturnsExactFullname(int userId, string fullName)
 	{
 		// Arrange
 
 
 		// Act
-		var response = await _client.GetAsync($"/users/{userId}");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserResult>(body);
+		var result = await _client.GetFromJsonAsync<UserResult>($"/users/{userId}");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -109,23 +91,16 @@ public class UsersControllerTests
 	}
 
 
-	public static readonly object[] GetProfileData = new[]
-	{
-		new object[] { 1, "Hanoi" },
-		new object[] { 2, "Ho Chi Minh City" }
-	};
 	[Test]
-	[TestCaseSource(nameof(GetProfileData))]
+	[TestCase(1, "Hanoi")]
+	[TestCase(2, "Ho Chi Minh City")]
 	public async Task GetProfile_ReturnsExactLocation(int userId, string location)
 	{
 		// Arrange
 
 
 		// Act
-		var response = await _client.GetAsync($"/users/{userId}/profile");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
+		var result = await _client.GetFromJsonAsync<UserProfileResult>($"/users/{userId}/profile");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -133,23 +108,16 @@ public class UsersControllerTests
 	}
 
 
-	public static readonly object[] GetInstructorData = new[]
-	{
-		new object[] { 1, "Developer" },
-		new object[] { 2, "Stdent" }
-	};
 	[Test]
-	[TestCaseSource(nameof(GetInstructorData))]
+	[TestCase(1, "Developer")]
+	[TestCase(2, "Stdent")]
 	public async Task GetInstructor_ReturnsExactTitle(int userId, string title)
 	{
 		// Arrange
 
 
 		// Act
-		var response = await _client.GetAsync($"/users/{userId}/instructor");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserInstructorResult>(body);
+		var result = await _client.GetFromJsonAsync<UserInstructorResult>($"/users/{userId}/instructor");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -163,24 +131,20 @@ public class UsersControllerTests
 	};
 	[Test]
 	[TestCaseSource(nameof(UpdateData))]
-	public async Task Update_ReturnsExactlyInput(int userId, UpdateUser dto)
+	public async Task Update_ReturnsExactlyInput(int userId, UpdateUser content)
 	{
 		// Arrange
-		var values = dto.GetType().GetProperties()
-			.Select(pi => (pi.Name, pi.GetValue(dto)))
+		var values = content.GetType().GetProperties()
+			.Select(pi => (pi.Name, pi.GetValue(content)))
 			.Where(v => v.Item2 != null);
 
 		var client = _factory.CreateClient();
 		client.DefaultRequestHeaders.Add("userId", userId.ToString());
-		var content = JsonContent.Create(dto);
 
 		// Act
-		var response = await client.PutAsync($"/users/me", content);
+		var response = await client.PutAsJsonAsync($"/users/me", content);
 		response.EnsureSuccessStatusCode();
-		response = await client.GetAsync($"/users/{userId}/profile");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
+		var result = await client.GetFromJsonAsync<UserProfileResult>($"/users/{userId}/profile");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -220,16 +184,14 @@ public class UsersControllerTests
 		// Act
 		var response = await client.PostAsync($"/users/me/interest/{topicId}", null);
 		response.EnsureSuccessStatusCode();
-		response = await client.GetAsync($"/users/{userId}/profile");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
+		var result = await client.GetFromJsonAsync<UserProfileResult>($"/users/{userId}/profile");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
 
 		Assert.That(result.InterestedTopics, Does.Contain(topicId));
 	}
+
 
 	[Test]
 	[TestCase(2, 3)]
@@ -242,15 +204,29 @@ public class UsersControllerTests
 		// Act
 		var response = await client.DeleteAsync($"/users/me/interest/{topicId}");
 		response.EnsureSuccessStatusCode();
-		response = await client.GetAsync($"/users/{userId}/profile");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
+		var result = await client.GetFromJsonAsync<UserProfileResult>($"/users/{userId}/profile");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
 
 		Assert.That(result.InterestedTopics, Does.Not.Contain(topicId));
+	}
+
+
+	[Test]
+	[TestCase(2)]
+	[TestCase(3)]
+	public async Task GetAllFollowedTopic_ReturnsOk(int userId)
+	{
+		// Arrange
+		var client = _factory.CreateClient();
+		client.DefaultRequestHeaders.Add("userId", userId.ToString());
+
+		// Act
+		var result = await client.GetFromJsonAsync<IEnumerable<int>>($"/users/me/follow");
+
+		// Assert
+		Assert.That(result, Is.Not.Null);
 	}
 
 
@@ -286,48 +262,37 @@ public class UsersControllerTests
 	}
 
 
-	public static readonly object[] AddExperiencesData = new[]
-	{
-		new object[]
-		{
-			2,
-			new CreateExperience()
-			{
-				Name = "School A",
-				Title = "Engineer",
-				Started = DateTime.Now.AddYears(-1),
-				Ended = DateTime.Now
-			}
-		}
-	};
 	[Test]
-	[TestCaseSource(nameof(AddExperiencesData))]
-	public async Task AddExperience_ReturnsExactInput(int userId, CreateExperience dto)
+	public async Task AddExperience_ReturnsExactInput()
 	{
 		// Arrange
+		var userId = 2;
 		var client = _factory.CreateClient();
 		client.DefaultRequestHeaders.Add("userId", userId.ToString());
-		var content = JsonContent.Create(dto);
+
+		var content = new CreateExperience()
+		{
+			Name = "School A",
+			Title = "Engineer",
+			Started = DateTime.Now.AddYears(-1),
+			Ended = DateTime.Now
+		};
 
 		// Act
-		var response = await client.PostAsync($"/users/me/experiences", content);
+		var response = await client.PostAsJsonAsync($"/users/me/experiences", content);
 		response.EnsureSuccessStatusCode();
-		response = await client.GetAsync($"/users/{userId}/profile");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
+		var result = await client.GetFromJsonAsync<UserProfileResult>($"/users/{userId}/profile");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
 
-		var expected = Is.True;
 		var actual = result.Experiences
 			.Any(x =>
-				x.Name == dto.Name &&
-				x.Title == dto.Title &&
-				x.Started == dto.Started &&
-				x.Ended == dto.Ended);
-		Assert.That(actual, expected);
+				x.Name == content.Name &&
+				x.Title == content.Title &&
+				x.Started == content.Started &&
+				x.Ended == content.Ended);
+		Assert.That(actual, Is.True);
 	}
 
 	[Test]
@@ -341,10 +306,7 @@ public class UsersControllerTests
 		// Act
 		var response = await client.DeleteAsync($"/users/me/experiences/{experienceId}");
 		response.EnsureSuccessStatusCode();
-		response = await client.GetAsync($"/users/{userId}/profile");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
+		var result = await client.GetFromJsonAsync<UserProfileResult>($"/users/{userId}/profile");
 
 		// Assert
 		Assert.That(result, Is.Not.Null);

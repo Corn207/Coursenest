@@ -1,4 +1,5 @@
 ﻿using APICommonLibrary.MessageBus.Commands;
+using APICommonLibrary.MessageBus.Responses;
 using AutoMapper;
 using Identity.API.Infrastructure.Contexts;
 using Identity.API.Infrastructure.Entities;
@@ -23,15 +24,17 @@ public class CreateUserConsumer : IConsumer<CreateUser>
 		var exists = await _context.Users
 			.AsNoTracking()
 			.AnyAsync(x => x.Email == context.Message.Email);
-		if (exists) throw new ArgumentException("Email existed.");
+		if (exists)
+		{
+			await context.RespondAsync(new Existed() { Message = "Email existed." });
+			return;
+		}
 
 		var user = _mapper.Map<User>(context.Message);
-
 		_context.Users.Add(user);
+
 		await _context.SaveChangesAsync();
 
-		var result = new CreateUserResult() { UserId = user.UserId };
-
-		await context.RespondAsync(result);
+		await context.RespondAsync(new Created() { Id = user.UserId });
 	}
 }

@@ -1,12 +1,10 @@
 ﻿using APICommonLibrary.Constants;
-using APICommonLibrary.MessageBus.Commands;
 using APICommonLibrary.Validations;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Library.API.DTOs.Courses;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
-using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -19,16 +17,11 @@ namespace Library.API.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly DataContext _context;
-		private readonly IRequestClient<GetTopic> _getTopicClient;
 
-		public CoursesController(
-			IMapper mapper,
-			DataContext context,
-			IRequestClient<GetTopic> getTopicClient)
+		public CoursesController(IMapper mapper, DataContext context)
 		{
 			_mapper = mapper;
 			_context = context;
-			_getTopicClient = getTopicClient;
 		}
 
 
@@ -143,16 +136,10 @@ namespace Library.API.Controllers
 		{
 			if (dto.TopicId != null)
 			{
-				var getTopic = new GetTopic() { TopicId = (int)dto.TopicId };
-				Response<GetTopicResult> getTopicResponse;
-				try
-				{
-					getTopicResponse = await _getTopicClient.GetResponse<GetTopicResult>(getTopic);
-				}
-				catch (KeyNotFoundException)
-				{
-					return NotFound("TopicId not existed.");
-				}
+				var exists = await _context.Topics
+					.AsNoTracking()
+					.AnyAsync(x => x.TopicId == dto.TopicId);
+				if (!exists) return NotFound();
 			}
 
 			var course = _mapper.Map<Course>(dto);

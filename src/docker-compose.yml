@@ -20,6 +20,8 @@ services:
     depends_on:
       - database
       - messagebus
+      - identity.api
+      - library.api
 
   identity.api:
     image: ${DOCKER_REGISTRY-}identityapi
@@ -31,6 +33,7 @@ services:
     depends_on:
       - database
       - messagebus
+      - library.api
 
   library.api:
     image: ${DOCKER_REGISTRY-}libraryapi
@@ -42,6 +45,17 @@ services:
     depends_on:
       - database
       - messagebus
+
+  payment.api:
+    image: ${DOCKER_REGISTRY-}paymentapi
+    build:
+      context: .
+      dockerfile: Services/Payment/Payment.API/Dockerfile
+    networks:
+      - backend
+    depends_on:
+      - messagebus
+      - authentication.api
 
   database:
     image: mcr.microsoft.com/mssql/server:2019-latest

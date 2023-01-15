@@ -1,7 +1,6 @@
 using Authentication.API.DTOs;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
-using System.Text.Json;
 using TestCommonLibrary;
 
 namespace Authentication.Tests;
@@ -60,16 +59,12 @@ public class RolesControllerTests
 	{
 		// Arrange
 		int userId = 1;
-		SetRole dto = new SetRole() { Type = API.Infrastructure.Entities.RoleType.Student, Expiry = DateTime.Now };
-		var content = JsonContent.Create(dto);
+		var dto = new SetRole() { Type = API.Infrastructure.Entities.RoleType.Student, Expiry = DateTime.Now };
 
 		// Act
-		var response = await _client.PutAsync($"/roles/{userId}", content);
+		var response = await _client.PutAsJsonAsync($"/roles/{userId}", dto);
 		response.EnsureSuccessStatusCode();
-		response = await _client.GetAsync($"/roles?userId={userId}");
-		response.EnsureSuccessStatusCode();
-		var body = await response.Content.ReadAsStringAsync();
-		var results = JsonSerializer.Deserialize<IEnumerable<RoleResult>>(body);
+		var results = await _client.GetFromJsonAsync<IEnumerable<RoleResult>>($"/roles?userId={userId}");
 
 		// Assert
 		Assert.That(results, Is.Not.Null);

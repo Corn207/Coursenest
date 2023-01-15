@@ -1,8 +1,8 @@
-﻿namespace APICommonLibrary.MessageBus.Commands;
+﻿namespace APICommonLibrary.MessageBus.Responses;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-public record GetTopic
+public record Existed
 {
-	public int TopicId { get; set; }
+	public string Message { get; set; }
 }

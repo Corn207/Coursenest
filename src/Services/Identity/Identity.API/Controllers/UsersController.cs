@@ -1,5 +1,7 @@
 ﻿using APICommonLibrary.Constants;
 using APICommonLibrary.MessageBus.Commands;
+using APICommonLibrary.MessageBus.Events;
+using APICommonLibrary.MessageBus.Responses;
 using APICommonLibrary.Validations;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -19,16 +21,19 @@ namespace Identity.API.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly DataContext _context;
-		private readonly IRequestClient<GetTopic> _getTopicClient;
+		private readonly IRequestClient<CheckTopics> _checkTopicsClient;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public UsersController(
 			IMapper mapper,
 			DataContext context,
-			IRequestClient<GetTopic> getTopicClient)
+			IRequestClient<CheckTopics> checkTopicsClient,
+			IPublishEndpoint publishEndpoint)
 		{
 			_mapper = mapper;
 			_context = context;
-			_getTopicClient = getTopicClient;
+			_checkTopicsClient = checkTopicsClient;
+			_publishEndpoint = publishEndpoint;
 		}
 
 
@@ -137,6 +142,9 @@ namespace Identity.API.Controllers
 				.ExecuteDeleteAsync();
 			if (result == 0) return NotFound();
 
+			var publish = new UserDeleted() { UserId = userId };
+			await _publishEndpoint.Publish(publish);
+
 			return NoContent();
 		}
 
@@ -164,15 +172,6 @@ namespace Identity.API.Controllers
 			};
 			user.LastModified = DateTime.Now;
 
-			//await _context.Avatars.Where(x => x.UserId == dto.UserId).ExecuteDeleteAsync();
-
-			//var extension = Path.GetExtension(dto.FormFile.FileName).ToLowerInvariant();
-			//result.Avatar = new Avatar()
-			//{
-			//	MediaType = FormFileContants.Extensions.GetValueOrDefault(extension)!,
-			//	Data = memoryStream.ToArray()
-			//};
-
 			await _context.SaveChangesAsync();
 
 			return NoContent();
@@ -190,15 +189,12 @@ namespace Identity.API.Controllers
 				.AnyAsync(x => x.UserId == userId);
 			if (!exists) return NotFound();
 
-			var getTopic = new GetTopic() { TopicId = topicId };
-			Response<GetTopicResult> getTopicResponse;
-			try
+			var checkTopicsRequest = new CheckTopics() { TopicIds = new[] { topicId } };
+			var checkTopicsResponse = await _checkTopicsClient.GetResponse<Existed, NotFound>(checkTopicsRequest);
+
+			if (checkTopicsResponse.Is(out Response<NotFound>? notFoundResponse))
 			{
-				getTopicResponse = await _getTopicClient.GetResponse<GetTopicResult>(getTopic);
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound("TopicId not existed.");
+				return NotFound(notFoundResponse!.Message.Message);
 			}
 
 			var topic = new InterestedTopic() { UserId = userId, TopicId = topicId };
@@ -216,7 +212,6 @@ namespace Identity.API.Controllers
 			return CreatedAtAction(nameof(GetProfile), new { userId }, topicId);
 		}
 
-
 		// DELETE: /users/me/interest/5
 		[HttpDelete("me/interest/{topicId}")]
 		public async Task<ActionResult> DeleteInterestedTopic(
@@ -232,6 +227,23 @@ namespace Identity.API.Controllers
 		}
 
 
+		// GET: /users/me/follow
+		[HttpGet("me/follow")]
+		public async Task<ActionResult<IEnumerable<int>>> GetAllFollowedTopic(
+			[FromHeader] int userId)
+		{
+			var result = await _context.Users
+				.AsNoTracking()
+				.Include(x => x.FollowedTopics)
+				.Where(x => x.UserId == userId)
+				.Select(x => x.FollowedTopics.Select(x => x.TopicId))
+				.FirstOrDefaultAsync();
+			if (result == null) return NotFound();
+
+			return Ok(result);
+		}
+
+
 		// POST: /users/me/follow/2
 		[HttpPost("me/follow/{topicId}")]
 		public async Task<ActionResult<int>> AddFollowedTopic(
@@ -243,15 +255,12 @@ namespace Identity.API.Controllers
 				.AnyAsync(x => x.UserId == userId);
 			if (!exists) return NotFound();
 
-			var getTopic = new GetTopic() { TopicId = topicId };
-			Response<GetTopicResult> getTopicResponse;
-			try
+			var checkTopicsRequest = new CheckTopics() { TopicIds = new[] { topicId } };
+			var checkTopicsResponse = await _checkTopicsClient.GetResponse<Existed, NotFound>(checkTopicsRequest);
+
+			if (checkTopicsResponse.Is(out Response<NotFound>? notFoundResponse))
 			{
-				getTopicResponse = await _getTopicClient.GetResponse<GetTopicResult>(getTopic);
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound("TopicId not existed.");
+				return NotFound(notFoundResponse!.Message.Message);
 			}
 
 			var topic = new FollowedTopic() { UserId = userId, TopicId = topicId };

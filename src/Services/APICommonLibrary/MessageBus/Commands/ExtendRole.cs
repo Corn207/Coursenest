@@ -2,9 +2,14 @@
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-public record CreateUser
+public record ExtendRole
 {
-	public string Email { get; set; }
-	public string FullName { get; set; }
-	public int[] InterestedTopicIds { get; set; }
+	public int UserId { get; set; }
+	public RoleType Type { get; set; }
+	public int ExtendedDays { get; set; }
+}
+
+public enum RoleType
+{
+	Student, Instructor, Publisher
 }
