@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Library.API.DTOs;
 using Library.API.DTOs.Units;
 using Library.API.Infrastructure.Contexts;
@@ -37,27 +38,25 @@ namespace Library.API.Controllers
 			[FromHeader] int? publisherUserId,
 			int lessonId)
 		{
-			IEnumerable<UnitResult> results;
+			List<UnitResult> results;
 			if (publisherUserId == null)
 			{
 				results = await _context.Units
 					.AsNoTracking()
 					.Where(x => x.LessonId == lessonId && x.Lesson.Course.IsApproved)
-					.Select(x => _mapper.Map<UnitResult>(x))
+					.ProjectTo<UnitResult>(_mapper.ConfigurationProvider)
 					.ToListAsync();
 			}
 			else
 			{
-				if (await IsLessonOwned(lessonId, (int)publisherUserId)) return NotFound();
-
 				results = await _context.Units
 					.AsNoTracking()
-					.Where(x => x.LessonId == lessonId)
-					.Select(x => _mapper.Map<UnitResult>(x))
+					.Where(x => x.LessonId == lessonId && x.Lesson.Course.PublisherUserId == publisherUserId)
+					.ProjectTo<UnitResult>(_mapper.ConfigurationProvider)
 					.ToListAsync();
 			}
 
-			return Ok(results);
+			return results;
 		}
 
 		// GET: /units/5
@@ -71,15 +70,13 @@ namespace Library.API.Controllers
 			{
 				unit = await _context.Units
 					.AsNoTracking()
-					.Where(x => x.UnitId == unitId && x.Lesson.Course.IsApproved)
-					.FirstOrDefaultAsync();
+					.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.IsApproved);
 			}
 			else
 			{
 				unit = await _context.Units
 					.AsNoTracking()
-					.Where(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == (int)publisherUserId)
-					.FirstOrDefaultAsync();
+					.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId);
 			}
 			if (unit == null) return NotFound();
 
@@ -112,23 +109,28 @@ namespace Library.API.Controllers
 			[FromHeader] int publisherUserId,
 			CreateMaterial dto)
 		{
-			if (await IsLessonOwned(dto.LessonId, publisherUserId))
-				return NotFound();
+			var exists = await _context.Lessons
+				.AsNoTracking()
+				.AnyAsync(x => x.LessonId == dto.LessonId && x.Course.PublisherUserId == publisherUserId);
+			if (!exists) return NotFound();
 
-			var result = _mapper.Map<Material>(dto);
+			var material = _mapper.Map<Material>(dto);
 
 			var max = await _context.Units
+				.AsNoTracking()
 				.Where(x => x.LessonId == dto.LessonId)
 				.OrderByDescending(x => x.Order)
 				.Select(x => x.Order)
 				.FirstOrDefaultAsync();
-			result.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
-			result.OrderDenominator = 1;
+			material.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
+			material.OrderDenominator = 1;
 
-			_context.Materials.Add(result);
+			_context.Materials.Add(material);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { publisherUserId, result.UnitId }, _mapper.Map<MaterialResult>(result));
+			var result = _mapper.Map<MaterialResult>(material);
+
+			return CreatedAtAction(nameof(Get), new { publisherUserId, material.UnitId }, result);
 		}
 
 		// POST: /units/exam
@@ -137,23 +139,28 @@ namespace Library.API.Controllers
 			[FromHeader] int publisherUserId,
 			CreateExam dto)
 		{
-			if (await IsLessonOwned(dto.LessonId, publisherUserId))
-				return NotFound();
+			var exists = await _context.Lessons
+				.AsNoTracking()
+				.AnyAsync(x => x.LessonId == dto.LessonId && x.Course.PublisherUserId == publisherUserId);
+			if (!exists) return NotFound();
 
-			var result = _mapper.Map<Exam>(dto);
+			var exam = _mapper.Map<Exam>(dto);
 
 			var max = await _context.Units
+				.AsNoTracking()
 				.Where(x => x.LessonId == dto.LessonId)
 				.OrderByDescending(x => x.Order)
 				.Select(x => x.Order)
 				.FirstOrDefaultAsync();
-			result.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
-			result.OrderDenominator = 1;
+			exam.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
+			exam.OrderDenominator = 1;
 
-			_context.Exams.Add(result);
+			_context.Exams.Add(exam);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { publisherUserId, result.UnitId }, _mapper.Map<ExamResult>(result));
+			var result = _mapper.Map<ExamResult>(exam);
+
+			return CreatedAtAction(nameof(Get), new { publisherUserId, exam.UnitId }, exam);
 		}
 
 
@@ -164,14 +171,16 @@ namespace Library.API.Controllers
 			int unitId,
 			UpdateMaterial dto)
 		{
-			var result = await _context.Materials
+			var material = await _context.Materials
 				.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			if (result == null) return NotFound();
+			if (material == null) return NotFound();
 
-			_mapper.Map(dto, result);
+			_mapper.Map(dto, material);
 			await _context.SaveChangesAsync();
 
-			return Ok(_mapper.Map<MaterialResult>(result));
+			var result = _mapper.Map<MaterialResult>(material);
+
+			return result;
 		}
 
 		// PUT: /units/5/exam
@@ -181,14 +190,16 @@ namespace Library.API.Controllers
 			int unitId,
 			UpdateExam dto)
 		{
-			var result = await _context.Exams
+			var exam = await _context.Exams
 				.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			if (result == null) return NotFound();
+			if (exam == null) return NotFound();
 
-			_mapper.Map(dto, result);
+			_mapper.Map(dto, exam);
 			await _context.SaveChangesAsync();
 
-			return Ok(_mapper.Map<ExamResult>(result));
+			var result = _mapper.Map<ExamResult>(exam);
+
+			return result;
 		}
 
 
@@ -220,14 +231,14 @@ namespace Library.API.Controllers
 
 			var to = await _context.Units
 				.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.UnitId == dto.ToId);
+				.FirstOrDefaultAsync(x => x.UnitId == dto.ToId && x.LessonId == from.LessonId);
 			if (to == null) return NotFound();
 
 			if (dto.IsBefore)
 			{
 				var before = await _context.Units
 					.AsNoTracking()
-					.Where(x => x.Order < to.Order)
+					.Where(x => x.Order < to.Order && x.LessonId == from.LessonId)
 					.OrderByDescending(x => x.Order)
 					.FirstOrDefaultAsync();
 				from.OrderNumerator = (before == null ? 0 : before.OrderNumerator) + to.OrderNumerator;
@@ -237,7 +248,7 @@ namespace Library.API.Controllers
 			{
 				var after = await _context.Units
 					.AsNoTracking()
-					.Where(x => x.Order > to.Order)
+					.Where(x => x.Order > to.Order && x.LessonId == from.LessonId)
 					.OrderBy(x => x.Order)
 					.FirstOrDefaultAsync();
 				from.OrderNumerator = (after == null ? (int)Math.Ceiling(to.Order) : after.OrderNumerator) + to.OrderNumerator;
@@ -246,7 +257,9 @@ namespace Library.API.Controllers
 
 			await _context.SaveChangesAsync();
 
-			return Ok(_mapper.Map<UnitResult>(from));
+			var result = _mapper.Map<UnitResult>(from);
+
+			return result;
 		}
 
 
@@ -256,16 +269,19 @@ namespace Library.API.Controllers
 			[FromHeader] int publisherUserId,
 			CreateQuestion dto)
 		{
-			var exam = await _context.Exams
-				.FirstOrDefaultAsync(x => x.UnitId == dto.ExamUnitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			if (exam == null) return NotFound();
+			var exists = await _context.Exams
+				.AsNoTracking()
+				.AnyAsync(x => x.UnitId == dto.ExamUnitId && x.Lesson.Course.PublisherUserId == publisherUserId);
+			if (!exists) return NotFound();
 
-			var result = _mapper.Map<Question>(dto);
+			var question = _mapper.Map<Question>(dto);
 
-			exam.Questions.Add(result);
+			_context.Questions.Add(question);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { publisherUserId, result.ExamUnitId }, _mapper.Map<QuestionResult>(result));
+			var result = _mapper.Map<QuestionResult>(question);
+
+			return CreatedAtAction(nameof(Get), new { publisherUserId, question.ExamUnitId }, result);
 		}
 
 
@@ -277,18 +293,40 @@ namespace Library.API.Controllers
 			int questionId,
 			UpdateQuestion dto)
 		{
-			var result = await _context.Questions
+			var question = await _context.Questions
+				.Include(x => x.Choices)
 				.FirstOrDefaultAsync(x =>
 					x.QuestionId == questionId &&
 					x.ExamUnitId == examUnitId &&
 					x.Exam.Lesson.Course.PublisherUserId == publisherUserId);
-			if (result == null) return NotFound();
+			if (question == null) return NotFound();
 
-			_mapper.Map(dto, result);
+			_mapper.Map(dto, question);
 
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { publisherUserId, result.ExamUnitId }, _mapper.Map<QuestionResult>(result));
+			var result = _mapper.Map<QuestionResult>(question);
+
+			return CreatedAtAction(nameof(Get), new { publisherUserId, question.ExamUnitId }, result);
+		}
+
+
+		// DELETE: /units/5/questions/5
+		[HttpDelete("{examUnitId}/questions/{questionId}")]
+		public async Task<ActionResult> DeleteQuestion(
+			[FromHeader] int publisherUserId,
+			int examUnitId,
+			int questionId)
+		{
+			var result = await _context.Questions
+				.Where(x =>
+					x.QuestionId == questionId &&
+					x.Exam.UnitId == examUnitId &&
+					x.Exam.Lesson.Course.PublisherUserId == publisherUserId)
+				.ExecuteDeleteAsync();
+			if (result == 0) return NotFound();
+
+			return NoContent();
 		}
 	}
 }

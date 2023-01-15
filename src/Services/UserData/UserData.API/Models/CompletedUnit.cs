@@ -2,11 +2,11 @@
 
 public class CompletedUnit
 {
-    public int CompletedUnitId { get; set; }
-    
-    // Relationship
-    public int UnitId { get; set; }
+	public int CompletedUnitId { get; set; }
 
-    public int EnrolledCourseId { get; set; }
-    public EnrolledCourse EnrolledCourse { get; set; } = null!;
+	// Relationship
+	public int UnitId { get; set; }
+
+	public int EnrolledCourseId { get; set; }
+	public EnrolledCourse EnrolledCourse { get; set; } = null!;
 }

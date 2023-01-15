@@ -11,6 +11,7 @@ public record CourseResult
 	public string Description { get; set; }
 	public CourseTier Tier { get; set; }
 	public ImageResult? Cover { get; set; }
+	public int PublisherUserId { get; set; }
 	public float RatingAverage { get; set; }
 	public int RatingTotal { get; set; }
 }

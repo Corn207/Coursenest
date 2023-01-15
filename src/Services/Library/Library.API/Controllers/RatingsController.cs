@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Library.API.DTOs.Ratings;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
@@ -33,18 +34,20 @@ namespace Library.API.Controllers
 					(query.UserId == null || query.UserId == x.UserId))
 				.Skip(query.Page * query.PageSize)
 				.Take(query.PageSize)
-				.Select(x => _mapper.Map<RatingResult>(x))
+				.ProjectTo<RatingResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
-			return Ok(results);
+			return results;
 		}
 
 		// POST: /ratings
 		[HttpPost()]
 		public async Task<ActionResult<RatingResult>> Create(
+			[FromHeader] int userId,
 			CreateRating dto)
 		{
 			var rating = _mapper.Map<Rating>(dto);
+			rating.UserId = userId;
 
 			_context.Ratings.Add(rating);
 			try

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Library.API.DTOs;
 using Library.API.DTOs.Lessons;
-using Library.API.DTOs.Units;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -23,42 +23,31 @@ namespace Library.API.Controllers
 		}
 
 
-		private async Task<bool> IsOwned(int courseId, int publisherUserId)
-		{
-			var result = await _context.Courses
-				.AsNoTracking()
-				.AnyAsync(x => x.CourseId == courseId && x.PublisherUserId == publisherUserId);
-
-			return result;
-		}
-
 		// GET: /lessons
 		[HttpGet()]
 		public async Task<ActionResult<IEnumerable<LessonResult>>> GetAll(
 			[FromHeader] int? publisherUserId,
-			int courseId)
+			[FromQuery] int courseId)
 		{
-			IEnumerable<LessonResult> results;
+			List<LessonResult> results;
 			if (publisherUserId == null)
 			{
 				results = await _context.Lessons
 					.AsNoTracking()
 					.Where(x => x.CourseId == courseId && x.Course.IsApproved)
-					.Select(x => _mapper.Map<LessonResult>(x))
+					.ProjectTo<LessonResult>(_mapper.ConfigurationProvider)
 					.ToListAsync();
 			}
 			else
 			{
-				if (await IsOwned(courseId, (int)publisherUserId)) return NotFound();
-
 				results = await _context.Lessons
 					.AsNoTracking()
-					.Where(x => x.CourseId == courseId)
-					.Select(x => _mapper.Map<LessonResult>(x))
+					.Where(x => x.CourseId == courseId && x.Course.PublisherUserId == publisherUserId)
+					.ProjectTo<LessonResult>(_mapper.ConfigurationProvider)
 					.ToListAsync();
 			}
 
-			return Ok(results);
+			return results;
 		}
 
 		// GET: /lessons/5
@@ -73,15 +62,15 @@ namespace Library.API.Controllers
 				result = await _context.Lessons
 					.AsNoTracking()
 					.Where(x => x.LessonId == lessonId && x.Course.IsApproved)
-					.Select(x => _mapper.Map<LessonResult>(x))
+					.ProjectTo<LessonResult>(_mapper.ConfigurationProvider)
 					.FirstOrDefaultAsync();
 			}
 			else
 			{
 				result = await _context.Lessons
 					.AsNoTracking()
-					.Where(x => x.LessonId == lessonId && x.Course.PublisherUserId == (int)publisherUserId)
-					.Select(x => _mapper.Map<LessonResult>(x))
+					.Where(x => x.LessonId == lessonId && x.Course.PublisherUserId == publisherUserId)
+					.ProjectTo<LessonResult>(_mapper.ConfigurationProvider)
 					.FirstOrDefaultAsync();
 			}
 			if (result == null) return NotFound();
@@ -96,23 +85,28 @@ namespace Library.API.Controllers
 			[FromHeader] int publisherUserId,
 			CreateLesson dto)
 		{
-			if (await IsOwned(dto.CourseId, publisherUserId))
-				return NotFound();
+			var isOwned = await _context.Courses
+				.AsNoTracking()
+				.AnyAsync(x => x.CourseId == dto.CourseId && x.PublisherUserId == publisherUserId);
+			if (!isOwned) return NotFound();
 
-			var result = _mapper.Map<Lesson>(dto);
+			var lesson = _mapper.Map<Lesson>(dto);
 
 			var max = await _context.Lessons
+				.AsNoTracking()
 				.Where(x => x.CourseId == dto.CourseId)
 				.OrderByDescending(x => x.Order)
 				.Select(x => x.Order)
 				.FirstOrDefaultAsync();
-			result.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
-			result.OrderDenominator = 1;
+			lesson.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
+			lesson.OrderDenominator = 1;
 
-			_context.Lessons.Add(result);
+			_context.Lessons.Add(lesson);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { publisherUserId, result.LessonId }, _mapper.Map<LessonResult>(result));
+			var result = _mapper.Map<LessonResult>(lesson);
+
+			return CreatedAtAction(nameof(Get), new { publisherUserId, lesson.LessonId }, result);
 		}
 
 
@@ -123,14 +117,16 @@ namespace Library.API.Controllers
 			int lessonId,
 			UpdateLesson dto)
 		{
-			var result = await _context.Lessons
+			var lesson = await _context.Lessons
 				.FirstOrDefaultAsync(x => x.LessonId == lessonId && x.Course.PublisherUserId == publisherUserId);
-			if (result == null) return NotFound();
+			if (lesson == null) return NotFound();
 
-			_mapper.Map(dto, result);
+			_mapper.Map(dto, lesson);
 			await _context.SaveChangesAsync();
 
-			return Ok(_mapper.Map<MaterialResult>(result));
+			var result = _mapper.Map<LessonResult>(lesson);
+
+			return result;
 		}
 
 
@@ -157,19 +153,19 @@ namespace Library.API.Controllers
 			ChangeOrder dto)
 		{
 			var from = await _context.Lessons
-				.FirstAsync(x => x.LessonId == lessonId && x.Course.PublisherUserId == publisherUserId);
+				.FirstOrDefaultAsync(x => x.LessonId == lessonId && x.Course.PublisherUserId == publisherUserId);
 			if (from == null) return NotFound();
 
 			var to = await _context.Lessons
 				.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.LessonId == dto.ToId);
+				.FirstOrDefaultAsync(x => x.LessonId == dto.ToId && x.CourseId == from.CourseId);
 			if (to == null) return NotFound();
 
 			if (dto.IsBefore)
 			{
 				var before = await _context.Lessons
 					.AsNoTracking()
-					.Where(x => x.Order < to.Order)
+					.Where(x => x.Order < to.Order && x.CourseId == from.CourseId)
 					.OrderByDescending(x => x.Order)
 					.FirstOrDefaultAsync();
 				from.OrderNumerator = (before == null ? 0 : before.OrderNumerator) + to.OrderNumerator;
@@ -179,7 +175,7 @@ namespace Library.API.Controllers
 			{
 				var after = await _context.Lessons
 					.AsNoTracking()
-					.Where(x => x.Order > to.Order)
+					.Where(x => x.Order > to.Order && x.CourseId == from.CourseId)
 					.OrderBy(x => x.Order)
 					.FirstOrDefaultAsync();
 				from.OrderNumerator = (after == null ? (int)Math.Ceiling(to.Order) : after.OrderNumerator) + to.OrderNumerator;
@@ -188,7 +184,9 @@ namespace Library.API.Controllers
 
 			await _context.SaveChangesAsync();
 
-			return Ok(_mapper.Map<LessonResult>(from));
+			var result = _mapper.Map<LessonResult>(from);
+
+			return result;
 		}
 	}
 }

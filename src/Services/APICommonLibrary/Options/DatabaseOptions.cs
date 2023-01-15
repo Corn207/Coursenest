@@ -7,5 +7,4 @@ public class DatabaseOptions
 	public string ConnectionString { get; set; }
 	public bool EnsureDeleted { get; set; }
 	public bool EnsureCreated { get; set; }
-	public bool Seeding { get; set; }
 }

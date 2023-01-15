@@ -2,11 +2,13 @@
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Common;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -30,6 +32,22 @@ public static class BuilderExtensions
 				{
 					//builder.EnableRetryOnFailure(1, TimeSpan.FromSeconds(3), null);
 				});
+			});
+		}
+		else
+		{
+			services.AddSingleton<DbConnection>(container =>
+			{
+				var connection = new SqliteConnection("Filename=:memory:");
+				connection.Open();
+
+				return connection;
+			});
+
+			services.AddDbContext<DbContext, TDbContext>((container, options) =>
+			{
+				var connection = container.GetRequiredService<DbConnection>();
+				options.UseSqlite(connection);
 			});
 		}
 

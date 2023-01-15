@@ -1,11 +1,6 @@
 using APICommonLibrary.Extensions;
-using Identity.API;
 using Identity.API.Consumers;
 using Identity.API.Infrastructure.Contexts;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Data.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 

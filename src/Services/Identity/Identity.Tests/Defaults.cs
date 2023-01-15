@@ -85,13 +85,62 @@ public static class Defaults
 
 		context.AddRange(new[]
 		{
-			new Experience() { ExperienceId = 1, Name = " Hanoi University", Title = "Professor", Started = DateTime.Now, UserId = 1 },
-			new Experience() { ExperienceId = 2, Name = " BBOLD Talent", Title = "Employee", Started = DateTime.Now, UserId = 2 },
-			new Experience() { ExperienceId = 3, Name = " SLEEP TRADING COMPANY LIMITED", Title = "Director", Started = DateTime.Now, UserId = 3 },
-			new Experience() { ExperienceId = 4, Name = " XYZ TECHNOLOGY COMPANY LIMITED", Title = "Manager", Started = DateTime.Now, UserId = 4 },
-			new Experience() { ExperienceId = 5, Name = " ABC INVESTMENT COMPANY LIMITED", Title = "Employee", Started = DateTime.Now, UserId = 5 },
-			new Experience() { ExperienceId = 6, Name = " Hanoi University of science and technology", Title = "Engineer", Started = DateTime.Now, UserId = 6 },
-			new Experience() { ExperienceId = 7, Name = " Ho Chi Minh University", Title = "Bachelor", Started = DateTime.Now, UserId = 7 }
+			new Experience()
+			{
+				ExperienceId = 1,
+				Name = " Hanoi University",
+				Title = "Professor",
+				Started = DateTime.Now,
+				UserId = 1
+			},
+			new Experience()
+			{
+				ExperienceId = 2,
+				Name = " BBOLD Talent",
+				Title = "Employee",
+				Started = DateTime.Now,
+				UserId = 2
+			},
+			new Experience()
+			{
+				ExperienceId = 3,
+				Name = " SLEEP TRADING COMPANY LIMITED",
+				Title = "Director",
+				Started = DateTime.Now,
+				UserId = 3
+			},
+			new Experience()
+			{
+				ExperienceId = 4,
+				Name = " XYZ TECHNOLOGY COMPANY LIMITED",
+				Title = "Manager",
+				Started = DateTime.Now,
+				UserId = 4
+			},
+			new Experience()
+			{
+				ExperienceId = 5,
+				Name = " ABC INVESTMENT COMPANY LIMITED",
+				Title = "Employee",
+				Started = DateTime.Now,
+				UserId = 5
+			},
+			new Experience()
+			{
+				ExperienceId = 6,
+				Name = " Hanoi University of science and technology",
+				Title = "Engineer",
+				Started = DateTime.Now,
+				UserId = 6
+			},
+			new Experience()
+			{
+				ExperienceId = 7,
+				Name = " Ho Chi Minh University",
+				Title = "Bachelor",
+				Started = DateTime.Now,
+				UserId = 7
+			}
 		});
 
 		context.AddRange(new[]
@@ -109,6 +158,52 @@ public static class Defaults
 		{
 			new FollowedTopic() { UserId = 3, TopicId = 2 },
 			new FollowedTopic() { UserId = 6, TopicId = 1 },
+		});
+
+		context.AddRange(new[]
+		{
+			new Achievement()
+			{
+				AchievementId = 1,
+				Title = "Learn Java in 1 hour",
+				Created = DateTime.Now,
+				UserId = 1
+			},
+			new Achievement()
+			{
+				AchievementId = 2,
+				Title = "Complete Guide to Realistic Character Creation in Blender",
+				Created = DateTime.Now,
+				UserId = 1
+			},
+			new Achievement()
+			{
+				AchievementId = 3,
+				Title = "CComplete Blender Megacourse: Beginner to Expert",
+				Created = DateTime.Now,
+				UserId = 1
+			},
+			new Achievement()
+			{
+				AchievementId = 1,
+				Title = "Microsoft Excel - Excel from Beginner to Advanced",
+				Created = DateTime.Now,
+				UserId = 2
+			},
+			new Achievement()
+			{
+				AchievementId = 2,
+				Title = "Zero to Hero in Microsoft Excel: Complete Excel guide 2023",
+				Created = DateTime.Now,
+				UserId = 2
+			},
+			new Achievement()
+			{
+				AchievementId = 1,
+				Title = "Data Analyst Skillpath: Zero to Hero in Excel, SQL & Python",
+				Created = DateTime.Now,
+				UserId = 4
+			}
 		});
 	};
 }

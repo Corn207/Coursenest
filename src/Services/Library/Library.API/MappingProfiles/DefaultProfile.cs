@@ -22,30 +22,31 @@ public class DefaultProfile : Profile
 			.ForMember(des => des.SubcategoryContent, opt => opt.MapFrom(x => x.Subcategory.Content))
 			.ForMember(des => des.CategoryContent, opt => opt.MapFrom(x => x.Subcategory.Category.Content));
 
-		CreateMap<Category, IdContentResult>();
-		CreateMap<Subcategory, IdContentResult>();
-		CreateMap<Topic, IdContentResult>();
+		CreateMap<Category, IdContentResult>()
+			.ForMember(des => des.Id, opt => opt.MapFrom(x => x.CategoryId));
+		CreateMap<Subcategory, IdContentResult>()
+			.ForMember(des => des.Id, opt => opt.MapFrom(x => x.SubcategoryId));
+		CreateMap<Topic, IdContentResult>()
+			.ForMember(des => des.Id, opt => opt.MapFrom(x => x.TopicId));
 
 		// Course
-		CreateMap<Course, CourseResult>();
-		CreateMap<Course, CourseDetailedResult>();
-
-		CreateMap<CourseCover, ImageResult>()
-			.ForMember(
-				nameof(ImageResult.URI),
-				options => options.MapFrom(src => $"data:{src.MediaType};base64,{Convert.ToBase64String(src.Data)}"));
-
 		CreateMap<CreateCourse, Course>()
 			.ForMember(des => des.IsApproved, opt => opt.MapFrom(_ => false))
 			.ForMember(des => des.Created, opt => opt.MapFrom(_ => DateTime.Now))
 			.ForMember(des => des.LastModified, opt => opt.MapFrom(_ => DateTime.Now));
-
 		CreateMap<UpdateCourse, Course>()
 			.ForMember(des => des.LastModified, opt => opt.MapFrom(_ => DateTime.Now))
 			.ForAllMembers(options =>
 			{
 				options.Condition((source, destination, member) => member != null);
 			});
+
+		CreateMap<Course, CourseResult>();
+		CreateMap<Course, CourseDetailedResult>();
+		CreateMap<CourseCover, ImageResult>()
+			.ForMember(
+				nameof(ImageResult.URI),
+				options => options.MapFrom(src => $"data:{src.MediaType};base64,{Convert.ToBase64String(src.Data)}"));
 
 		// Rating
 		CreateMap<CreateRating, Rating>()
@@ -66,7 +67,7 @@ public class DefaultProfile : Profile
 		// Unit
 		CreateMap<Unit, UnitResult>();
 
-
+		// Material
 		CreateMap<CreateMaterial, Material>();
 		CreateMap<UpdateMaterial, Material>()
 			.ForAllMembers(options =>
@@ -76,7 +77,7 @@ public class DefaultProfile : Profile
 
 		CreateMap<Material, MaterialResult>();
 
-
+		// Exam
 		CreateMap<CreateExam, Exam>();
 		CreateMap<UpdateExam, Exam>()
 			.ForAllMembers(options =>
@@ -86,17 +87,19 @@ public class DefaultProfile : Profile
 
 		CreateMap<Exam, ExamResult>();
 
+		// Question
 		CreateMap<CreateQuestion, Question>();
 		CreateMap<UpdateQuestion, Question>()
 			.ForAllMembers(options =>
 			{
 				options.Condition((source, destination, member) => member != null);
 			});
-		CreateMap<QuestionResult, Question>();
 
 		CreateMap<Question, QuestionResult>();
 
+		// Choice
 		CreateMap<ChoiceResult, Choice>();
+
 		CreateMap<Choice, ChoiceResult>();
 	}
 }

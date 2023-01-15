@@ -8,6 +8,7 @@ using Identity.API.Infrastructure.Contexts;
 using Identity.API.Infrastructure.Entities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.API.Controllers
@@ -144,9 +145,10 @@ namespace Identity.API.Controllers
 		[HttpPut("me/cover")]
 		public async Task<ActionResult> UpdateCover(
 			[FromHeader] int userId,
-			[MaxSize(0, 2 * 1024 * 1024)][ImageExtension] IFormFile FormFile)
+			[BindRequired][MaxSize(0, 2 * 1024 * 1024)][ImageExtension] IFormFile FormFile)
 		{
 			var user = await _context.Users
+				.Include(x => x.Avatar)
 				.FirstOrDefaultAsync(x => x.UserId == userId);
 			if (user == null) return NotFound();
 

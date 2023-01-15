@@ -1,5 +1,4 @@
 ﻿using Library.API.Infrastructure.Entities;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.DTOs.Courses;
 
@@ -12,7 +11,4 @@ public record CreateCourse
 	public string About { get; set; }
 	public CourseTier Tier { get; set; }
 	public int? TopicId { get; set; }
-
-	[FromHeader]
-	public int PublisherUserId { get; set; }
 }

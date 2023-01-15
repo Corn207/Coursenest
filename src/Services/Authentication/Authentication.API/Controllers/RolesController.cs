@@ -5,7 +5,6 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static MassTransit.ValidationResultExtensions;
 
 namespace Authentication.API.Controllers
 {

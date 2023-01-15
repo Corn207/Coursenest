@@ -6,6 +6,6 @@ public record CreateMaterial
 {
 	public string Title { get; set; }
 	public TimeSpan RequiredTime { get; set; }
-	public string Content { get; set; }
 	public int LessonId { get; set; }
+	public string Content { get; set; }
 }

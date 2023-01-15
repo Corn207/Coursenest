@@ -1,11 +1,10 @@
 using APICommonLibrary.MessageBus.Commands;
 using Identity.API.DTOs;
-using Identity.API.Infrastructure.Contexts;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.CodeAnalysis;
-using Newtonsoft.Json;
 using System.Net;
+using System.Text.Json;
 using TestCommonLibrary;
 
 namespace Identity.Tests;
@@ -20,7 +19,6 @@ public class UsersControllerTests
 	public async Task Setup()
 	{
 		_factory = await new WebApplicationFactoryBuilder()
-			.AddSqliteInMemory<DataContext>()
 			.AddMassTransitTestHarness(x =>
 			{
 				x.AddHandler<GetTopic>(context =>
@@ -66,7 +64,7 @@ public class UsersControllerTests
 		var response = await _client.GetAsync("/users" + queryString.ToString());
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var results = JsonConvert.DeserializeObject<IEnumerable<UserResult>>(body);
+		var results = JsonSerializer.Deserialize<IEnumerable<UserResult>>(body);
 
 		// Assert
 		Assert.That(results, Is.Not.Null);
@@ -103,7 +101,7 @@ public class UsersControllerTests
 		var response = await _client.GetAsync($"/users/{userId}");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserResult>(body);
+		var result = JsonSerializer.Deserialize<UserResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -127,7 +125,7 @@ public class UsersControllerTests
 		var response = await _client.GetAsync($"/users/{userId}/profile");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserProfileResult>(body);
+		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -151,7 +149,7 @@ public class UsersControllerTests
 		var response = await _client.GetAsync($"/users/{userId}/instructor");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserInstructorResult>(body);
+		var result = JsonSerializer.Deserialize<UserInstructorResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -182,7 +180,7 @@ public class UsersControllerTests
 		response = await client.GetAsync($"/users/{userId}/profile");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserProfileResult>(body);
+		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -225,7 +223,7 @@ public class UsersControllerTests
 		response = await client.GetAsync($"/users/{userId}/profile");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserProfileResult>(body);
+		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -247,7 +245,7 @@ public class UsersControllerTests
 		response = await client.GetAsync($"/users/{userId}/profile");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserProfileResult>(body);
+		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -317,7 +315,7 @@ public class UsersControllerTests
 		response = await client.GetAsync($"/users/{userId}/profile");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserProfileResult>(body);
+		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -346,7 +344,7 @@ public class UsersControllerTests
 		response = await client.GetAsync($"/users/{userId}/profile");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<UserProfileResult>(body);
+		var result = JsonSerializer.Deserialize<UserProfileResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);

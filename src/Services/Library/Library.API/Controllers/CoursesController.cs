@@ -1,9 +1,12 @@
 ﻿using APICommonLibrary.Constants;
+using APICommonLibrary.MessageBus.Commands;
 using APICommonLibrary.Validations;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Library.API.DTOs.Courses;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +19,16 @@ namespace Library.API.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly DataContext _context;
+		private readonly IRequestClient<GetTopic> _getTopicClient;
 
-		public CoursesController(IMapper mapper, DataContext context)
+		public CoursesController(
+			IMapper mapper,
+			DataContext context,
+			IRequestClient<GetTopic> getTopicClient)
 		{
 			_mapper = mapper;
 			_context = context;
+			_getTopicClient = getTopicClient;
 		}
 
 
@@ -36,9 +44,10 @@ namespace Library.API.Controllers
 					(query.Title == null || x.Title.Contains(query.Title)) &&
 					(query.TopicId == null || query.TopicId == x.TopicId) &&
 					(query.PublisherUserId == null || query.PublisherUserId == x.PublisherUserId))
-				.Skip(query.Page * query.PageSize)
-				.Take(query.PageSize)
-				.Select(x => _mapper.Map<CourseResult>(x))
+				.OrderByDescending(x => x.RatingAverage)
+				.Skip((int)query.Page! * (int)query.PageSize!)
+				.Take((int)query.PageSize)
+				.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
 			return Ok(results);
@@ -47,12 +56,18 @@ namespace Library.API.Controllers
 		// GET: /courses/publisher
 		[HttpGet("publisher")]
 		public async Task<ActionResult<IEnumerable<CourseResult>>> GetAllByPublisher(
-			[FromHeader] int publisherUserId)
+			[FromHeader] int publisherUserId,
+			[FromQuery] CoursePublisherQuery query)
 		{
 			var results = await _context.Courses
 				.AsNoTracking()
-				.Where(x => x.PublisherUserId == publisherUserId)
-				.Select(x => _mapper.Map<CourseResult>(x))
+				.Where(x =>
+					x.PublisherUserId == publisherUserId &&
+					(query.Title == null || x.Title.Contains(query.Title)))
+				.OrderByDescending(x => x.RatingAverage)
+				.Skip((int)query.Page! * (int)query.PageSize!)
+				.Take((int)query.PageSize)
+				.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
 			return Ok(results);
@@ -60,12 +75,18 @@ namespace Library.API.Controllers
 
 		// GET: /courses/unapproved (Admin only)
 		[HttpGet("unapproved")]
-		public async Task<ActionResult<IEnumerable<CourseResult>>> GetAllUnapproved()
+		public async Task<ActionResult<IEnumerable<CourseResult>>> GetAllUnapproved(
+			[FromQuery] CoursePublisherQuery query)
 		{
 			var results = await _context.Courses
 				.AsNoTracking()
-				.Where(x => !x.IsApproved)
-				.Select(x => _mapper.Map<CourseResult>(x))
+				.Where(x =>
+					!x.IsApproved &&
+					(query.Title == null || x.Title.Contains(query.Title)))
+				.OrderBy(x => x.Created)
+				.Skip((int)query.Page! * (int)query.PageSize!)
+				.Take((int)query.PageSize)
+				.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
 			return Ok(results);
@@ -83,15 +104,15 @@ namespace Library.API.Controllers
 				result = await _context.Courses
 					.AsNoTracking()
 					.Where(x => x.CourseId == courseId && x.IsApproved)
-					.Select(x => _mapper.Map<CourseDetailedResult>(x))
+					.ProjectTo<CourseDetailedResult>(_mapper.ConfigurationProvider)
 					.FirstOrDefaultAsync();
 			}
 			else
 			{
 				result = await _context.Courses
 					.AsNoTracking()
-					.Where(x => x.CourseId == courseId && x.PublisherUserId == (int)publisherUserId)
-					.Select(x => _mapper.Map<CourseDetailedResult>(x))
+					.Where(x => x.CourseId == courseId && x.PublisherUserId == publisherUserId)
+					.ProjectTo<CourseDetailedResult>(_mapper.ConfigurationProvider)
 					.FirstOrDefaultAsync();
 			}
 			if (result == null) return NotFound();
@@ -106,9 +127,8 @@ namespace Library.API.Controllers
 		{
 			var result = await _context.Courses
 				.AsNoTracking()
-				.Where(x => x.CourseId == courseId)
-				.Select(x => _mapper.Map<CourseDetailedResult>(x))
-				.FirstOrDefaultAsync();
+				.ProjectTo<CourseDetailedResult>(_mapper.ConfigurationProvider)
+				.FirstOrDefaultAsync(x => x.CourseId == courseId);
 			if (result == null) return NotFound();
 
 			return result;
@@ -118,14 +138,30 @@ namespace Library.API.Controllers
 		// POST: /courses
 		[HttpPost]
 		public async Task<ActionResult<CourseDetailedResult>> Create(
+			[FromHeader] int publisherUserId,
 			CreateCourse dto)
 		{
+			if (dto.TopicId != null)
+			{
+				var getTopic = new GetTopic() { TopicId = (int)dto.TopicId };
+				Response<GetTopicResult> getTopicResponse;
+				try
+				{
+					getTopicResponse = await _getTopicClient.GetResponse<GetTopicResult>(getTopic);
+				}
+				catch (KeyNotFoundException)
+				{
+					return NotFound("TopicId not existed.");
+				}
+			}
+
 			var course = _mapper.Map<Course>(dto);
+			course.PublisherUserId = publisherUserId;
 
 			_context.Courses.Add(course);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { dto.PublisherUserId, course.CourseId },
+			return CreatedAtAction(nameof(Get), new { publisherUserId, course.CourseId },
 				_mapper.Map<CourseDetailedResult>(course));
 		}
 
@@ -170,15 +206,16 @@ namespace Library.API.Controllers
 		public async Task<ActionResult> UpdateCover(
 			[FromHeader] int publisherUserId,
 			int courseId,
-			[BindRequired][MaxSize(0, 2 * 1024 * 1024)][ImageExtension] IFormFile FormFile)
+			[BindRequired][MaxSize(0, 2 * 1024 * 1024)][ImageExtension] IFormFile formFile)
 		{
 			var course = await _context.Courses
+				.Include(x => x.Cover)
 				.FirstOrDefaultAsync(x => x.CourseId == courseId && x.PublisherUserId == publisherUserId);
 			if (course == null) return NotFound();
 
 			using var memoryStream = new MemoryStream();
-			await FormFile.CopyToAsync(memoryStream);
-			var extension = Path.GetExtension(FormFile.FileName).ToLowerInvariant();
+			await formFile.CopyToAsync(memoryStream);
+			var extension = Path.GetExtension(formFile.FileName).ToLowerInvariant();
 
 			course.Cover = new CourseCover()
 			{
@@ -186,6 +223,7 @@ namespace Library.API.Controllers
 				Data = memoryStream.ToArray(),
 				CourseId = courseId
 			};
+			course.LastModified = DateTime.Now;
 
 			await _context.SaveChangesAsync();
 

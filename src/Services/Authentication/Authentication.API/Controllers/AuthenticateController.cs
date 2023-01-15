@@ -67,10 +67,10 @@ public class AuthenticateController : ControllerBase
 		}
 
 		var createUser = _mapper.Map<CreateUser>(dto);
-		Response<CreateUserResult> createUserResult;
+		Response<CreateUserResult> createUserResponse;
 		try
 		{
-			createUserResult = await _createUserClient.GetResponse<CreateUserResult>(createUser);
+			createUserResponse = await _createUserClient.GetResponse<CreateUserResult>(createUser);
 		}
 		catch (ArgumentException)
 		{
@@ -82,7 +82,7 @@ public class AuthenticateController : ControllerBase
 		}
 
 		var credential = _mapper.Map<Credential>(dto);
-		credential.UserId = createUserResult.Message.UserId;
+		credential.UserId = createUserResponse.Message.UserId;
 
 		_context.Credentials.Add(credential);
 		await _context.SaveChangesAsync();

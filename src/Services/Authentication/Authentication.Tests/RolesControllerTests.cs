@@ -1,8 +1,7 @@
 using Authentication.API.DTOs;
-using Authentication.API.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Newtonsoft.Json;
 using System.Net;
+using System.Text.Json;
 using TestCommonLibrary;
 
 namespace Authentication.Tests;
@@ -17,7 +16,6 @@ public class RolesControllerTests
 	public async Task Setup()
 	{
 		_factory = await new WebApplicationFactoryBuilder()
-			.AddSqliteInMemory<DataContext>()
 			.BuildAsync<Program>();
 		await _factory.DatabaseInitializeAsync(Defaults.Database);
 
@@ -71,7 +69,7 @@ public class RolesControllerTests
 		response = await _client.GetAsync($"/roles?userId={userId}");
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var results = JsonConvert.DeserializeObject<IEnumerable<RoleResult>>(body);
+		var results = JsonSerializer.Deserialize<IEnumerable<RoleResult>>(body);
 
 		// Assert
 		Assert.That(results, Is.Not.Null);

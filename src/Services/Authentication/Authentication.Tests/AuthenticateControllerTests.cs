@@ -1,10 +1,9 @@
 using APICommonLibrary.MessageBus.Commands;
 using Authentication.API.DTOs;
-using Authentication.API.Infrastructure.Contexts;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Newtonsoft.Json;
 using System.Net;
+using System.Text.Json;
 using TestCommonLibrary;
 
 namespace Authentication.Tests;
@@ -22,7 +21,6 @@ public class AuthenticateControllerTests
 	public async Task Setup()
 	{
 		_factory = await new WebApplicationFactoryBuilder()
-			.AddSqliteInMemory<DataContext>()
 			.AddMassTransitTestHarness(x =>
 			{
 				x.AddHandler<CreateUser>(context =>
@@ -84,7 +82,7 @@ public class AuthenticateControllerTests
 		var response = await _client.PostAsync("/authenticate/login", content);
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<TokensResult>(body);
+		var result = JsonSerializer.Deserialize<TokensResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
@@ -118,7 +116,7 @@ public class AuthenticateControllerTests
 		var response = await _client.PostAsync("/authenticate/refresh", content);
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadAsStringAsync();
-		var result = JsonConvert.DeserializeObject<AccessTokenResult>(body);
+		var result = JsonSerializer.Deserialize<AccessTokenResult>(body);
 
 		// Assert
 		Assert.That(result, Is.Not.Null);
