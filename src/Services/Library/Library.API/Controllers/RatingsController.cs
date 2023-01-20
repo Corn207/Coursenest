@@ -41,6 +41,7 @@ namespace Library.API.Controllers
 		}
 
 		// POST: /ratings
+		// TODO Add RatingStat to Course
 		[HttpPost()]
 		public async Task<ActionResult<RatingResult>> Create(
 			[FromHeader] int userId,

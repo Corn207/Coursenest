@@ -19,4 +19,20 @@ public record UserProfileResult
 	public IEnumerable<AchievementResult> Achievements { get; set; }
 	public IEnumerable<ExperienceResult> Experiences { get; set; }
 	public IEnumerable<int> InterestedTopics { get; set; }
+
+	public record AchievementResult
+	{
+		public int AchievementId { get; set; }
+		public string Title { get; set; }
+		public DateTime Created { get; set; }
+	}
+
+	public record ExperienceResult
+	{
+		public int ExperienceId { get; set; }
+		public string Name { get; set; }
+		public string Title { get; set; }
+		public DateTime Started { get; set; }
+		public DateTime? Ended { get; set; }
+	}
 }

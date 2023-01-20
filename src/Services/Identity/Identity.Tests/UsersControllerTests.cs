@@ -20,7 +20,7 @@ public class UsersControllerTests
 		_factory = await new WebApplicationFactoryBuilder()
 			.AddMassTransitTestHarness(x =>
 			{
-				x.AddHandler<CheckTopics>(context => context.RespondAsync(new Existed()));
+				x.AddHandler<CheckTopicIds>(context => context.RespondAsync(new Existed()));
 			})
 			.BuildAsync<Program>();
 		await _factory.DatabaseInitializeAsync(Defaults.Database);

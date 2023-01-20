@@ -1,5 +1,4 @@
-﻿using Authentication.API.Infrastructure.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using CommonLibrary.API.Models;
 
 namespace Authentication.API.DTOs;
 
@@ -7,7 +6,6 @@ namespace Authentication.API.DTOs;
 
 public record SetRole
 {
-	[EnumDataType(typeof(RoleType))]
-	public RoleType Type { get; set; }
+	public RoleTypes Type { get; set; }
 	public DateTime Expiry { get; set; }
 }

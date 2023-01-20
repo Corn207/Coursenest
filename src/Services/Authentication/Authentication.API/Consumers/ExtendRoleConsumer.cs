@@ -1,7 +1,7 @@
-﻿using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
-using Authentication.API.Infrastructure.Contexts;
+﻿using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Infrastructure.Entities;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,33 +22,29 @@ public class ExtendRoleConsumer : IConsumer<ExtendRole>
 			.FirstOrDefaultAsync(x => x.UserId == context.Message.UserId);
 		if (credential == null)
 		{
-			await context.RespondAsync(new NotFound() { Message = "UserId not existed." });
+			await context.RespondAsync(new NotFound()
+			{
+				Message = $"UserId: {context.Message.UserId} does not exist."
+			});
 			return;
 		}
 
-		if (!Enum.TryParse(context.Message.Type.ToString(), out Infrastructure.Entities.RoleType type))
-		{
-			await context.RespondAsync(new NotFound() { Message = "RoleType not existed." });
-			return;
-		}
-
-		var role = credential.Roles.FirstOrDefault(x => x.Type == type);
+		var role = credential.Roles
+			.FirstOrDefault(x => x.Type == context.Message.Type);
 		if (role == null)
 		{
 			role = new Role()
 			{
-				CredentialUserId = context.Message.UserId,
-				Type = type,
+				Type = context.Message.Type,
 				Expiry = DateTime.Now.AddDays(context.Message.ExtendedDays)
 			};
-			_context.Roles.Add(role);
+			credential.Roles.Add(role);
 		}
 		else
 		{
 			role.Expiry = role.Expiry.AddDays(context.Message.ExtendedDays);
 			_context.Roles.Update(role);
 		}
-
 
 		await _context.SaveChangesAsync();
 

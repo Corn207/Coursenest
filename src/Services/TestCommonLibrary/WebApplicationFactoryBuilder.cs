@@ -2,36 +2,64 @@
 using MassTransit.Testing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Data.Common;
 
 namespace TestCommonLibrary;
 public class WebApplicationFactoryBuilder
 {
+	private Action<IServiceCollection>? _efcoreAction;
 	private Action<IServiceCollection>? _massTransitAction;
 
-
-	public WebApplicationFactoryBuilder AddMassTransitTestHarness(Action<IBusRegistrationConfigurator> config)
+	public WebApplicationFactoryBuilder AddEFCoreTestServices<TDbContext>()
+		where TDbContext : DbContext
 	{
-		_massTransitAction = services =>
+		_efcoreAction = services =>
 		{
-			services.AddMassTransitTestHarness(config);
+			services.AddSingleton<DbConnection>(_ =>
+			{
+				var connection = new SqliteConnection("Filename=:memory:");
+				connection.Open();
+
+				return connection;
+			});
+
+			services.AddDbContext<DbContext, TDbContext>((container, options) =>
+			{
+				var connection = container.GetRequiredService<DbConnection>();
+				options.UseSqlite(connection);
+			});
 		};
 
 		return this;
 	}
 
+	public WebApplicationFactoryBuilder AddMassTransitTestServices(
+		Action<IBusRegistrationConfigurator> bus)
+	{
+		_massTransitAction = services =>
+		{
+			services.AddMassTransitTestHarness(bus);
+		};
 
-	public async Task<WebApplicationFactory<TEntryPoint>> BuildAsync<TEntryPoint>() where TEntryPoint : class
+		return this;
+	}
+
+	public async Task<WebApplicationFactory<TEntryPoint>> BuildAsync<TEntryPoint>()
+		where TEntryPoint : class
 	{
 		var factory = new WebApplicationFactory<TEntryPoint>()
 			.WithWebHostBuilder(config =>
 			{
+				config.UseEnvironment("Development");
+
 				config.ConfigureServices(services =>
 				{
+					_efcoreAction?.Invoke(services);
 					_massTransitAction?.Invoke(services);
 				});
-
-				config.UseEnvironment("Development");
 			});
 
 		if (_massTransitAction != null)

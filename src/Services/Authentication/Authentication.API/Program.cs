@@ -1,26 +1,14 @@
-using APICommonLibrary.Extensions;
-using Authentication.API.Consumers;
 using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Options;
+using CommonLibrary.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDefaultServices<DataContext>(
-	builder.Configuration,
-	busConfig =>
-	{
-		busConfig.AddConsumer<ExtendRoleConsumer>();
-		busConfig.AddConsumer<UserDeletedConsumer>();
-	});
-
+builder.Services.AddDefaultServices<DataContext>(builder.Configuration);
 builder.Services.AddRequiredOptions<JwtOptions>(builder.Configuration);
 
-builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -33,10 +21,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.DatabaseStartup();
 
 app.Run();

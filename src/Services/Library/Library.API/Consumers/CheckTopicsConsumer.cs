@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.API.Consumers;
 
-public class CheckTopicsConsumer : IConsumer<CheckTopics>
+public class CheckTopicsConsumer : IConsumer<CheckTopicIds>
 {
 	private readonly DataContext _context;
 
@@ -15,7 +15,7 @@ public class CheckTopicsConsumer : IConsumer<CheckTopics>
 		_context = context;
 	}
 
-	public async Task Consume(ConsumeContext<CheckTopics> context)
+	public async Task Consume(ConsumeContext<CheckTopicIds> context)
 	{
 		var requested = context.Message.TopicIds;
 

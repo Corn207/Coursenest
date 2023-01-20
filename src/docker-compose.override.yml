@@ -45,6 +45,13 @@ services:
     ports:
       - "21004:80"
 
+  userdata.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MassTransit__Host=messagebus
+    ports:
+      - "21005:80"
+
   database:
     environment:
       - MSSQL_SA_PASSWORD=Pass@word

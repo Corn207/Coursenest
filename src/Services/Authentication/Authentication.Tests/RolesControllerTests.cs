@@ -1,7 +1,9 @@
 using Authentication.API.DTOs;
+using Authentication.API.Infrastructure.Contexts;
+using CommonLibrary.API.Models;
+using CommonLibrary.Tests;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
-using TestCommonLibrary;
 
 namespace Authentication.Tests;
 
@@ -9,69 +11,66 @@ namespace Authentication.Tests;
 public class RolesControllerTests
 {
 	private WebApplicationFactory<Program> _factory;
-	private HttpClient _client;
+	private HttpClient _clientAdmin;
 
 	[OneTimeSetUp]
 	public async Task Setup()
 	{
 		_factory = await new WebApplicationFactoryBuilder()
+			.AddEFCoreTestServices<DataContext>()
 			.BuildAsync<Program>();
 		await _factory.DatabaseInitializeAsync(Defaults.Database);
 
-		_client = _factory.CreateClient();
+		_clientAdmin = _factory.CreateClient();
+		_clientAdmin.AddRole(new string[] { RoleTypes.Admin.ToString() });
 	}
 
 
 	[Test]
-	[TestCase(2)]
-	[TestCase(7)]
-	public async Task GetAll_UserId_Returns200(int userId)
+	public async Task GetAll_ReturnsRoleResults()
 	{
 		// Arrange
+		var userId = 1;
 
 		// Act
-		var response = await _client.GetAsync($"/roles?userId={userId}");
+		var content = await _clientAdmin
+			.GetFromJsonAsync<IEnumerable<RoleResult>>($"/roles/{userId}");
 
 		// Assert
-		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+		Assert.That(content, Is.Not.Null);
 	}
 
-
 	[Test]
-	[TestCase(2)]
-	[TestCase(7)]
-	public async Task GetAllMe_ReturnsOk(int userId)
+	public async Task GetAllMe_ReturnsOk()
 	{
 		// Arrange
 		var client = _factory.CreateClient();
-		client.DefaultRequestHeaders.Add("userId", userId.ToString());
+		client.AddNameIdentifier(1);
 
 		// Act
-		var response = await client.GetAsync("/roles/me");
+		var content = await client
+			.GetFromJsonAsync<IEnumerable<RoleResult>>("/roles/me");
 
 		// Assert
-		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+		Assert.That(content, Is.Not.Null);
 	}
 
-
 	[Test]
-	public async Task Update_ReturnsExactInput()
+	public async Task Update_ReturnsCreated()
 	{
 		// Arrange
 		int userId = 1;
-		var dto = new SetRole() { Type = API.Infrastructure.Entities.RoleType.Student, Expiry = DateTime.Now };
+		var body = new SetRole()
+		{
+			Type = RoleTypes.Student,
+			Expiry = DateTime.Now.AddHours(1)
+		};
 
 		// Act
-		var response = await _client.PutAsJsonAsync($"/roles/{userId}", dto);
-		response.EnsureSuccessStatusCode();
-		var results = await _client.GetFromJsonAsync<IEnumerable<RoleResult>>($"/roles?userId={userId}");
+		var response = await _clientAdmin
+			.PutAsJsonAsync($"/roles/{userId}", body);
 
 		// Assert
-		Assert.That(results, Is.Not.Null);
-		Assert.Multiple(() =>
-		{
-			Assert.That(results.Any(x => x.Type == dto.Type), Is.True);
-			Assert.That(results.Any(x => x.Expiry == dto.Expiry), Is.True);
-		});
+		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 	}
 }

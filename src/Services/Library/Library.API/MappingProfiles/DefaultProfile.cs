@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using APICommonLibrary.MessageBus.Responses;
+using AutoMapper;
 using Library.API.DTOs;
 using Library.API.DTOs.Categories;
 using Library.API.DTOs.Courses;

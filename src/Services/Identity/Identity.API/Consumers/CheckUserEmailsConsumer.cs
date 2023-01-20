@@ -17,40 +17,57 @@ public class CheckUserEmailsConsumer : IConsumer<CheckUserEmails>
 
 	public async Task Consume(ConsumeContext<CheckUserEmails> context)
 	{
-		var requested = context.Message.Emails;
+		var requested = context.Message.Emails.Distinct();
 
-		if (requested.Length == 1)
+		var intersected = await _context.Users
+			.Select(x => x.Email)
+			.Intersect(requested)
+			.ToListAsync();
+		if (intersected.Count != requested.Count())
 		{
-			var exists = await _context.Users
-				.AsNoTracking()
-				.AnyAsync(x => x.Email == requested[0]);
+			var missing = requested.Except(intersected);
 
-			if (!exists)
+			var response = new NotFound()
 			{
-				var response = new NotFound() { Message = $"Emails: {requested[0]} not existed." };
-				await context.RespondAsync(response);
+				Message = $"Emails: {string.Join(", ", missing)} do not exist."
+			};
+			await context.RespondAsync(response);
 
-				return;
-			}
-
+			return;
 		}
-		else if (requested.Length > 1)
-		{
-			var existed = await _context.Users
-				.AsNoTracking()
-				.Select(x => x.Email)
-				.ToListAsync();
 
-			var diff = requested.Except(existed);
+		//if (requested.Length == 1)
+		//{
+		//	var exists = await _context.Users
+		//		.AsNoTracking()
+		//		.AnyAsync(x => x.Email == requested[0]);
 
-			if (diff.Any())
-			{
-				var response = new NotFound() { Message = $"Emails: {string.Join(", ", diff)} not existed." };
-				await context.RespondAsync(response);
+		//	if (!exists)
+		//	{
+		//		var response = new NotFound() { Message = $"Emails: {requested[0]} not existed." };
+		//		await context.RespondAsync(response);
 
-				return;
-			}
-		}
+		//		return;
+		//	}
+
+		//}
+		//else if (requested.Length > 1)
+		//{
+		//	var existed = await _context.Users
+		//		.AsNoTracking()
+		//		.Select(x => x.Email)
+		//		.ToListAsync();
+
+		//	var diff = requested.Except(existed);
+
+		//	if (diff.Any())
+		//	{
+		//		var response = new NotFound() { Message = $"Emails: {string.Join(", ", diff)} not existed." };
+		//		await context.RespondAsync(response);
+
+		//		return;
+		//	}
+		//}
 
 		await context.RespondAsync(new Existed());
 	}

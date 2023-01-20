@@ -22,11 +22,13 @@ public class CreateUserAchievementConsumer : IConsumer<CreateUserAchievement>
 	public async Task Consume(ConsumeContext<CreateUserAchievement> context)
 	{
 		var exists = await _context.Users
-			.AsNoTracking()
 			.AnyAsync(x => x.UserId == context.Message.UserId);
 		if (!exists)
 		{
-			await context.RespondAsync(new NotFound() { Message = $"UserId: {context.Message.UserId} not existed." });
+			await context.RespondAsync(new NotFound()
+			{
+				Message = $"UserId: {context.Message.UserId} does not exist."
+			});
 			return;
 		}
 
@@ -35,6 +37,9 @@ public class CreateUserAchievementConsumer : IConsumer<CreateUserAchievement>
 
 		await _context.SaveChangesAsync();
 
-		await context.RespondAsync(new Created() { Id = achievement.AchievementId });
+		await context.RespondAsync(new Created()
+		{
+			Id = achievement.AchievementId
+		});
 	}
 }

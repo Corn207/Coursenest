@@ -10,7 +10,8 @@
         "messagebus": "StartWithoutDebugging",
         "identity.api": "StartDebugging",
         "library.api": "StartDebugging",
-        "payment.api": "StartDebugging"
+        "payment.api": "StartDebugging",
+        "userdata.api": "DoNotStart"
       }
     },
     "Library.API": {
@@ -26,7 +27,8 @@
         "identity.api": "DoNotStart",
         "library.api": "StartDebugging",
         "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging"
+        "payment.api": "StartDebugging",
+        "userdata.api": "StartDebugging"
       }
     },
     "Authentication.API": {
@@ -42,7 +44,8 @@
         "identity.api": "DoNotStart",
         "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging"
+        "payment.api": "StartDebugging",
+        "userdata.api": "StartDebugging"
       }
     },
     "Authentication.API Integration": {
@@ -58,7 +61,8 @@
         "identity.api": "StartDebugging",
         "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging"
+        "payment.api": "StartDebugging",
+        "userdata.api": "StartDebugging"
       }
     },
     "Identity.API": {
@@ -74,7 +78,8 @@
         "identity.api": "StartDebugging",
         "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging"
+        "payment.api": "StartDebugging",
+        "userdata.api": "StartDebugging"
       }
     }
   }
