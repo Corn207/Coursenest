@@ -70,6 +70,19 @@ services:
     networks:
       - backend
 
+  #userdata.api:
+  #  image: ${DOCKER_REGISTRY-}userdataapi
+  #  build:
+  #    context: .
+  #    dockerfile: Services/UserData/UserData.API/Dockerfile
+  #  networks:
+  #    - backend
+  #  depends_on:
+  #    - database
+  #    - messagebus
+  #    - identity.api
+  #    - library.api
+
 networks:
   frontend:
   backend:

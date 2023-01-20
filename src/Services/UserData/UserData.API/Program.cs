@@ -1,5 +1,5 @@
 using APICommonLibrary.Extensions;
-using UserData.API.Contexts;
+using UserData.API.Infrastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
