@@ -9,14 +9,12 @@ public class DataContext : DbContext
     {
     }
 
-    public DbSet<EnrolledCourse> EnrolledCourses { get; set; }
+    public DbSet<Enrollment> Enrollments { get; set; }
     public DbSet<CompletedUnit> CompletedUnits { get; set; }
     public DbSet<Submission> Submissions { get; set; }
-    public DbSet<Criterion> Criteria { get; set; }
     public DbSet<Question> Questions { get; set; }
+    public DbSet<Choice> Choices { get; set; }
+    public DbSet<Criterion> Criteria { get; set; }
     public DbSet<Checkpoint> Checkpoints { get; set; }
-    public DbSet<Choice> Answers { get; set; }
-    public DbSet<FollowedCourse> FollowedCourses { get; set; }
-    public DbSet<FollowedTopic> FollowedTopics { get; set; }
     public DbSet<Comment> Comments { get; set; }
 }

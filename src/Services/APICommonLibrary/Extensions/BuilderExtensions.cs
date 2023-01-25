@@ -1,5 +1,6 @@
-﻿using APICommonLibrary.Options;
-using MassTransit;
+﻿using MassTransit;
+using MassTransit.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Data.Sqlite;
@@ -7,61 +8,126 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace APICommonLibrary.Extensions;
 public static class BuilderExtensions
 {
-	public static IServiceCollection AddMinimalDefaultServices(
+	private static void AddEssentialServices(
 		this IServiceCollection services,
 		IConfiguration configuration,
-		Action<IBusRegistrationConfigurator>? busConfig = null)
+		Assembly assembly)
 	{
+		services.AddControllers();
+
 		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
 		services.AddCors(options =>
+		{
 			options.AddDefaultPolicy(configure =>
 			{
 				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-			})
-		);
-
-		services.AddOptionalOptions<MassTransitOptions>(configuration, options =>
-		{
-			services.AddMassTransit(x =>
-			{
-				x.UsingRabbitMq((context, config) =>
-				{
-					config.Host(options.Host);
-					config.ConfigureEndpoints(context);
-				});
-
-				busConfig?.Invoke(x);
 			});
 		});
 
-		return services;
+		services.AddAutoMapper(assembly);
+
+		services.AddMassTransitServices(configuration, assembly);
+
+		services.AddJWTAuthentication();
+
+		services.AddSwagger();
 	}
 
-	public static IServiceCollection AddDefaultServices<TDbContext>(
+	private static void AddMassTransitServices(
 		this IServiceCollection services,
 		IConfiguration configuration,
-		Action<IBusRegistrationConfigurator>? busConfig = null) where TDbContext : DbContext
+		Assembly assembly)
 	{
-		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-		services.AddCors(options =>
-			options.AddDefaultPolicy(configure =>
+		var massTransitHost = configuration["MassTransit:Host"];
+		if (!string.IsNullOrWhiteSpace(massTransitHost))
+		{
+			services.AddMassTransit(bus =>
 			{
-				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-			})
-		);
+				bus.UsingRabbitMq((context, config) =>
+				{
+					config.Host(massTransitHost);
+					config.ConfigureEndpoints(context);
+				});
 
-		services.AddAutoMapper(Assembly.GetCallingAssembly());
+				bus.AddConsumers(assembly);
+			});
+		}
+	}
 
-		services.AddOptionalOptions<DatabaseOptions>(configuration);
+	private static void AddJWTAuthentication(
+		this IServiceCollection services)
+	{
+		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(options =>
+			{
+				options.TokenValidationParameters = new TokenValidationParameters()
+				{
+					ValidateIssuer = false,
+					ValidateAudience = false,
+					ValidateLifetime = false,
+					ValidateIssuerSigningKey = false,
+					RequireSignedTokens = false,
+					//IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("1234567890123456"))
+					SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+					{
+						return new JwtSecurityToken(token);
+					}
+				};
+			});
+	}
 
+	private static void AddSwagger(
+		this IServiceCollection services)
+	{
+		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+		services.AddEndpointsApiExplorer();
+
+		services.AddSwaggerGen(options =>
+		{
+			options.AddSecurityDefinition(
+				JwtBearerDefaults.AuthenticationScheme,
+				new OpenApiSecurityScheme()
+				{
+					Name = "Authorization",
+					Description = "Token here",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.Http,
+					Scheme = JwtBearerDefaults.AuthenticationScheme
+				});
+
+			options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+			{
+				{
+					new OpenApiSecurityScheme()
+					{
+						Reference = new OpenApiReference
+						{
+							Type = ReferenceType.SecurityScheme,
+							Id = JwtBearerDefaults.AuthenticationScheme
+						}
+					},
+					Array.Empty<string>()
+				}
+			});
+		});
+	}
+
+	private static void AddEFCoreServices<TDbContext>(
+		this IServiceCollection services,
+		IConfiguration configuration) where TDbContext : DbContext
+	{
 		var cnnStr = configuration["Database:ConnectionString"];
 		if (!string.IsNullOrWhiteSpace(cnnStr))
 		{
@@ -73,120 +139,65 @@ public static class BuilderExtensions
 				});
 			});
 		}
-		else
-		{
-			services.AddSingleton<DbConnection>(container =>
-			{
-				var connection = new SqliteConnection("Filename=:memory:");
-				connection.Open();
-
-				return connection;
-			});
-
-			services.AddDbContext<DbContext, TDbContext>((container, options) =>
-			{
-				var connection = container.GetRequiredService<DbConnection>();
-				options.UseSqlite(connection);
-			});
-		}
-
-		services.AddOptionalOptions<MassTransitOptions>(configuration, options =>
-		{
-			services.AddMassTransit(x =>
-			{
-				x.UsingRabbitMq((context, config) =>
-				{
-					config.Host(options.Host);
-					config.ConfigureEndpoints(context);
-				});
-
-				busConfig?.Invoke(x);
-			});
-		});
-
-		return services;
 	}
 
-	public static IServiceCollection AddOptionalOptions<TOptions>(
+
+	public static IServiceCollection AddDefaultServices(
 		this IServiceCollection services,
-		IConfiguration configuration,
-		Action<TOptions>? action = null) where TOptions : class
+		IConfiguration configuration)
 	{
-		string sectionName = Regex.Replace(typeof(TOptions).Name, @"Options$", string.Empty);
-		IConfigurationSection section = configuration.GetSection(sectionName);
-		if (section.Exists())
-		{
-			var options = section.Get<TOptions>();
-			if (options != null)
-			{
-				services.AddOptions<TOptions>()
-					.Bind(section)
-					.ValidateDataAnnotations()
-					.ValidateOnStart();
-
-				action?.Invoke(options);
-			}
-		}
+		var assembly = Assembly.GetCallingAssembly();
+		services.AddEssentialServices(configuration, assembly);
 
 		return services;
 	}
+
+	public static IServiceCollection AddDefaultServices<TDbContext>(
+		this IServiceCollection services,
+		IConfiguration configuration) where TDbContext : DbContext
+	{
+		var assembly = Assembly.GetCallingAssembly();
+		services.AddEssentialServices(configuration, assembly);
+
+		services.AddEFCoreServices<TDbContext>(configuration);
+
+		return services;
+	}
+
 
 	public static IServiceCollection AddRequiredOptions<TOptions>(
 		this IServiceCollection services,
-		IConfiguration configuration,
-		Action<TOptions>? action = null) where TOptions : class
+		IConfiguration configuration) where TOptions : class
 	{
 		string sectionName = Regex.Replace(typeof(TOptions).Name, @"Options$", string.Empty);
-		IConfigurationSection section;
-		try
-		{
-			section = configuration.GetRequiredSection(sectionName);
-		}
-		catch (Exception)
-		{
-			throw;
-		}
-
-		var instance = (TOptions)(Activator.CreateInstance(typeof(TOptions))
-			?? throw new Exception($"Cannot create instance of type {typeof(TOptions)}."));
-		var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
-		var isValid = Validator.TryValidateObject(instance, new ValidationContext(instance), results);
-		if (!isValid)
-		{
-			var errors = string.Join(" ", results.Select(x => x.ErrorMessage));
-			throw new Exception(errors);
-		}
-
+		var section = configuration.GetRequiredSection(sectionName);
 		services.AddOptions<TOptions>()
 			.Bind(section)
 			.ValidateDataAnnotations()
 			.ValidateOnStart();
 
-		action?.Invoke(instance);
-
 		return services;
 	}
 
+	//public static IApplicationBuilder DatabaseStartup(this IApplicationBuilder app)
+	//{
+	//	using var scope = app.ApplicationServices.CreateScope();
+	//	var context = scope.ServiceProvider.GetService<DbContext>();
+	//	var options = app.ApplicationServices.GetService<IOptions<DatabaseOptions>>();
 
-	public static IApplicationBuilder DatabaseStartup(this IApplicationBuilder app)
-	{
-		using var scope = app.ApplicationServices.CreateScope();
-		var context = scope.ServiceProvider.GetService<DbContext>();
-		var options = app.ApplicationServices.GetService<IOptions<DatabaseOptions>>();
+	//	if (context != null && options != null)
+	//	{
+	//		if (options.Value.EnsureDeleted)
+	//		{
+	//			context.Database.EnsureDeleted();
+	//		}
 
-		if (context != null && options != null)
-		{
-			if (options.Value.EnsureDeleted)
-			{
-				context.Database.EnsureDeleted();
-			}
+	//		if (options.Value.EnsureCreated)
+	//		{
+	//			context.Database.EnsureCreated();
+	//		}
+	//	}
 
-			if (options.Value.EnsureCreated)
-			{
-				context.Database.EnsureCreated();
-			}
-		}
-
-		return app;
-	}
+	//	return app;
+	//}
 }

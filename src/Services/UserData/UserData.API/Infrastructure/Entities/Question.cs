@@ -9,8 +9,7 @@ public class Question
 	public int Point { get; set; }
 
 	// Relationship
+	public List<Choice> Choices { get; set; }
 	public int SubmissionId { get; set; }
 	public Submission Submission { get; set; }
-
-	public List<Choice> Choices { get; set; }
 }

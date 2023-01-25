@@ -6,7 +6,7 @@ public class Choice
 {
 	public int ChoiceId { get; set; }
 	public string Content { get; set; }
-	public bool? IsCorrect { get; set; }
+	public bool IsCorrect { get; set; }
 	public bool? IsChosen { get; set; }
 
 	// Relationship

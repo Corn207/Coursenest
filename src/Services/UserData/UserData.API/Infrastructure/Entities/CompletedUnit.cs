@@ -1,12 +1,14 @@
-﻿namespace UserData.API.Infrastructure.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 
+namespace UserData.API.Infrastructure.Entities;
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+[PrimaryKey(nameof(UnitId), nameof(EnrollmentId))]
 public class CompletedUnit
 {
-    public int CompletedUnitId { get; set; }
-
-    // Relationship
-    public int UnitId { get; set; }
-
-    public int EnrolledCourseId { get; set; }
-    public EnrolledCourse EnrolledCourse { get; set; } = null!;
+	// Relationship
+	public int UnitId { get; set; }
+    public int EnrollmentId { get; set; }
+    public Enrollment Enrollment { get; set; }
 }

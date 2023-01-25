@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication.Tests", "Ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCommonLibrary", "Services\TestCommonLibrary\TestCommonLibrary.csproj", "{89171B95-5B8B-410D-A499-E9BE35663B06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Tests", "Services\Identity\Identity.Tests\Identity.Tests.csproj", "{111F3899-AAD5-4EF4-B65C-D36B6D54F298}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Tests", "Services\Identity\Identity.Tests\Identity.Tests.csproj", "{111F3899-AAD5-4EF4-B65C-D36B6D54F298}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserData.Tests", "Services\UserData\UserData.Tests\UserData.Tests.csproj", "{8861E48A-8331-4920-B310-8DC1DCE95ABD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{111F3899-AAD5-4EF4-B65C-D36B6D54F298}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{111F3899-AAD5-4EF4-B65C-D36B6D54F298}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{111F3899-AAD5-4EF4-B65C-D36B6D54F298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8861E48A-8331-4920-B310-8DC1DCE95ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8861E48A-8331-4920-B310-8DC1DCE95ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8861E48A-8331-4920-B310-8DC1DCE95ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8861E48A-8331-4920-B310-8DC1DCE95ABD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

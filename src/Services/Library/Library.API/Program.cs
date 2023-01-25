@@ -9,6 +9,7 @@ builder.Services.AddDefaultServices<DataContext>(
 	builder.Configuration,
 	busConfig =>
 	{
+		busConfig.AddConsumer<CheckCourseIdsConsumer>();
 		busConfig.AddConsumer<CheckTopicsConsumer>();
 	});
 

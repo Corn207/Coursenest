@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using APICommonLibrary.MessageBus.Responses;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Library.API.DTOs;
 using Library.API.DTOs.Units;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.API.Controllers
 {
-	[Route("[controller]")]
+    [Route("[controller]")]
 	[ApiController]
 	public class UnitsController : ControllerBase
 	{
@@ -101,6 +102,25 @@ namespace Library.API.Controllers
 				return Ok(result);
 			}
 		}
+
+
+		// POST: /units/5/start
+		[HttpPost("{unitId}/start")]
+		public async Task<IActionResult> StartExam(
+			[FromHeader] int userId,
+			int unitId)
+		{
+			var createSubmission = await _context.Exams
+				.AsNoTracking()
+				.Where(x => x.UnitId == unitId && x.Lesson.Course.IsApproved)
+				.ProjectTo<CreateSubmission>(_mapper.ConfigurationProvider)
+				.SingleOrDefaultAsync();
+			if (createSubmission == null) return NotFound();
+
+			createSubmission.StudentUserId = userId;
+
+		}
+
 
 
 		// POST: /units/material
