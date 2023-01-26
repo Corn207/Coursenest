@@ -5,11 +5,11 @@
 public record ExtendRole
 {
 	public int UserId { get; set; }
-	public RoleType Type { get; set; }
+	public Role Type { get; set; }
 	public int ExtendedDays { get; set; }
-}
 
-public enum RoleType
-{
-	Student, Instructor, Publisher
+	public enum Role
+	{
+		Student, Instructor, Publisher
+	}
 }

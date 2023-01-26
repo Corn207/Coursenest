@@ -5,18 +5,17 @@
 public record ExamResult
 {
 	public string Title { get; set; }
-	public string LessonName { get; set; }
-	public string CourseName { get; set; }
+	public string LessonTitle { get; set; }
+	public string CourseTitle { get; set; }
 	public TimeSpan TimeLimit { get; set; }
-	public int StudentUserId { get; set; }
 	public int UnitId { get; set; }
+	public int? TopicId { get; set; }
 	public List<Question> Questions { get; set; }
-
 
 	public record Question
 	{
 		public string Content { get; set; }
-		public int Point { get; set; }
+		public byte Point { get; set; }
 		public List<Choice> Choices { get; set; }
 	}
 

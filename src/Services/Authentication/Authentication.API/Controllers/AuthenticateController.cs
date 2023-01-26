@@ -1,5 +1,7 @@
 ﻿using APICommonLibrary.MessageBus.Commands;
 using APICommonLibrary.MessageBus.Responses;
+using APICommonLibrary.Models;
+using APICommonLibrary.Utilities.APIs;
 using Authentication.API.DTOs;
 using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Infrastructure.Entities;
@@ -7,6 +9,7 @@ using Authentication.API.Options;
 using Authentication.API.Utilities;
 using AutoMapper;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -21,23 +24,23 @@ namespace Authentication.API.Controllers;
 public class AuthenticateController : ControllerBase
 {
 	private readonly IMapper _mapper;
-	private readonly IOptions<JwtOptions> _jwtOptions;
 	private readonly DataContext _context;
+	private readonly IOptions<JwtOptions> _jwtOptions;
 	private readonly IRequestClient<CreateUser> _createUserClient;
 	private readonly IRequestClient<CheckTopics> _checkTopicsClient;
 	private readonly IRequestClient<CheckUserEmails> _checkUserEmailsClient;
 
 	public AuthenticateController(
 		IMapper mapper,
-		IOptions<JwtOptions> jwtOptions,
 		DataContext context,
+		IOptions<JwtOptions> jwtOptions,
 		IRequestClient<CreateUser> createUserClient,
 		IRequestClient<CheckTopics> checkTopicsClient,
 		IRequestClient<CheckUserEmails> checkUserEmailsClient)
 	{
 		_mapper = mapper;
-		_jwtOptions = jwtOptions;
 		_context = context;
+		_jwtOptions = jwtOptions;
 		_createUserClient = createUserClient;
 		_checkTopicsClient = checkTopicsClient;
 		_checkUserEmailsClient = checkUserEmailsClient;
@@ -45,17 +48,17 @@ public class AuthenticateController : ControllerBase
 
 	// POST: /authenticate/register
 	[HttpPost("register")]
+	[AllowAnonymous]
 	public async Task<ActionResult> Register(
-		Register dto)
+		[FromBody] Register dto)
 	{
 		var exists = await _context.Credentials
-			.AsNoTracking()
 			.AnyAsync(x => x.Username == dto.Username);
-		if (exists) return Conflict("Username existed.");
+		if (exists)
+			return Conflict("Username existed.");
 
 		var checkTopicsRequest = new CheckTopics() { TopicIds = dto.InterestedTopicIds };
 		var checkTopicsResponse = await _checkTopicsClient.GetResponse<Existed, NotFound>(checkTopicsRequest);
-
 		if (checkTopicsResponse.Is(out Response<NotFound>? notFoundResponse))
 		{
 			return NotFound(notFoundResponse!.Message.Message);
@@ -63,12 +66,10 @@ public class AuthenticateController : ControllerBase
 
 		var createUserRequest = _mapper.Map<CreateUser>(dto);
 		var createUserresponse = await _createUserClient.GetResponse<Created, Existed>(createUserRequest);
-
 		if (createUserresponse.Is(out Response<Existed>? existedResponse))
 		{
 			return Conflict(existedResponse!.Message);
 		}
-
 		if (!createUserresponse.Is(out Response<Created>? createdResponse) || createdResponse == null)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError);
@@ -85,29 +86,31 @@ public class AuthenticateController : ControllerBase
 
 	// POST: /authenticate/login
 	[HttpPost("login")]
+	[AllowAnonymous]
 	public async Task<ActionResult<TokensResult>> Login(
-		Login request)
+		[FromBody] Login request)
 	{
 		var credential = await _context.Credentials
 			.AsNoTracking()
 			.Include(x => x.Roles)
 			.FirstOrDefaultAsync(x => x.Username == request.Username);
-		if (credential == null) return NotFound();
-		if (credential.Password != request.Password) return BadRequest();
+		if (credential == null)
+			return NotFound("Credential does not exist.");
+		if (credential.Password != request.Password)
+			return BadRequest("Credential is invalid.");
 
 		(string accessTokenContent, DateTime accessTokenExpiry) = CreateAccessToken(credential.UserId, credential.Roles);
 
 		string refreshTokenContent = Guid.NewGuid().ToString();
 		var refreshTokenExpiry = DateTime.Now.AddMinutes(_jwtOptions.Value.RefreshTokenLifetime);
-
 		var refreshToken = new RefreshToken()
 		{
 			Token = refreshTokenContent,
 			Expiry = refreshTokenExpiry,
 			CredentialUserId = credential.UserId
 		};
-
 		_context.RefreshTokens.Add(refreshToken);
+
 		await _context.SaveChangesAsync();
 
 		var result = new TokensResult()
@@ -124,9 +127,11 @@ public class AuthenticateController : ControllerBase
 
 	// POST: /authenticate/logout
 	[HttpPost("logout")]
-	public async Task<ActionResult> Logout(
-		[FromHeader] int userId)
+	[Authorize]
+	public async Task<ActionResult> Logout()
 	{
+		var userId = GetUserId();
+
 		var affected = await _context.RefreshTokens
 			.Where(x => x.CredentialUserId == userId)
 			.ExecuteDeleteAsync();
@@ -137,25 +142,25 @@ public class AuthenticateController : ControllerBase
 
 	// POST: /authenticate/refresh
 	[HttpPost("refresh")]
+	[AllowAnonymous]
 	public async Task<ActionResult<AccessTokenResult>> Refresh(
 		[FromBody] string token)
 	{
 		var refreshToken = await _context.RefreshTokens
+			.Include(x => x.Credential.Roles)
 			.FirstOrDefaultAsync(x => x.Token == token);
-		if (refreshToken == null) return NotFound();
+		if (refreshToken == null) 
+			return NotFound("RefreshToken does not exist.");
+
 		if (refreshToken.Expiry <= DateTime.Now)
 		{
 			_context.RefreshTokens.Remove(refreshToken);
+
 			await _context.SaveChangesAsync();
-			return Unauthorized();
+			return BadRequest("RefreshToken expired.");
 		}
 
-		var roles = await _context.Roles
-			.AsNoTracking()
-			.Where(x => x.CredentialUserId == refreshToken.CredentialUserId)
-			.ToListAsync();
-
-		(string content, DateTime expiry) = CreateAccessToken(refreshToken.CredentialUserId, roles);
+		(string content, DateTime expiry) = CreateAccessToken(refreshToken.CredentialUserId, refreshToken.Credential.Roles);
 
 		var result = new AccessTokenResult()
 		{
@@ -168,12 +173,14 @@ public class AuthenticateController : ControllerBase
 
 	// PUT: /authenticate/reset-password
 	[HttpPut("reset-password")]
+	[Authorize(Roles = nameof(APICommonLibrary.Models.Role.Admin))]
 	public async Task<ActionResult<string>> ResetPassword(
 		[FromBody] int userId)
 	{
 		var credential = await _context.Credentials
 			.FirstOrDefaultAsync(x => x.UserId == userId);
-		if (credential == null) return NotFound();
+		if (credential == null) 
+			return NotFound($"UserId: {userId} does not exist.");
 
 		var newPassword = Guid.NewGuid().ToString("N")[..8];
 		credential.Password = newPassword;
@@ -185,12 +192,14 @@ public class AuthenticateController : ControllerBase
 
 	// PUT: /authenticate/forgot-password
 	[HttpPut("forgot-password")]
+	[AllowAnonymous]
 	public async Task<ActionResult<string>> ForgotPassword(
 		[FromBody] ForgotPassword dto)
 	{
 		var credential = await _context.Credentials
 			.FirstOrDefaultAsync(x => x.Username == dto.Username);
-		if (credential == null) return NotFound();
+		if (credential == null)
+			return NotFound("Credential does not exist.");
 
 		var request = new CheckUserEmails() { Emails = new[] { dto.Email } };
 		var response = await _checkTopicsClient.GetResponse<Existed, NotFound>(request);
@@ -210,14 +219,18 @@ public class AuthenticateController : ControllerBase
 
 	// PUT: /authenticate/change-password
 	[HttpPut("change-password")]
+	[Authorize]
 	public async Task<ActionResult<AccessTokenResult>> ChangePassword(
-		[FromHeader] int userId,
 		[FromBody] ChangePassword dto)
 	{
+		var userId = GetUserId();
+
 		var credential = await _context.Credentials
 			.FirstOrDefaultAsync(x => x.UserId == userId);
-		if (credential == null) return NotFound();
-		if (credential.Password != dto.OldPassword) return BadRequest();
+		if (credential == null)
+			return NotFound($"UserId: {userId} does not exist.");
+		if (credential.Password != dto.OldPassword)
+			return BadRequest("Old password is invalid.");
 
 		credential.Password = dto.NewPassword;
 		await _context.SaveChangesAsync();
@@ -225,15 +238,15 @@ public class AuthenticateController : ControllerBase
 		return NoContent();
 	}
 
-	private (string content, DateTime expiry) CreateAccessToken(int userId, IEnumerable<Role> roles)
+	private (string content, DateTime expiry) CreateAccessToken(int userId, IEnumerable<Infrastructure.Entities.Role> roles)
 	{
 		var claims = new List<Claim>
 		{
-			new Claim(JwtRegisteredClaimNames.Sub, userId.ToString())
+			new Claim(ClaimTypes.NameIdentifier, userId.ToString())
 		};
 
 		var validRoles = roles.Where(x => x.Expiry > DateTime.Now);
-		claims.AddRange(validRoles.Select(x => new Claim("Roles", x.Type.ToString())));
+		claims.AddRange(validRoles.Select(x => new Claim(ClaimTypes.Role, x.Type.ToString())));
 
 		var maximumExpiry = DateTime.Now.AddMinutes(_jwtOptions.Value.AccessTokenLifetime);
 		DateTime finalExpiry = maximumExpiry;
@@ -247,5 +260,11 @@ public class AuthenticateController : ControllerBase
 		var content = helper.WriteToken();
 
 		return (content, finalExpiry);
+	}
+
+
+	private int GetUserId()
+	{
+		return ClaimUtilities.GetUserId(User.Claims);
 	}
 }

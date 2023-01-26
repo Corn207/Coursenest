@@ -86,7 +86,23 @@ public class DefaultProfile : Profile
 				options.Condition((source, destination, member) => member != null);
 			});
 
-		CreateMap<Exam, ExamResult>();
+		CreateMap<Exam, DTOs.Units.ExamResult>();
+
+		CreateMap<Exam, APICommonLibrary.MessageBus.Responses.ExamResult>()
+			.ForMember(
+				dst => dst.LessonTitle, opt => opt.MapFrom(
+				src => src.Lesson.Title))
+			.ForMember(
+				dst => dst.CourseTitle, opt => opt.MapFrom(
+				src => src.Lesson.Course.Title))
+			.ForMember(
+				dst => dst.TimeLimit, opt => opt.MapFrom(
+				src => src.RequiredTime))
+			.ForMember(
+				dst => dst.TopicId, opt => opt.MapFrom(
+				src => src.Lesson.Course.TopicId));
+		CreateMap<Question, APICommonLibrary.MessageBus.Responses.ExamResult.Question>();
+		CreateMap<Choice, APICommonLibrary.MessageBus.Responses.ExamResult.Choice>();
 
 		// Question
 		CreateMap<CreateQuestion, Question>();

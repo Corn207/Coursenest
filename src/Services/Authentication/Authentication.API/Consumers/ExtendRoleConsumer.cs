@@ -22,23 +22,20 @@ public class ExtendRoleConsumer : IConsumer<ExtendRole>
 			.FirstOrDefaultAsync(x => x.UserId == context.Message.UserId);
 		if (credential == null)
 		{
-			await context.RespondAsync(new NotFound() { Message = "UserId not existed." });
+			var response = new NotFound() { Message = $"UserId: {context.Message.UserId} does not exist." };
+			await context.RespondAsync(response);
+
 			return;
 		}
 
-		if (!Enum.TryParse(context.Message.Type.ToString(), out Infrastructure.Entities.RoleType type))
-		{
-			await context.RespondAsync(new NotFound() { Message = "RoleType not existed." });
-			return;
-		}
-
-		var role = credential.Roles.FirstOrDefault(x => x.Type == type);
+		var role = credential.Roles
+			.FirstOrDefault(x => x.Type.ToString() == context.Message.Type.ToString());
 		if (role == null)
 		{
 			role = new Role()
 			{
 				CredentialUserId = context.Message.UserId,
-				Type = type,
+				Type = (APICommonLibrary.Models.Role)context.Message.Type,
 				Expiry = DateTime.Now.AddDays(context.Message.ExtendedDays)
 			};
 			_context.Roles.Add(role);
@@ -48,7 +45,6 @@ public class ExtendRoleConsumer : IConsumer<ExtendRole>
 			role.Expiry = role.Expiry.AddDays(context.Message.ExtendedDays);
 			_context.Roles.Update(role);
 		}
-
 
 		await _context.SaveChangesAsync();
 

@@ -31,19 +31,18 @@ public class DefaultProfile : Profile
 				_ => false));
 
 		CreateMap<GradingSubmission, Submission>();
-		CreateMap<GradingSubmission.Criterion, Criterion>();
-		CreateMap<GradingSubmission.Checkpoint, Checkpoint>();
+		CreateMap<GradingSubmission.CreateReview, Review>();
 
-		CreateMap<Submission, SubmissionGradeResult>();
+		CreateMap<Submission, SubmissionBriefResult>();
 
 		CreateMap<Submission, SubmissionOngoingResult>();
-		CreateMap<Question, SubmissionOngoingResult.Question>();
-		CreateMap<Choice, SubmissionOngoingResult.Choice>();
+		CreateMap<Question, SubmissionOngoingResult.QuestionOngoingResult>();
+		CreateMap<Choice, SubmissionOngoingResult.ChoiceOngoingResult>();
 
 		CreateMap<Submission, SubmissionResult>();
-		CreateMap<Question, SubmissionResult.Question>();
-		CreateMap<Choice, SubmissionResult.Choice>();
-		CreateMap<Criterion, SubmissionResult.Criterion>();
-		CreateMap<Comment, SubmissionResult.Comment>();
+		CreateMap<Question, SubmissionResult.QuestionResult>();
+		CreateMap<Choice, SubmissionResult.ChoiceResult>();
+		CreateMap<Review, SubmissionResult.ReviewResult>();
+		CreateMap<Comment, SubmissionResult.CommentResult>();
 	}
 }

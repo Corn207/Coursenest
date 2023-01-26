@@ -10,22 +10,17 @@ public record SubmissionOngoingResult
 	public string CourseName { get; set; }
 	public DateTime Created { get; set; }
 	public TimeSpan TimeLimit { get; set; }
+	public List<QuestionOngoingResult> Questions { get; set; }
 
-	// Relationship
-	public int StudentUserId { get; set; }
-	public int UnitId { get; set; }
-	public int EnrollmentId { get; set; }
-	public List<Question> Questions { get; set; }
-
-	public record Question
+	public record QuestionOngoingResult
 	{
 		public int QuestionId { get; set; }
 		public string Content { get; set; }
 		public int Point { get; set; }
-		public List<Choice> Choices { get; set; }
+		public List<ChoiceOngoingResult> Choices { get; set; }
 	}
 
-	public record Choice
+	public record ChoiceOngoingResult
 	{
 		public int ChoiceId { get; set; }
 		public string Content { get; set; }

@@ -130,7 +130,6 @@ public class EnrollmentsController : ControllerBase
 
 	// DELETE: /enrollments/5
 	[HttpDelete("{enrollmentId}")]
-	[Authorize(Roles = nameof(Role.Student))]
 	public async Task<ActionResult> Delete(
 		int enrollmentId)
 	{

@@ -2,14 +2,18 @@
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-public class Question
+public class Review
 {
-	public int QuestionId { get; set; }
+	public int ReviewId { get; set; }
 	public string Content { get; set; }
-	public byte Point { get; set; }
+	public ReviewType Type { get; set; }
 
 	// Relationship
-	public List<Choice> Choices { get; set; }
 	public int SubmissionId { get; set; }
 	public Submission Submission { get; set; }
+
+	public enum ReviewType
+	{
+		Negative, Attentive, Informative, Positive
+	}
 }

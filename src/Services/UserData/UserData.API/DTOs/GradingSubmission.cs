@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static UserData.API.Infrastructure.Entities.Review;
 
 namespace UserData.API.DTOs;
 
@@ -6,30 +7,12 @@ namespace UserData.API.DTOs;
 
 public record GradingSubmission
 {
-	public IEnumerable<Criterion> Criteria { get; set; }
+	public byte Point { get; set; }
+	public IEnumerable<CreateReview> Reviews { get; set; }
 
-
-	public class Criterion : IValidatableObject
+	public class CreateReview
 	{
 		public string Content { get; set; }
-		public List<Checkpoint> Checkpoints { get; set; }
-
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if (Checkpoints.Count(x => x.IsChosen) != 1)
-			{
-				yield return new ValidationResult(
-					$"Criterion ({Content}) must have exactly 1 chosen Checkpoint.");
-			}
-		}
-	}
-
-	public class Checkpoint
-	{
-		public string Content { get; set; }
-
-		[Range(0, int.MaxValue)]
-		public int Point { get; set; }
-		public bool IsChosen { get; set; }
+		public ReviewType Type { get; set; }
 	}
 }
