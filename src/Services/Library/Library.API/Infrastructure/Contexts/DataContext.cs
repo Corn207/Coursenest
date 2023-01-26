@@ -1,7 +1,5 @@
-﻿using APICommonLibrary.Options;
-using Library.API.Infrastructure.Entities;
+﻿using Library.API.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace Library.API.Infrastructure.Contexts;
 

@@ -6,7 +6,7 @@ public class Question
 {
 	public int QuestionId { get; set; }
 	public string Content { get; set; }
-	public byte Point { get; set; }
+	public int Point { get; set; }
 
 	// Relationship
 	public int ExamUnitId { get; set; }

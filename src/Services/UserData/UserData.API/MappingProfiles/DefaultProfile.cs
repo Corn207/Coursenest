@@ -1,5 +1,4 @@
-﻿using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
+﻿using APICommonLibrary.MessageBus.Responses;
 using AutoMapper;
 using UserData.API.DTOs;
 using UserData.API.Infrastructure.Entities;
@@ -31,18 +30,19 @@ public class DefaultProfile : Profile
 				_ => false));
 
 		CreateMap<GradingSubmission, Submission>();
-		CreateMap<GradingSubmission.CreateReview, Review>();
+		CreateMap<GradingSubmission.Criterion, Criterion>();
+		CreateMap<GradingSubmission.Checkpoint, Checkpoint>();
 
-		CreateMap<Submission, SubmissionBriefResult>();
+		CreateMap<Submission, SubmissionGradeResult>();
 
 		CreateMap<Submission, SubmissionOngoingResult>();
-		CreateMap<Question, SubmissionOngoingResult.QuestionOngoingResult>();
-		CreateMap<Choice, SubmissionOngoingResult.ChoiceOngoingResult>();
+		CreateMap<Question, SubmissionOngoingResult.Question>();
+		CreateMap<Choice, SubmissionOngoingResult.Choice>();
 
 		CreateMap<Submission, SubmissionResult>();
-		CreateMap<Question, SubmissionResult.QuestionResult>();
-		CreateMap<Choice, SubmissionResult.ChoiceResult>();
-		CreateMap<Review, SubmissionResult.ReviewResult>();
-		CreateMap<Comment, SubmissionResult.CommentResult>();
+		CreateMap<Question, SubmissionResult.Question>();
+		CreateMap<Choice, SubmissionResult.Choice>();
+		CreateMap<Criterion, SubmissionResult.Criterion>();
+		CreateMap<Comment, SubmissionResult.Comment>();
 	}
 }

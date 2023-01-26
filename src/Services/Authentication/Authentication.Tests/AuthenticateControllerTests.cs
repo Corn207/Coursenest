@@ -26,7 +26,7 @@ public class AuthenticateControllerTests
 					return context.RespondAsync(new Created() { Id = 8 });
 				});
 
-				x.AddHandler<CheckTopics>(context =>
+				x.AddHandler<CheckTopicIds>(context =>
 				{
 					return context.RespondAsync(new Existed());
 				});

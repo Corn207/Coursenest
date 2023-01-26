@@ -5,14 +5,9 @@ using APICommonLibrary.Utilities.APIs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MassTransit;
-using MassTransit.Futures.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using UserData.API.DTOs;
 using UserData.API.Infrastructure.Contexts;
 using UserData.API.Infrastructure.Entities;
@@ -60,7 +55,7 @@ public class SubmissionsController : ControllerBase
 
 	// POST: /submissions
 	[HttpPost]
-	public async Task<ActionResult<SubmissionOngoingResult>> StartExam(
+	public async Task<ActionResult> StartExam(
 		[FromBody] StartExam body)
 	{
 		var userId = GetUserId();
@@ -110,14 +105,17 @@ public class SubmissionsController : ControllerBase
 
 
 	// GET: /submissions
-	[HttpGet]
-	[Authorize(Roles = nameof(Role.Instructor))]
-	public async Task<ActionResult<IEnumerable<SubmissionBriefResult>>> GetAll(
-		[FromQuery] SubmissionQuery query)
+	[HttpGet()]
+	public async Task<ActionResult<IEnumerable<SubmissionGradeResult>>> GetAll(
+		[FromBody] int enrollmentId)
 	{
+		var userId = GetUserId();
+
 		var results = await _context.Submissions
-			.Where(x => query.TopicIds.Contains(x.TopicId))
-			.ProjectTo<SubmissionBriefResult>(_mapper.ConfigurationProvider)
+			.Where(x =>
+				x.EnrollmentId == enrollmentId &&
+				x.StudentUserId == userId)
+			.ProjectTo<SubmissionGradeResult>(_mapper.ConfigurationProvider)
 			.ToListAsync();
 
 		return results;
@@ -194,15 +192,15 @@ public class SubmissionsController : ControllerBase
 				.Where(x => x.Choices.Any(x => x.IsCorrect == x.IsChosen))
 				.Sum(x => x.Point);
 
-			ongoing.Grade = (byte)quizGrade;
+			ongoing.Grade = quizGrade;
 			ongoing.Graded = DateTime.Now;
 
 			if (quizGrade / (float)maxGrade > 0.75)
 			{
 				var completedUnit = new CompletedUnit()
 				{
-					UnitId = ongoing.UnitId,
-					EnrollmentId = ongoing.EnrollmentId
+					EnrollmentId = ongoing.EnrollmentId,
+					UnitId = ongoing.UnitId
 				};
 				_context.CompletedUnits.Add(completedUnit);
 			}
@@ -213,24 +211,6 @@ public class SubmissionsController : ControllerBase
 		var result = _mapper.Map<SubmissionResult>(ongoing);
 
 		return CreatedAtAction(nameof(Get), new { ongoing.SubmissionId }, result);
-	}
-
-
-	// GET: /submissions/grade
-	[HttpGet("grade")]
-	public async Task<ActionResult<IEnumerable<SubmissionBriefResult>>> GetAll(
-		[FromQuery] int enrollmentId)
-	{
-		var userId = GetUserId();
-
-		var results = await _context.Submissions
-			.Where(x =>
-				x.EnrollmentId == enrollmentId &&
-				x.StudentUserId == userId)
-			.ProjectTo<SubmissionBriefResult>(_mapper.ConfigurationProvider)
-			.ToListAsync();
-
-		return results;
 	}
 
 	// POST: /submissions/5/grading
@@ -248,27 +228,33 @@ public class SubmissionsController : ControllerBase
 			.FirstOrDefaultAsync(x =>
 				x.SubmissionId == submissionId &&
 				x.Graded != null);
-		if (submission == null) 
-			return NotFound("Non-graded submission does not exist.");
+		if (submission == null) return NotFound();
 
-		var availableReviewPoint = (byte)submission.Questions
+		var availableCriteriaPoint = submission.Questions
 			.Where(x => x.Choices.All(x => x.IsChosen == null))
 			.Sum(x => x.Point);
-		if (availableReviewPoint < body.Point)
-			return BadRequest($"Exceeding available review point ({availableReviewPoint}).");
+		var maxCriteriaPoint = body.Criteria.Sum(x => x.Checkpoints.Max(x => x.Point));
+		if (availableCriteriaPoint != maxCriteriaPoint)
+			return BadRequest(
+				$"Available criteria point is ({availableCriteriaPoint}).\n" +
+				$"Your maximum criteria point is ({maxCriteriaPoint})");
 
 		_mapper.Map(body, submission);
-		submission.InstructorUserId = userId;
 
-		var maxGrade = (byte)submission.Questions.Sum(x => x.Point);
-		var quizGrade = (byte)submission.Questions
+		var maxGrade = submission.Questions.Sum(x => x.Point);
+		var quizGrade = submission.Questions
 			.Where(x => x.Choices.Any(x => x.IsCorrect == x.IsChosen))
 			.Sum(x => x.Point);
+		var criteriaGrade = submission.Criteria
+			.SelectMany(x => x.Checkpoints)
+			.Where(x => x.IsChosen)
+			.Sum(x => x.Point);
 
-		submission.Grade = (byte)(quizGrade + body.Point);
+		submission.Grade = quizGrade + criteriaGrade;
+		submission.InstructorUserId = userId;
 		submission.Graded = DateTime.Now;
 
-		if (submission.Grade / (float)maxGrade > 0.75f)
+		if (quizGrade / (float)maxGrade > 0.75)
 		{
 			var completedUnit = new CompletedUnit()
 			{
@@ -295,7 +281,7 @@ public class SubmissionsController : ControllerBase
 		var userId = GetUserId();
 
 		Submission? submission;
-		if (User.IsInRole(nameof(Role.Instructor)))
+		if (User.IsInRole(nameof(RoleTypes.Instructor)))
 		{
 			submission = await _context.Submissions
 				.FirstOrDefaultAsync(x =>
@@ -322,12 +308,12 @@ public class SubmissionsController : ControllerBase
 		};
 		_context.Comments.Add(comment);
 
-		if (User.IsInRole(nameof(Role.Instructor)))
+		if (User.IsInRole(nameof(RoleTypes.Instructor)))
 			submission.InstructorUserId ??= userId;
 
 		await _context.SaveChangesAsync();
 
-		var result = _mapper.Map<SubmissionResult.CommentResult>(comment);
+		var result = _mapper.Map<SubmissionResult.Comment>(comment);
 
 		return CreatedAtAction(nameof(Get), new { submissionId }, result);
 	}

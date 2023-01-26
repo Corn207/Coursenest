@@ -4,12 +4,12 @@
 
 public class Comment
 {
-    public int CommentId { get; set; }
-    public string Content { get; set; }
-    public DateTime Created { get; set; }
+	public int CommentId { get; set; }
+	public string Content { get; set; }
+	public DateTime Created { get; set; }
 
-    // Relationship
-    public int OwnerUserId { get; set; }
-    public int SubmissionId { get; set; }
-    public Submission Submission { get; set; }
+	// Relationship
+	public int OwnerUserId { get; set; }
+	public int SubmissionId { get; set; }
+	public Submission Submission { get; set; }
 }

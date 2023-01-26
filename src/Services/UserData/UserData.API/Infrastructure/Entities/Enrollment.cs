@@ -4,12 +4,12 @@
 
 public class Enrollment
 {
-    public int EnrollmentId { get; set; }
-    public DateTime? Completed { get; set; }
+	public int EnrollmentId { get; set; }
+	public DateTime? Completed { get; set; }
 
-    // Relationship
-    public int CourseId { get; set; }
-    public int StudentUserId { get; set; }
-    public List<CompletedUnit> CompletedUnits { get; set; }
-    public List<Submission> Submissions { get; set; }
+	// Relationship
+	public int CourseId { get; set; }
+	public int StudentUserId { get; set; }
+	public List<CompletedUnit> CompletedUnits { get; set; }
+	public List<Submission> Submissions { get; set; }
 }

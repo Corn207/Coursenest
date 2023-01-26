@@ -1,15 +1,12 @@
-﻿namespace APICommonLibrary.MessageBus.Commands;
+﻿using APICommonLibrary.Models;
+
+namespace APICommonLibrary.MessageBus.Commands;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 public record ExtendRole
 {
 	public int UserId { get; set; }
-	public Role Type { get; set; }
+	public RoleTypes Type { get; set; }
 	public int ExtendedDays { get; set; }
-
-	public enum Role
-	{
-		Student, Instructor, Publisher
-	}
 }

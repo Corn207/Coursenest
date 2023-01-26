@@ -7,7 +7,7 @@ namespace Authentication.API.Infrastructure.Entities;
 [PrimaryKey(nameof(CredentialUserId), nameof(Type))]
 public class Role
 {
-	public APICommonLibrary.Models.Role Type { get; set; }
+	public APICommonLibrary.Models.RoleTypes Type { get; set; }
 	public DateTime Expiry { get; set; }
 
 	// Relationship

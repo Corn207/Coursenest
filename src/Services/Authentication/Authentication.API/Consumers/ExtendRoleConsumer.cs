@@ -22,23 +22,23 @@ public class ExtendRoleConsumer : IConsumer<ExtendRole>
 			.FirstOrDefaultAsync(x => x.UserId == context.Message.UserId);
 		if (credential == null)
 		{
-			var response = new NotFound() { Message = $"UserId: {context.Message.UserId} does not exist." };
-			await context.RespondAsync(response);
-
+			await context.RespondAsync(new NotFound()
+			{
+				Message = $"UserId: {context.Message.UserId} does not exist." }
+			);
 			return;
 		}
 
 		var role = credential.Roles
-			.FirstOrDefault(x => x.Type.ToString() == context.Message.Type.ToString());
+			.FirstOrDefault(x => x.Type == context.Message.Type);
 		if (role == null)
 		{
 			role = new Role()
 			{
-				CredentialUserId = context.Message.UserId,
-				Type = (APICommonLibrary.Models.Role)context.Message.Type,
+				Type = context.Message.Type,
 				Expiry = DateTime.Now.AddDays(context.Message.ExtendedDays)
 			};
-			_context.Roles.Add(role);
+			credential.Roles.Add(role);
 		}
 		else
 		{

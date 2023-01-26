@@ -6,12 +6,8 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using UserData.API.DTOs;
 using UserData.API.Infrastructure.Contexts;
 using UserData.API.Infrastructure.Entities;
@@ -64,7 +60,7 @@ public class EnrollmentsController : ControllerBase
 
 		var result = await _context.Enrollments
 			.ProjectTo<EnrollmentDetailResult>(_mapper.ConfigurationProvider)
-			.FirstOrDefaultAsync(x => 
+			.FirstOrDefaultAsync(x =>
 				x.EnrollmentId == enrollmentId &&
 				x.StudentUserId == userId);
 		if (result == null) return NotFound($"EnrollmentId: {enrollmentId} is not existed.");
@@ -108,7 +104,7 @@ public class EnrollmentsController : ControllerBase
 		}
 
 		if (courseTierResult.Message.Tier == CourseTier.Premium &&
-			!User.IsInRole(nameof(Role.Student)))
+			!User.IsInRole(nameof(RoleTypes.Student)))
 		{
 			return Forbid("User is not Student.");
 		}
@@ -130,6 +126,7 @@ public class EnrollmentsController : ControllerBase
 
 	// DELETE: /enrollments/5
 	[HttpDelete("{enrollmentId}")]
+	[Authorize(Roles = nameof(RoleTypes.Student))]
 	public async Task<ActionResult> Delete(
 		int enrollmentId)
 	{
@@ -156,10 +153,10 @@ public class EnrollmentsController : ControllerBase
 		var enrollment = await _context.Enrollments
 			.AsNoTracking()
 			.Include(x => x.CompletedUnits)
-			.FirstOrDefaultAsync(x => 
+			.FirstOrDefaultAsync(x =>
 				x.EnrollmentId == body.EnrollmentId &&
 				x.StudentUserId == userId);
-		if (enrollment == null) 
+		if (enrollment == null)
 			return NotFound("Enrollment is not existed.");
 		if (enrollment.CompletedUnits.Any(x => x.UnitId == body.UnitId))
 			return Conflict($"UnitId: {body.UnitId} existed.");

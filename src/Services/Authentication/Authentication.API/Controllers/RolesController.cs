@@ -26,7 +26,7 @@ public class RolesController : ControllerBase
 
 	// GET: /roles
 	[HttpGet]
-	[Authorize(Roles = nameof(APICommonLibrary.Models.Role.Admin))]
+	[Authorize(Roles = nameof(APICommonLibrary.Models.RoleTypes.Admin))]
 	public async Task<ActionResult<IEnumerable<RoleResult>>> GetAll(
 		[FromQuery] int userId)
 	{
@@ -66,7 +66,7 @@ public class RolesController : ControllerBase
 
 	// PUT: /roles/5
 	[HttpPut("{userId}")]
-	[Authorize(Roles = nameof(APICommonLibrary.Models.Role.Admin))]
+	[Authorize(Roles = nameof(APICommonLibrary.Models.RoleTypes.Admin))]
 	public async Task<ActionResult> Update(
 		[FromBody] SetRole dto)
 	{

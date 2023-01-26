@@ -35,8 +35,8 @@ public class ConsumerTests
 	public async Task CheckTopicsConsumer_ReturnsExisted()
 	{
 		// Arrange
-		var client = _harness.GetRequestClient<CheckTopics>();
-		var request = new CheckTopics()
+		var client = _harness.GetRequestClient<CheckTopicIds>();
+		var request = new CheckTopicIds()
 		{
 			TopicIds = new[] { 1, 2, 3, 5 }
 		};

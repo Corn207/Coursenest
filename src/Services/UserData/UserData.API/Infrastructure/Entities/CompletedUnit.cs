@@ -9,6 +9,6 @@ public class CompletedUnit
 {
 	// Relationship
 	public int UnitId { get; set; }
-    public int EnrollmentId { get; set; }
-    public Enrollment Enrollment { get; set; }
+	public int EnrollmentId { get; set; }
+	public Enrollment Enrollment { get; set; }
 }

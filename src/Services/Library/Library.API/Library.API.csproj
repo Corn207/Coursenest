@@ -11,15 +11,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="Library.Tests" />
   </ItemGroup>
     
   <ItemGroup>
     <ProjectReference Include="..\..\APICommonLibrary\APICommonLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Library.Tests" />
   </ItemGroup>
 
 </Project>

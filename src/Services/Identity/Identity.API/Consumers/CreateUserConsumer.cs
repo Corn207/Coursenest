@@ -22,11 +22,13 @@ public class CreateUserConsumer : IConsumer<CreateUser>
 	public async Task Consume(ConsumeContext<CreateUser> context)
 	{
 		var exists = await _context.Users
-			.AsNoTracking()
 			.AnyAsync(x => x.Email == context.Message.Email);
 		if (exists)
 		{
-			await context.RespondAsync(new Existed() { Message = "Email existed." });
+			await context.RespondAsync(new Existed()
+			{
+				Message = "Email existed."
+			});
 			return;
 		}
 
@@ -35,6 +37,9 @@ public class CreateUserConsumer : IConsumer<CreateUser>
 
 		await _context.SaveChangesAsync();
 
-		await context.RespondAsync(new Created() { Id = user.UserId });
+		await context.RespondAsync(new Created()
+		{
+			Id = user.UserId
+		});
 	}
 }

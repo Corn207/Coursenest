@@ -27,7 +27,7 @@ public class AuthenticateController : ControllerBase
 	private readonly DataContext _context;
 	private readonly IOptions<JwtOptions> _jwtOptions;
 	private readonly IRequestClient<CreateUser> _createUserClient;
-	private readonly IRequestClient<CheckTopics> _checkTopicsClient;
+	private readonly IRequestClient<CheckTopicIds> _checkTopicIdsClient;
 	private readonly IRequestClient<CheckUserEmails> _checkUserEmailsClient;
 
 	public AuthenticateController(
@@ -35,14 +35,14 @@ public class AuthenticateController : ControllerBase
 		DataContext context,
 		IOptions<JwtOptions> jwtOptions,
 		IRequestClient<CreateUser> createUserClient,
-		IRequestClient<CheckTopics> checkTopicsClient,
+		IRequestClient<CheckTopicIds> checkTopicIdsClient,
 		IRequestClient<CheckUserEmails> checkUserEmailsClient)
 	{
 		_mapper = mapper;
 		_context = context;
 		_jwtOptions = jwtOptions;
 		_createUserClient = createUserClient;
-		_checkTopicsClient = checkTopicsClient;
+		_checkTopicIdsClient = checkTopicIdsClient;
 		_checkUserEmailsClient = checkUserEmailsClient;
 	}
 
@@ -50,32 +50,38 @@ public class AuthenticateController : ControllerBase
 	[HttpPost("register")]
 	[AllowAnonymous]
 	public async Task<ActionResult> Register(
-		[FromBody] Register dto)
+		[FromBody] Register body)
 	{
 		var exists = await _context.Credentials
-			.AnyAsync(x => x.Username == dto.Username);
+			.AnyAsync(x => x.Username == body.Username);
 		if (exists)
 			return Conflict("Username existed.");
 
-		var checkTopicsRequest = new CheckTopics() { TopicIds = dto.InterestedTopicIds };
-		var checkTopicsResponse = await _checkTopicsClient.GetResponse<Existed, NotFound>(checkTopicsRequest);
+		var checkTopicIdsRequest = new CheckTopicIds()
+		{
+			TopicIds = body.InterestedTopicIds
+		};
+		var checkTopicsResponse = await _checkTopicIdsClient
+			.GetResponse<Existed, NotFound>(checkTopicIdsRequest);
 		if (checkTopicsResponse.Is(out Response<NotFound>? notFoundResponse))
 		{
 			return NotFound(notFoundResponse!.Message.Message);
 		}
 
-		var createUserRequest = _mapper.Map<CreateUser>(dto);
-		var createUserresponse = await _createUserClient.GetResponse<Created, Existed>(createUserRequest);
+		var createUserRequest = _mapper.Map<CreateUser>(body);
+		var createUserresponse = await _createUserClient
+			.GetResponse<Created, Existed>(createUserRequest);
 		if (createUserresponse.Is(out Response<Existed>? existedResponse))
 		{
 			return Conflict(existedResponse!.Message);
 		}
-		if (!createUserresponse.Is(out Response<Created>? createdResponse) || createdResponse == null)
+		if (!createUserresponse.Is(out Response<Created>? createdResponse) ||
+			createdResponse == null)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError);
 		}
 
-		var credential = _mapper.Map<Credential>(dto);
+		var credential = _mapper.Map<Credential>(body);
 		credential.UserId = createdResponse.Message.Id;
 
 		_context.Credentials.Add(credential);
@@ -88,15 +94,15 @@ public class AuthenticateController : ControllerBase
 	[HttpPost("login")]
 	[AllowAnonymous]
 	public async Task<ActionResult<TokensResult>> Login(
-		[FromBody] Login request)
+		[FromBody] Login body)
 	{
 		var credential = await _context.Credentials
 			.AsNoTracking()
 			.Include(x => x.Roles)
-			.FirstOrDefaultAsync(x => x.Username == request.Username);
+			.FirstOrDefaultAsync(x =>
+				x.Username == body.Username &&
+				x.Password == body.Password);
 		if (credential == null)
-			return NotFound("Credential does not exist.");
-		if (credential.Password != request.Password)
 			return BadRequest("Credential is invalid.");
 
 		(string accessTokenContent, DateTime accessTokenExpiry) = CreateAccessToken(credential.UserId, credential.Roles);
@@ -173,7 +179,7 @@ public class AuthenticateController : ControllerBase
 
 	// PUT: /authenticate/reset-password
 	[HttpPut("reset-password")]
-	[Authorize(Roles = nameof(APICommonLibrary.Models.Role.Admin))]
+	[Authorize(Roles = nameof(RoleTypes.Admin))]
 	public async Task<ActionResult<string>> ResetPassword(
 		[FromBody] int userId)
 	{
@@ -194,15 +200,15 @@ public class AuthenticateController : ControllerBase
 	[HttpPut("forgot-password")]
 	[AllowAnonymous]
 	public async Task<ActionResult<string>> ForgotPassword(
-		[FromBody] ForgotPassword dto)
+		[FromBody] ForgotPassword body)
 	{
 		var credential = await _context.Credentials
-			.FirstOrDefaultAsync(x => x.Username == dto.Username);
+			.FirstOrDefaultAsync(x => x.Username == body.Username);
 		if (credential == null)
 			return NotFound("Credential does not exist.");
-
-		var request = new CheckUserEmails() { Emails = new[] { dto.Email } };
-		var response = await _checkTopicsClient.GetResponse<Existed, NotFound>(request);
+		// TODO Add userId check and email check
+		var request = new CheckUserEmails() { Emails = new[] { body.Email } };
+		var response = await _checkTopicIdsClient.GetResponse<Existed, NotFound>(request);
 
 		if (response.Is(out Response<NotFound>? notFoundResponse))
 		{
@@ -221,7 +227,7 @@ public class AuthenticateController : ControllerBase
 	[HttpPut("change-password")]
 	[Authorize]
 	public async Task<ActionResult<AccessTokenResult>> ChangePassword(
-		[FromBody] ChangePassword dto)
+		[FromBody] ChangePassword body)
 	{
 		var userId = GetUserId();
 
@@ -229,16 +235,19 @@ public class AuthenticateController : ControllerBase
 			.FirstOrDefaultAsync(x => x.UserId == userId);
 		if (credential == null)
 			return NotFound($"UserId: {userId} does not exist.");
-		if (credential.Password != dto.OldPassword)
+		if (credential.Password != body.OldPassword)
 			return BadRequest("Old password is invalid.");
 
-		credential.Password = dto.NewPassword;
+		credential.Password = body.NewPassword;
 		await _context.SaveChangesAsync();
 
 		return NoContent();
 	}
 
-	private (string content, DateTime expiry) CreateAccessToken(int userId, IEnumerable<Infrastructure.Entities.Role> roles)
+
+	private (string content, DateTime expiry) CreateAccessToken(
+		int userId,
+		IEnumerable<Role> roles)
 	{
 		var claims = new List<Claim>
 		{
@@ -249,7 +258,7 @@ public class AuthenticateController : ControllerBase
 		claims.AddRange(validRoles.Select(x => new Claim(ClaimTypes.Role, x.Type.ToString())));
 
 		var maximumExpiry = DateTime.Now.AddMinutes(_jwtOptions.Value.AccessTokenLifetime);
-		DateTime finalExpiry = maximumExpiry;
+		var finalExpiry = maximumExpiry;
 		if (validRoles.Any())
 		{
 			var nearestExpiry = validRoles.Min(x => x.Expiry);
@@ -261,7 +270,6 @@ public class AuthenticateController : ControllerBase
 
 		return (content, finalExpiry);
 	}
-
 
 	private int GetUserId()
 	{

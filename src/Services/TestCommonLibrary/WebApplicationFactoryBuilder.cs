@@ -13,7 +13,6 @@ public class WebApplicationFactoryBuilder
 	private Action<IServiceCollection>? _efcoreAction;
 	private Action<IServiceCollection>? _massTransitAction;
 
-
 	public WebApplicationFactoryBuilder AddEFCoreTestServices<TDbContext>()
 		where TDbContext : DbContext
 	{
@@ -47,7 +46,6 @@ public class WebApplicationFactoryBuilder
 
 		return this;
 	}
-
 
 	public async Task<WebApplicationFactory<TEntryPoint>> BuildAsync<TEntryPoint>()
 		where TEntryPoint : class

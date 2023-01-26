@@ -11,33 +11,42 @@ public class DefaultProfile : Profile
 	{
 		// User
 		CreateMap<CreateUser, User>()
-			.ForMember(dest => dest.Created, opt => opt.MapFrom(_ => DateTime.Now))
-			.ForMember(dest => dest.LastModified, opt => opt.MapFrom(_ => DateTime.Now))
 			.ForMember(
-				dest => dest.InterestedTopics,
-				opt => opt.MapFrom(x => x.InterestedTopicIds
+				dst => dst.Created, opt => opt.MapFrom(
+				_ => DateTime.Now))
+			.ForMember(
+				dst => dst.LastModified, opt => opt.MapFrom(
+				_ => DateTime.Now))
+			.ForMember(
+				dst => dst.InterestedTopics, opt => opt.MapFrom(
+				src => src.InterestedTopicIds
 					.Select(i => new InterestedTopic() { TopicId = i })));
 		CreateMap<UpdateUser, User>()
-			.ForMember(dest => dest.LastModified, opt => opt.MapFrom(_ => DateTime.Now))
+			.ForMember(
+				dst => dst.LastModified, opt => opt.MapFrom(
+				_ => DateTime.Now))
 			.ForAllMembers(options =>
 			{
-				options.Condition((source, destination, member) => member != null);
+				options.Condition((source, dstination, member) => member != null);
 			});
 
 		CreateMap<User, UserResult>();
 		CreateMap<User, UserProfileResult>();
 		CreateMap<User, UserInstructorResult>();
 
+		// Experience
+		CreateMap<CreateExperience, Experience>();
+		CreateMap<Experience, UserProfileResult.ExperienceResult>();
+
 		// Achievement
 		CreateMap<CreateUserAchievement, Achievement>();
-
-		CreateMap<Achievement, AchievementResult>();
+		CreateMap<Achievement, UserProfileResult.AchievementResult>();
 
 		// Avatar
 		CreateMap<Avatar, ImageResult>()
 			.ForMember(
-				nameof(ImageResult.URI),
-				options => options.MapFrom(src => $"data:{src.MediaType};base64,{Convert.ToBase64String(src.Data)}"));
+				dst => dst.URI, opt => opt.MapFrom(
+				src => $"data:{src.MediaType};base64,{Convert.ToBase64String(src.Data)}"));
 
 		// InterestedTopic
 		CreateMap<InterestedTopic, int>()
@@ -46,10 +55,5 @@ public class DefaultProfile : Profile
 		// FollowedTopic
 		CreateMap<FollowedTopic, int>()
 			.ConvertUsing(x => x.TopicId);
-
-		// Experience
-		CreateMap<CreateExperience, Experience>();
-
-		CreateMap<Experience, ExperienceResult>();
 	}
 }
