@@ -1,15 +1,16 @@
-using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
 using Authentication.API.DTOs;
+using Authentication.API.Infrastructure.Contexts;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
+using CommonLibrary.API.Models;
+using CommonLibrary.Tests;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
-using TestCommonLibrary;
 
 namespace Authentication.Tests;
 
 [TestFixture]
-[NonParallelizable]
 public class AuthenticateControllerTests
 {
 	private WebApplicationFactory<Program> _factory;
@@ -19,21 +20,22 @@ public class AuthenticateControllerTests
 	public async Task Setup()
 	{
 		_factory = await new WebApplicationFactoryBuilder()
-			.AddMassTransitTestHarness(x =>
+			.AddEFCoreTestServices<DataContext>()
+			.AddMassTransitTestServices(x =>
 			{
+				x.AddHandler<CheckUsers>(context =>
+				{
+					return context.RespondAsync(new Existed());
+				});
+
+				x.AddHandler<CheckTopics>(context =>
+				{
+					return context.RespondAsync(new Existed());
+				});
+
 				x.AddHandler<CreateUser>(context =>
 				{
 					return context.RespondAsync(new Created() { Id = 8 });
-				});
-
-				x.AddHandler<CheckTopicIds>(context =>
-				{
-					return context.RespondAsync(new Existed());
-				});
-
-				x.AddHandler<CheckUserEmails>(context =>
-				{
-					return context.RespondAsync(new Existed());
 				});
 			})
 			.BuildAsync<Program>();
@@ -44,125 +46,105 @@ public class AuthenticateControllerTests
 
 
 	[Test]
-	public async Task Register_Returns201()
+	public async Task Register_ReturnsCreated()
 	{
 		// Arrange
-		var content = JsonContent.Create(new Register()
+		var register = new Register()
 		{
 			Username = "usrtest",
 			Password = "pwdtest",
 			Email = "testuser@test.com",
 			Fullname = "Test Smith",
 			InterestedTopicIds = new[] { 1 }
-		});
+		};
 
 		// Act
-		var response = await _client.PostAsync("/authenticate/register", content);
+		var response = await _client.PostAsJsonAsync("/authenticate/register", register);
 
 		// Assert
 		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
 	}
 
-
 	[Test]
 	public async Task Login_ReturnsTokensResult()
 	{
 		// Arrange
-		var login = new Login() { Username = "usrnonad", Password = "pwd" };
+		var body = new Login() { Username = "loginTest", Password = "pwd" };
 
 		// Act
-		var loginContent = await _client
-			.PostParsedAsync<Login, TokensResult>("authenticate/login", login);
+		var content = await _client
+			.PostParsedAsync<Login, TokensResult>("/authenticate/login", body);
 
 		// Assert
-		Assert.Pass();
+		Assert.That(content, Is.Not.Null);
 	}
-
 
 	[Test]
 	public async Task Logout_ReturnsOk()
 	{
 		// Arrange
-		var login = new Login() { Username = "usrnonad", Password = "pwd" };
 		var client = _factory.CreateClient();
+		client.AddNameIdentifier(2);
 
 		// Act
-		var loginContent = await _client
-			.PostParsedAsync<Login, TokensResult>("authenticate/login", login);
-
-		client.DefaultRequestHeaders.Add("userId", loginContent.UserId.ToString());
 		var response = await client.PostAsync("/authenticate/logout", null);
 
 		// Assert
-		Assert.That(response.IsSuccessStatusCode);
+		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 	}
 
-
 	[Test]
-	public async Task Refresh_ReturnsCorrectModel()
+	public async Task Refresh_ReturnsAccessTokenResult()
 	{
 		// Arrange
-		var login = new Login() { Username = "usrad", Password = "pwd" };
+		var body = "refreshTestRT";
 
 		// Act
-		var loginContent = await _client
-			.PostParsedAsync<Login, TokensResult>("authenticate/login", login);
-
-		var refreshContent = await _client
-			.PostParsedAsync<string, AccessTokenResult>("authenticate/refresh", loginContent.RefreshToken);
+		var content = await _client
+			.PostParsedAsync<string, AccessTokenResult>("/authenticate/refresh", body);
 
 		// Assert
-		Assert.Pass();
+		Assert.That(content, Is.Not.Null);
 	}
 
-
 	[Test]
-	[TestCase(1)]
-	[TestCase(2)]
-	public async Task ResetPassword_ReturnsOk(int userId)
+	public async Task ResetPassword_ReturnsNewPassword()
 	{
 		// Arrange
-		var jsonContent = JsonContent.Create(userId);
-
-		// Act
-		var response = await _client.PutAsync("authenticate/reset-password", jsonContent);
-
-		// Assert
-		Assert.That(response.IsSuccessStatusCode, Is.True);
-	}
-
-
-	[Test]
-	[TestCase("usrbasic")]
-	[TestCase("usrstd")]
-	public async Task ForgotPassword_ReturnsOk(string username)
-	{
-		// Arrange
-		var content = new ForgotPassword() { Email = "test", Username = username };
-
-		// Act
-		var response = await _client.PutAsJsonAsync("authenticate/forgot-password", content);
-
-		// Assert
-		Assert.That(response.IsSuccessStatusCode, Is.True);
-	}
-
-
-	public static readonly object[] ChangePasswordData = new[]
-	{
-		new object[] { 3, new ChangePassword() { OldPassword = "pwd", NewPassword = "pwdUpdate" } },
-		new object[] { 4, new ChangePassword() { OldPassword = "pwd", NewPassword = "pwdUpdate" } }
-	};
-	[Test]
-	[TestCaseSource(nameof(ChangePasswordData))]
-	public async Task ChangePassword_ReturnsOk(int userId, ChangePassword content)
-	{
-		// Arrange
+		var body = 4;
 		var client = _factory.CreateClient();
-		client.DefaultRequestHeaders.Add(nameof(userId), userId.ToString());
+		client.AddRole(new string[] { RoleTypes.Admin.ToString() });
 
 		// Act
-		var response = await client.PutAsJsonAsync("authenticate/change-password", content);
+		var response = await client.PutAsJsonAsync("/authenticate/reset-password", body);
+
+		// Assert
+		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+	}
+
+	[Test]
+	public async Task ForgotPassword_ReturnsNewPassword()
+	{
+		// Arrange
+		var body = new ForgotPassword() { Email = "", Username = "forgotTest" };
+
+		// Act
+		var response = await _client.PutAsJsonAsync("/authenticate/forgot-password", body);
+
+		// Assert
+		Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+	}
+
+	[Test]
+	public async Task ChangePassword_ReturnsOk()
+	{
+		// Arrange
+		var body = new ChangePassword() { OldPassword = "pwd", NewPassword = "pwdUpdate" };
+		var client = _factory.CreateClient();
+		client.AddNameIdentifier(6);
+
+		// Act
+		var response = await client.PutAsJsonAsync("/authenticate/change-password", body);
 
 		// Assert
 		Assert.That(response.IsSuccessStatusCode, Is.True);

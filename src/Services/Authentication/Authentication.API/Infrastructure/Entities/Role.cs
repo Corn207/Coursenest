@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CommonLibrary.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Authentication.API.Infrastructure.Entities;
 
@@ -7,7 +8,7 @@ namespace Authentication.API.Infrastructure.Entities;
 [PrimaryKey(nameof(CredentialUserId), nameof(Type))]
 public class Role
 {
-	public APICommonLibrary.Models.RoleTypes Type { get; set; }
+	public RoleTypes Type { get; set; }
 	public DateTime Expiry { get; set; }
 
 	// Relationship

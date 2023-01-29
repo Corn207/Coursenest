@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TestCommonLibrary\TestCommonLibrary.csproj" />
+    <ProjectReference Include="..\..\CommonLibrary\CommonLibrary.Tests\CommonLibrary.Tests.csproj" />
     <ProjectReference Include="..\Authentication.API\Authentication.API.csproj" />
   </ItemGroup>
 

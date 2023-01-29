@@ -1,7 +1,6 @@
-using APICommonLibrary.Extensions;
-using Authentication.API.Consumers;
 using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Options;
+using CommonLibrary.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +20,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -1,5 +1,5 @@
-﻿using APICommonLibrary.MessageBus.Events;
-using Authentication.API.Infrastructure.Contexts;
+﻿using Authentication.API.Infrastructure.Contexts;
+using CommonLibrary.API.MessageBus.Events;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 

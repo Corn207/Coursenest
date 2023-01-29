@@ -1,7 +1,7 @@
-﻿using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
-using Authentication.API.Infrastructure.Contexts;
+﻿using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Infrastructure.Entities;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,8 +24,8 @@ public class ExtendRoleConsumer : IConsumer<ExtendRole>
 		{
 			await context.RespondAsync(new NotFound()
 			{
-				Message = $"UserId: {context.Message.UserId} does not exist." }
-			);
+				Message = $"UserId: {context.Message.UserId} does not exist."
+			});
 			return;
 		}
 

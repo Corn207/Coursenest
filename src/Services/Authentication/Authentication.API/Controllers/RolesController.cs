@@ -1,9 +1,10 @@
-﻿using APICommonLibrary.Utilities.APIs;
-using Authentication.API.DTOs;
+﻿using Authentication.API.DTOs;
 using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Infrastructure.Entities;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.Models;
+using CommonLibrary.API.Utilities.APIs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,11 +25,11 @@ public class RolesController : ControllerBase
 	}
 
 
-	// GET: /roles
-	[HttpGet]
-	[Authorize(Roles = nameof(APICommonLibrary.Models.RoleTypes.Admin))]
+	// GET: /roles/5
+	[HttpGet("{userId}")]
+	[Authorize(Roles = nameof(RoleTypes.Admin))]
 	public async Task<ActionResult<IEnumerable<RoleResult>>> GetAll(
-		[FromQuery] int userId)
+		int userId)
 	{
 		var exists = await _context.Credentials
 			.AnyAsync(x => x.UserId == userId);
@@ -66,32 +67,32 @@ public class RolesController : ControllerBase
 
 	// PUT: /roles/5
 	[HttpPut("{userId}")]
-	[Authorize(Roles = nameof(APICommonLibrary.Models.RoleTypes.Admin))]
+	[Authorize(Roles = nameof(RoleTypes.Admin))]
 	public async Task<ActionResult> Update(
-		[FromBody] SetRole dto)
+		int userId,
+		[FromBody] SetRole body)
 	{
 		var credential = await _context.Credentials
-			.AsNoTracking()
 			.Include(x => x.Roles)
-			.FirstOrDefaultAsync(x => x.UserId == dto.UserId);
+			.FirstOrDefaultAsync(x => x.UserId == userId);
 		if (credential == null)
-			return NotFound($"UserId: {dto.UserId} does not exist.");
+			return NotFound($"UserId: {userId} does not exist.");
 
-		var role = _mapper.Map<Role>(dto);
-		role.CredentialUserId = dto.UserId;
-
-		if (credential.Roles.Any(x => x.Type == dto.Type))
+		var role = credential.Roles
+			.FirstOrDefault(x => x.Type == body.Type);
+		if (role == null)
 		{
-			_context.Roles.Update(role);
+			role = _mapper.Map<Role>(body);
+			credential.Roles.Add(role);
 		}
 		else
 		{
-			_context.Roles.Add(role);
+			_mapper.Map(body, role);
 		}
 
 		await _context.SaveChangesAsync();
 
-		return CreatedAtAction(nameof(GetAll), new { dto.UserId }, null);
+		return CreatedAtAction(nameof(GetAll), new { userId }, null);
 	}
 
 

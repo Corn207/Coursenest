@@ -1,4 +1,4 @@
-﻿using APICommonLibrary.Models;
+﻿using CommonLibrary.API.Models;
 
 namespace Authentication.API.DTOs;
 
