@@ -182,7 +182,7 @@ public class AuthenticateController : ControllerBase
 
 	// PUT: /authenticate/reset-password
 	[HttpPut("reset-password")]
-	[Authorize(Roles = nameof(RoleTypes.Admin))]
+	[Authorize(Roles = nameof(RoleType.Admin))]
 	public async Task<ActionResult<string>> ResetPassword(
 		[FromBody] int userId)
 	{

@@ -7,6 +7,6 @@ namespace CommonLibrary.API.MessageBus.Commands;
 public record ExtendRole
 {
 	public int UserId { get; set; }
-	public RoleTypes Type { get; set; }
+	public RoleType Type { get; set; }
 	public int ExtendedDays { get; set; }
 }

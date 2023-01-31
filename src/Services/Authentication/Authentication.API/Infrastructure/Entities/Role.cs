@@ -8,7 +8,7 @@ namespace Authentication.API.Infrastructure.Entities;
 [PrimaryKey(nameof(CredentialUserId), nameof(Type))]
 public class Role
 {
-	public RoleTypes Type { get; set; }
+	public RoleType Type { get; set; }
 	public DateTime Expiry { get; set; }
 
 	// Relationship

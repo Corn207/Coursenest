@@ -1,6 +1,6 @@
 ﻿namespace CommonLibrary.API.Models;
 
-public enum RoleTypes
+public enum RoleType
 {
 	Student, Instructor, Publisher, Admin
 }

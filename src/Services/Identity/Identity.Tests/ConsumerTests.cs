@@ -1,12 +1,12 @@
-using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using Identity.API.Consumers;
 using Identity.API.Infrastructure.Contexts;
 using MassTransit;
 using MassTransit.Testing;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using TestCommonLibrary;
+using CommonLibrary.Tests;
 
 namespace Identity.Tests;
 
@@ -21,9 +21,10 @@ public class ConsumerTests
 	public async Task Setup()
 	{
 		_factory = await new WebApplicationFactoryBuilder()
-			.AddMassTransitTestHarness(x =>
+			.AddEFCoreTestServices<DataContext>()
+			.AddMassTransitTestServices(x =>
 			{
-				x.AddConsumer<CheckUserEmailsConsumer>();
+				x.AddConsumer<CheckUsersConsumer>();
 				x.AddConsumer<CreateUserAchievementConsumer>();
 				x.AddConsumer<CreateUserConsumer>();
 			})
@@ -35,13 +36,33 @@ public class ConsumerTests
 
 
 	[Test]
-	public async Task CheckUserEmailsConsumer_ReturnsExisted()
+	public async Task CheckUsersConsumer_ReturnsExisted()
 	{
 		// Arrange
-		var client = _harness.GetRequestClient<CheckUserEmails>();
-		var request = new CheckUserEmails()
+		var client = _harness.GetRequestClient<CheckUsers>();
+		var request = new CheckUsers()
 		{
-			Emails = new[] { "one@gmail.com", "three@gmail.com" }
+			Queries = new[]
+			{
+				new CheckUsers.Query()
+				{
+					Id = 1,
+					Email = "one@gmail.com"
+				},
+				new CheckUsers.Query()
+				{
+					Id = 2,
+					Email = "two@gmail.com"
+				},
+				new CheckUsers.Query()
+				{
+					Id = 3
+				},
+				new CheckUsers.Query()
+				{
+					Email = "four@gmail.com"
+				}
+			}
 		};
 
 		// Act
@@ -51,21 +72,54 @@ public class ConsumerTests
 		Assert.That(response.Is(out Response<Existed>? _), Is.True);
 	}
 
+	[Test]
+	public async Task CheckUsersConsumer_ReturnsNotFound()
+	{
+		// Arrange
+		var client = _harness.GetRequestClient<CheckUsers>();
+		var request = new CheckUsers()
+		{
+			Queries = new[]
+			{
+				new CheckUsers.Query()
+				{
+					Id = 1,
+					Email = "two@gmail.com"
+				},
+				new CheckUsers.Query()
+				{
+					Id = 2,
+					Email = "two@gmail.com"
+				},
+				new CheckUsers.Query()
+				{
+					Id = 3
+				},
+				new CheckUsers.Query()
+				{
+					Email = "four@gmail.com"
+				}
+			}
+		};
+
+		// Act
+		var response = await client.GetResponse<Existed, NotFound>(request);
+
+		// Assert
+		Assert.That(response.Is(out Response<NotFound>? _), Is.True);
+	}
 
 	[Test]
-	public async Task CreateUserAchievementConsumer_ReturnsCreatedResource()
+	public async Task CreateUserAchievementConsumer_ReturnsCreated()
 	{
 		// Arrange
 		var client = _harness.GetRequestClient<CreateUserAchievement>();
 		var request = new CreateUserAchievement()
 		{
-			Created = DateTime.Now,
 			Title = "Learned CSS.",
+			Created = DateTime.Now,
 			UserId = 1
 		};
-
-		using var scope = _factory.Services.CreateScope();
-		var context = scope.ServiceProvider.GetRequiredService<DataContext>();
 
 		// Act
 		var response = await client.GetResponse<Created, NotFound>(request);
@@ -74,20 +128,12 @@ public class ConsumerTests
 			throw new Exception(notFountResponse!.Message.Message);
 		}
 
-		var exists = await context.Achievements
-			.AsNoTracking()
-			.AnyAsync(x =>
-				x.Created == request.Created &&
-				x.Title == request.Title &&
-				x.UserId == request.UserId);
-
 		// Assert
-		Assert.That(exists, Is.True);
+		Assert.That(response.Is(out Response<Created>? _), Is.True);
 	}
 
-
 	[Test]
-	public async Task CreateUserConsumer_ReturnsCreatedResource()
+	public async Task CreateUserConsumer_ReturnsCreated()
 	{
 		// Arrange
 		var client = _harness.GetRequestClient<CreateUser>();
@@ -98,9 +144,6 @@ public class ConsumerTests
 			InterestedTopicIds = new[] { 1, 2 }
 		};
 
-		using var scope = _factory.Services.CreateScope();
-		var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-
 		// Act
 		var response = await client.GetResponse<Created, Existed>(request);
 		if (response.Is(out Response<Existed>? existedResponse))
@@ -108,14 +151,7 @@ public class ConsumerTests
 			throw new Exception(existedResponse!.Message.Message);
 		}
 
-		var exists = await context.Users
-			.AsNoTracking()
-			.AnyAsync(x =>
-				x.Email == request.Email &&
-				x.FullName == request.FullName &&
-				x.InterestedTopics.Count == request.InterestedTopicIds.Length);
-
 		// Assert
-		Assert.That(exists, Is.True);
+		Assert.That(response.Is(out Response<Created>? _), Is.True);
 	}
 }

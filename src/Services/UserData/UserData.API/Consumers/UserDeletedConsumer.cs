@@ -1,4 +1,4 @@
-﻿using APICommonLibrary.MessageBus.Events;
+﻿using CommonLibrary.API.MessageBus.Events;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using UserData.API.Infrastructure.Contexts;

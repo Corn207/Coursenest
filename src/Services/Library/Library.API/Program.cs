@@ -1,4 +1,4 @@
-using APICommonLibrary.Extensions;
+using CommonLibrary.API.Extensions;
 using Library.API.Consumers;
 using Library.API.Infrastructure.Contexts;
 

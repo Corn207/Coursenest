@@ -1,10 +1,10 @@
-﻿using APICommonLibrary.Constants;
-using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Events;
-using APICommonLibrary.MessageBus.Responses;
-using APICommonLibrary.Models;
-using APICommonLibrary.Utilities.APIs;
-using APICommonLibrary.Validations;
+﻿using CommonLibrary.API.Constants;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Events;
+using CommonLibrary.API.MessageBus.Responses;
+using CommonLibrary.API.Models;
+using CommonLibrary.API.Utilities.APIs;
+using CommonLibrary.API.Validations;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Identity.API.DTOs;
@@ -24,44 +24,65 @@ namespace Identity.API.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly DataContext _context;
-		private readonly IRequestClient<CheckTopicIds> _checkTopicIdsClient;
+		private readonly IRequestClient<CheckTopics> _checkTopicsClient;
+		private readonly IRequestClient<GetCredentials> _getCredentialsClient;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public UsersController(
 			IMapper mapper,
 			DataContext context,
-			IRequestClient<CheckTopicIds> checkTopicsClient,
+			IRequestClient<CheckTopics> checkTopicsClient,
+			IRequestClient<GetCredentials> getCredentialsClient,
 			IPublishEndpoint publishEndpoint)
 		{
 			_mapper = mapper;
 			_context = context;
-			_checkTopicIdsClient = checkTopicsClient;
+			_checkTopicsClient = checkTopicsClient;
+			_getCredentialsClient = getCredentialsClient;
 			_publishEndpoint = publishEndpoint;
 		}
 
 
-		// GET: /users
-		[HttpGet]
-		[Authorize(Roles = nameof(RoleTypes.Admin))]
-		public async Task<ActionResult<IEnumerable<UserResult>>> GetAll(
+		// GET: /users/admin
+		[HttpGet("admin")]
+		[Authorize(Roles = nameof(RoleType.Admin))]
+		public async Task<ActionResult<IEnumerable<UserAdminResult>>> GetAllAdmin(
 			[FromQuery] UserQuery query)
 		{
 			var results = await _context.Users
 				.Where(x =>
 					string.IsNullOrWhiteSpace(query.FullName) ||
 					x.FullName.Contains(query.FullName))
-				.Skip(query.Page * query.PageSize)
+				.Skip((query.PageNumber - 1) * query.PageSize)
 				.Take(query.PageSize)
-				.ProjectTo<UserResult>(_mapper.ConfigurationProvider)
+				.ProjectTo<UserAdminResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
+
+			var request = new GetCredentials()
+			{
+				Ids = results.Select(x => x.UserId)
+			};
+			var response = await _getCredentialsClient
+				.GetResponse<CredentialsResult>(request);
+			if (response == null)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+
+			foreach (var result in results)
+			{
+				var cred = response.Message.Credentials
+					.FirstOrDefault(x => x.UserId == result.UserId);
+				_mapper.Map(cred, result);
+			}
 
 			return results;
 		}
 
-		// GET: /users/count
-		[HttpGet("count")]
-		[Authorize(Roles = nameof(RoleTypes.Admin))]
-		public async Task<ActionResult<int>> GetCount(
+		// GET: /users/admin/count
+		[HttpGet("admin/count")]
+		[Authorize(Roles = nameof(RoleType.Admin))]
+		public async Task<ActionResult<int>> GetAdminCount(
 			[FromQuery] string? fullName)
 		{
 			var result = await _context.Users
@@ -73,29 +94,46 @@ namespace Identity.API.Controllers
 			return result;
 		}
 
+		// DELETE: /users/5
+		[HttpDelete("{userId}")]
+		[Authorize(Roles = nameof(RoleType.Admin))]
+		public async Task<ActionResult> Delete(
+			int userId)
+		{
+			var affected = await _context.Users
+				.Where(x => x.UserId == userId)
+				.ExecuteDeleteAsync();
+			if (affected == 0)
+				return NotFound($"UserId: {userId} does not exist.");
+
+			var request = new UserDeleted() { UserId = userId };
+			await _publishEndpoint.Publish(request);
+
+			return NoContent();
+		}
+
+
+		// GET: /users
+		[HttpGet]
+		[AllowAnonymous]
+		public async Task<ActionResult<IEnumerable<UserResult>>> GetAll(
+			[FromQuery] IEnumerable<int> ids)
+		{
+			var results = await _context.Users
+				.Where(x => ids.Contains(x.UserId))
+				.ProjectTo<UserResult>(_mapper.ConfigurationProvider)
+				.ToListAsync();
+
+			return results;
+		}
+
 		// GET: /users/5
 		[HttpGet("{userId}")]
 		[AllowAnonymous]
-		public async Task<ActionResult<UserResult>> Get(
+		public async Task<ActionResult<UserProfileResult>> Get(
 			int userId)
 		{
 			var result = await _context.Users
-				.ProjectTo<UserResult>(_mapper.ConfigurationProvider)
-				.FirstOrDefaultAsync(x => x.UserId == userId);
-			if (result == null)
-				return NotFound($"UserId: {userId} does not exist.");
-
-			return result;
-		}
-
-		// GET: /users/5/profile
-		[HttpGet("{userId}/profile")]
-		[AllowAnonymous]
-		public async Task<ActionResult<UserProfileResult>> GetProfile(
-			int userId)
-		{
-			var result = await _context.Users
-				.AsNoTracking()
 				.ProjectTo<UserProfileResult>(_mapper.ConfigurationProvider)
 				.FirstOrDefaultAsync(x => x.UserId == userId);
 			if (result == null)
@@ -145,26 +183,6 @@ namespace Identity.API.Controllers
 			return NoContent();
 		}
 
-
-		// DELETE: /users/5
-		[HttpDelete("{userId}")]
-		[Authorize(Roles = nameof(RoleTypes.Admin))]
-		public async Task<ActionResult> Delete(
-			int userId)
-		{
-			var affected = await _context.Users
-				.Where(x => x.UserId == userId)
-				.ExecuteDeleteAsync();
-			if (affected == 0)
-				return NotFound($"UserId: {userId} does not exist.");
-
-			var request = new UserDeleted() { UserId = userId };
-			await _publishEndpoint.Publish(request);
-
-			return NoContent();
-		}
-
-
 		// PUT: /users/me/cover
 		[HttpPut("me/cover")]
 		[Authorize]
@@ -180,12 +198,12 @@ namespace Identity.API.Controllers
 				return NotFound($"UserId: {userId} does not exist.");
 
 			using var memoryStream = new MemoryStream();
-			await FormFile.CopyToAsync(memoryStream);
-			var extension = Path.GetExtension(FormFile.FileName).ToLowerInvariant();
+			await formFile.CopyToAsync(memoryStream);
+			var extension = Path.GetExtension(formFile.FileName).ToLowerInvariant();
 
 			user.Avatar = new Avatar()
 			{
-				MediaType = FormFileContants.Extensions.GetValueOrDefault(extension)!,
+				MediaType = FormFileContants.ExtensionMIMEs.GetValueOrDefault(extension)!,
 				Data = memoryStream.ToArray(),
 				UserId = userId,
 			};
@@ -200,7 +218,7 @@ namespace Identity.API.Controllers
 		// POST: /users/me/interest
 		[HttpPost("me/interest")]
 		[Authorize]
-		public async Task<ActionResult<int>> AddInterestedTopic(
+		public async Task<ActionResult> AddInterestedTopic(
 			[FromBody] int topicId)
 		{
 			var userId = GetUserId();
@@ -218,11 +236,11 @@ namespace Identity.API.Controllers
 			if (user.InterestedTopicIds.Contains(topicId))
 				return Conflict($"InterestedTopicId: {topicId} existed.");
 
-			var request = new CheckTopicIds()
+			var request = new CheckTopics()
 			{
-				TopicIds = new[] { topicId }
+				Ids = new[] { topicId }
 			};
-			var response = await _checkTopicIdsClient
+			var response = await _checkTopicsClient
 				.GetResponse<Existed, NotFound>(request);
 
 			if (response.Is(out Response<NotFound>? notFoundResponse))
@@ -239,7 +257,7 @@ namespace Identity.API.Controllers
 
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetProfile), new { userId });
+			return CreatedAtAction(nameof(Get), new { userId }, null);
 		}
 
 		// DELETE: /users/me/interest/5
@@ -277,7 +295,6 @@ namespace Identity.API.Controllers
 			return Ok(results);
 		}
 
-
 		// POST: /users/me/follow
 		[HttpPost("me/follow")]
 		[Authorize]
@@ -299,11 +316,11 @@ namespace Identity.API.Controllers
 			if (user.FollowedTopicIds.Contains(topicId))
 				return Conflict($"FollowedTopicId: {topicId} existed.");
 
-			var request = new CheckTopicIds()
+			var request = new CheckTopics()
 			{
-				TopicIds = new[] { topicId }
+				Ids = new[] { topicId }
 			};
-			var response = await _checkTopicIdsClient
+			var response = await _checkTopicsClient
 				.GetResponse<Existed, NotFound>(request);
 
 			if (response.Is(out Response<NotFound>? notFoundResponse))
@@ -316,17 +333,16 @@ namespace Identity.API.Controllers
 				UserId = userId,
 				TopicId = topicId
 			};
-
 			_context.FollowedTopics.Add(topic);
 
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetProfile), new { userId });
+			return CreatedAtAction(nameof(Get), new { userId }, null);
 		}
-
 
 		// DELETE: /users/me/follow/5
 		[HttpDelete("me/follow/{topicId}")]
+		[Authorize]
 		public async Task<ActionResult> DeleteFollowedTopic(
 			int topicId)
 		{
@@ -344,6 +360,7 @@ namespace Identity.API.Controllers
 
 		// POST: /users/me/experiences
 		[HttpPost("me/experiences")]
+		[Authorize]
 		public async Task<ActionResult> AddExperience(
 			[FromBody] CreateExperience body)
 		{
@@ -356,19 +373,17 @@ namespace Identity.API.Controllers
 				return NotFound($"UserId: {userId} does not exist.");
 
 			var experience = _mapper.Map<Experience>(body);
-			experience.UserId = userId;
-
 			user.Experiences.Add(experience);
 			user.LastModified = DateTime.Now;
 
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetProfile), new { userId });
+			return CreatedAtAction(nameof(Get), new { userId }, null);
 		}
-
 
 		// DELETE: /users/me/experiences/2
 		[HttpDelete("me/experiences/{experienceId}")]
+		[Authorize]
 		public async Task<ActionResult> DeleteExperience(
 			int experienceId)
 		{
