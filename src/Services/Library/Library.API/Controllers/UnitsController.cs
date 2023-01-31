@@ -1,4 +1,4 @@
-﻿using APICommonLibrary.MessageBus.Responses;
+﻿using CommonLibrary.API.MessageBus.Responses;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Library.API.DTOs;

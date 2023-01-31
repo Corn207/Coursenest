@@ -22,7 +22,7 @@ public class RolesControllerTests
 		await _factory.DatabaseInitializeAsync(Defaults.Database);
 
 		_clientAdmin = _factory.CreateClient();
-		_clientAdmin.AddRole(new string[] { RoleTypes.Admin.ToString() });
+		_clientAdmin.AddRole(new string[] { RoleType.Admin.ToString() });
 	}
 
 
@@ -62,7 +62,7 @@ public class RolesControllerTests
 		int userId = 1;
 		var body = new SetRole()
 		{
-			Type = RoleTypes.Student,
+			Type = RoleType.Student,
 			Expiry = DateTime.Now.AddHours(1)
 		};
 

@@ -1,7 +1,7 @@
-﻿using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
-using APICommonLibrary.Models;
-using APICommonLibrary.Utilities.APIs;
+﻿using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
+using CommonLibrary.API.Models;
+using CommonLibrary.API.Utilities.APIs;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MassTransit;

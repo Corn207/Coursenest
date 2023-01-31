@@ -1,5 +1,5 @@
-﻿using APICommonLibrary.Constants;
-using APICommonLibrary.Validations;
+﻿using CommonLibrary.API.Constants;
+using CommonLibrary.API.Validations;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Library.API.DTOs.Courses;

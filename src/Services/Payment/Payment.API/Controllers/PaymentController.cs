@@ -1,5 +1,5 @@
-﻿using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
+﻿using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Payment.API.DTOs;

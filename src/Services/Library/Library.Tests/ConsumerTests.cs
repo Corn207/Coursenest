@@ -1,5 +1,5 @@
-using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using Library.API.Consumers;
 using Library.API.Infrastructure.Contexts;
 using MassTransit;

@@ -21,12 +21,12 @@ public static class Defaults
 				{
 					new()
 					{
-						Type = RoleTypes.Student,
+						Type = RoleType.Student,
 						Expiry = expiry
 					},
 					new()
 					{
-						Type = RoleTypes.Instructor,
+						Type = RoleType.Instructor,
 						Expiry = expiry
 					}
 				}

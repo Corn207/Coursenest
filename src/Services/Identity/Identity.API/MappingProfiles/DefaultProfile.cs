@@ -1,4 +1,4 @@
-﻿using APICommonLibrary.MessageBus.Commands;
+﻿using CommonLibrary.API.MessageBus.Commands;
 using AutoMapper;
 using Identity.API.DTOs;
 using Identity.API.Infrastructure.Entities;

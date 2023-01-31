@@ -113,7 +113,7 @@ public class AuthenticateControllerTests
 		// Arrange
 		var body = 4;
 		var client = _factory.CreateClient();
-		client.AddRole(new string[] { RoleTypes.Admin.ToString() });
+		client.AddRole(new string[] { RoleType.Admin.ToString() });
 
 		// Act
 		var response = await client.PutAsJsonAsync("/authenticate/reset-password", body);

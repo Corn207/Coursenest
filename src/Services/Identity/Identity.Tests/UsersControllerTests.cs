@@ -1,5 +1,5 @@
-using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using Identity.API.DTOs;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;

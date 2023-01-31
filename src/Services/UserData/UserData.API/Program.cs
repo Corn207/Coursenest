@@ -1,4 +1,4 @@
-using APICommonLibrary.Extensions;
+using CommonLibrary.API.Extensions;
 using UserData.API.Infrastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);

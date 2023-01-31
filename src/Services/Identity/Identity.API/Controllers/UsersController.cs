@@ -1,10 +1,10 @@
-﻿using APICommonLibrary.Constants;
-using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Events;
-using APICommonLibrary.MessageBus.Responses;
-using APICommonLibrary.Models;
-using APICommonLibrary.Utilities.APIs;
-using APICommonLibrary.Validations;
+﻿using CommonLibrary.API.Constants;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Events;
+using CommonLibrary.API.MessageBus.Responses;
+using CommonLibrary.API.Models;
+using CommonLibrary.API.Utilities.APIs;
+using CommonLibrary.API.Validations;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Identity.API.DTOs;
@@ -24,25 +24,25 @@ namespace Identity.API.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly DataContext _context;
-		private readonly IRequestClient<CheckTopicIds> _checkTopicIdsClient;
+		private readonly IRequestClient<CheckTopics> _checkTopicsClient;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public UsersController(
 			IMapper mapper,
 			DataContext context,
-			IRequestClient<CheckTopicIds> checkTopicsClient,
+			IRequestClient<CheckTopics> checkTopicsClient,
 			IPublishEndpoint publishEndpoint)
 		{
 			_mapper = mapper;
 			_context = context;
-			_checkTopicIdsClient = checkTopicsClient;
+			_checkTopicsClient = checkTopicsClient;
 			_publishEndpoint = publishEndpoint;
 		}
 
 
 		// GET: /users
 		[HttpGet]
-		[Authorize(Roles = nameof(RoleTypes.Admin))]
+		[Authorize(Roles = nameof(RoleType.Admin))]
 		public async Task<ActionResult<IEnumerable<UserResult>>> GetAll(
 			[FromQuery] UserQuery query)
 		{
@@ -60,7 +60,7 @@ namespace Identity.API.Controllers
 
 		// GET: /users/count
 		[HttpGet("count")]
-		[Authorize(Roles = nameof(RoleTypes.Admin))]
+		[Authorize(Roles = nameof(RoleType.Admin))]
 		public async Task<ActionResult<int>> GetCount(
 			[FromQuery] string? fullName)
 		{
@@ -148,7 +148,7 @@ namespace Identity.API.Controllers
 
 		// DELETE: /users/5
 		[HttpDelete("{userId}")]
-		[Authorize(Roles = nameof(RoleTypes.Admin))]
+		[Authorize(Roles = nameof(RoleType.Admin))]
 		public async Task<ActionResult> Delete(
 			int userId)
 		{
@@ -222,7 +222,7 @@ namespace Identity.API.Controllers
 			{
 				TopicIds = new[] { topicId }
 			};
-			var response = await _checkTopicIdsClient
+			var response = await _checkTopicsClient
 				.GetResponse<Existed, NotFound>(request);
 
 			if (response.Is(out Response<NotFound>? notFoundResponse))
@@ -303,7 +303,7 @@ namespace Identity.API.Controllers
 			{
 				TopicIds = new[] { topicId }
 			};
-			var response = await _checkTopicIdsClient
+			var response = await _checkTopicsClient
 				.GetResponse<Existed, NotFound>(request);
 
 			if (response.Is(out Response<NotFound>? notFoundResponse))

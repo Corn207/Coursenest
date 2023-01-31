@@ -7,7 +7,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["Services/Identity/Identity.API/Identity.API.csproj", "Services/Identity/Identity.API/"]
-COPY ["Services/APICommonLibrary/APICommonLibrary.csproj", "Services/APICommonLibrary/"]
+COPY ["Services/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary.API/"]
 RUN dotnet restore "Services/Identity/Identity.API/Identity.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Identity/Identity.API"

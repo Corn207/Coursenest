@@ -1,4 +1,4 @@
-﻿using APICommonLibrary.MessageBus.Commands;
+﻿using CommonLibrary.API.MessageBus.Commands;
 using System.ComponentModel.DataAnnotations;
 
 namespace Payment.API.DTOs;

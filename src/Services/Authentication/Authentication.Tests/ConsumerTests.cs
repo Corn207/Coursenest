@@ -26,6 +26,7 @@ public class ConsumerTests
 			.AddMassTransitTestServices(x =>
 			{
 				x.AddConsumer<ExtendRoleConsumer>();
+				x.AddConsumer<GetCredentialsConsumer>();
 				x.AddConsumer<UserDeletedConsumer>();
 			})
 			.BuildAsync<Program>();
@@ -43,7 +44,7 @@ public class ConsumerTests
 		var request = new ExtendRole()
 		{
 			UserId = 1,
-			Type = RoleTypes.Student,
+			Type = RoleType.Student,
 			ExtendedDays = 30
 		};
 
@@ -58,6 +59,22 @@ public class ConsumerTests
 		Assert.That(response.Is(out Response<Succeeded>? _), Is.True);
 	}
 
+	[Test]
+	public async Task GetCredentialsConsumer_ReturnsExactCount()
+	{
+		// Arrange
+		var client = _harness.GetRequestClient<GetCredentials>();
+		var request = new GetCredentials()
+		{
+			Ids = new[] { 1, 2, 4 }
+		};
+
+		// Act
+		var response = await client.GetResponse<CredentialsResult>(request);
+
+		// Assert
+		Assert.That(response.Message.Credentials.Count, Is.EqualTo(request.Ids.Count()));
+	}
 
 	[Test]
 	public async Task UserDeletedConsumer_ReturnsNotExisted()

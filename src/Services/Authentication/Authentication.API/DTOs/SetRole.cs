@@ -6,6 +6,6 @@ namespace Authentication.API.DTOs;
 
 public record SetRole
 {
-	public RoleTypes Type { get; set; }
+	public RoleType Type { get; set; }
 	public DateTime Expiry { get; set; }
 }

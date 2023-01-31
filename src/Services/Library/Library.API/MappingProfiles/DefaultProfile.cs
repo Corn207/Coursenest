@@ -1,4 +1,4 @@
-﻿using APICommonLibrary.MessageBus.Responses;
+﻿using CommonLibrary.API.MessageBus.Responses;
 using AutoMapper;
 using Library.API.DTOs;
 using Library.API.DTOs.Categories;

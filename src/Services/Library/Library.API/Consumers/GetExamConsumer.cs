@@ -1,5 +1,5 @@
-﻿using APICommonLibrary.MessageBus.Commands;
-using APICommonLibrary.MessageBus.Responses;
+﻿using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Library.API.Infrastructure.Contexts;
