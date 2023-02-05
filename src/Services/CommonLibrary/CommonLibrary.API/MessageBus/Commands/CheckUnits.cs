@@ -4,7 +4,7 @@
 
 public record CheckUnits
 {
-	public IEnumerable<Query> Queries { get; set; }
+	public Query[] Queries { get; set; }
 
 	public record Query
 	{

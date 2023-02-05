@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.API.Consumers;
 
-public class CheckTopicsConsumer : IConsumer<CheckTopicIds>
+public class CheckTopicsConsumer : IConsumer<CheckTopics>
 {
 	private readonly DataContext _context;
 
@@ -15,43 +15,31 @@ public class CheckTopicsConsumer : IConsumer<CheckTopicIds>
 		_context = context;
 	}
 
-	public async Task Consume(ConsumeContext<CheckTopicIds> context)
+	public async Task Consume(ConsumeContext<CheckTopics> context)
 	{
-		var requested = context.Message.TopicIds;
+		var queries = context.Message.Ids
+			.Where(x => x > 0)
+			.Distinct();
 
-		if (requested.Length == 1)
+		var existing = await _context.Topics
+			.Select(x => x.TopicId)
+			.Where(x => queries.Contains(x))
+			.ToArrayAsync();
+
+		var missing = queries
+			.Except(existing);
+
+		if (missing.Any())
 		{
-			var exists = await _context.Topics
-				.AsNoTracking()
-				.AnyAsync(x => x.TopicId == requested[0]);
-
-			if (!exists)
+			await context.RespondAsync(new NotFound()
 			{
-				var response = new NotFound() { Message = $"Topic IDs: {requested[0]} not existed." };
-				await context.RespondAsync(response);
-
-				return;
-			}
-
+				Message = $"Some of queried Ids are not exist.",
+				Objects = missing.ToArray()
+			});
 		}
-		else if (requested.Length > 1)
+		else
 		{
-			var existed = await _context.Topics
-				.AsNoTracking()
-				.Select(x => x.TopicId)
-				.ToListAsync();
-
-			var diff = requested.Except(existed);
-
-			if (diff.Any())
-			{
-				var response = new NotFound() { Message = $"Topic IDs: {string.Join(", ", diff)} not existed." };
-				await context.RespondAsync(response);
-
-				return;
-			}
+			await context.RespondAsync(new Existed());
 		}
-
-		await context.RespondAsync(new Existed());
 	}
 }

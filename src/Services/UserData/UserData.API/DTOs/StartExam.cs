@@ -4,6 +4,6 @@
 
 public record StartExam
 {
-	public int EnrollmentId { get; set; }
 	public int ExamUnitId { get; set; }
+	public int EnrollmentId { get; set; }
 }

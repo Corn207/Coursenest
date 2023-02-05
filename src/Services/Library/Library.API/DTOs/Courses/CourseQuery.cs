@@ -1,20 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CommonLibrary.API.DTOs;
+using CommonLibrary.API.Models;
 
 namespace Library.API.DTOs.Courses;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-public record CourseQuery
+public record CourseQuery : PaginationQuery
 {
 	public string? Title { get; set; }
-
 	public int? TopicId { get; set; }
-
 	public int? PublisherUserId { get; set; }
-
-	[Range(0, int.MaxValue)]
-	public int? Page { get; set; } = 0;
-
-	[Range(1, int.MaxValue)]
-	public int? PageSize { get; set; } = 5;
+	public bool IsApproved { get; set; } = true;
+	public SortBy SortBy { get; set; } = SortBy.Rating;
 }

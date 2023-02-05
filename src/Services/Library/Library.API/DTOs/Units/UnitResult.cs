@@ -5,7 +5,19 @@
 public record UnitResult
 {
 	public int UnitId { get; set; }
+	public int CourseId { get; set; }
 	public string Title { get; set; }
-	public TimeSpan RequiredTime { get; set; }
+	public int RequiredMinutes { get; set; }
 	public decimal Order { get; set; }
+	public bool IsExam { get; set; }
+}
+
+public record ExamResult : UnitResult
+{
+	public List<QuestionResult> Questions { get; set; }
+}
+
+public record MaterialResult : UnitResult
+{
+	public string Content { get; set; }
 }

@@ -160,14 +160,14 @@ public class CategoriesControllerTests
 		Assert.That(results, Is.Not.Null);
 	}
 
-	public static readonly CreateParentIdContent[] CreateSubcategoryData = new[]
+	public static readonly CreateContentParentId[] CreateSubcategoryData = new[]
 	{
-		new CreateParentIdContent() { ParentId = 1, Content = "New Category 1" },
-		new CreateParentIdContent() { ParentId = 2, Content = "New Category 2" }
+		new CreateContentParentId() { ParentId = 1, Content = "New Category 1" },
+		new CreateContentParentId() { ParentId = 2, Content = "New Category 2" }
 	};
 	[Test]
 	[TestCaseSource(nameof(CreateSubcategoryData))]
-	public async Task CreateSubcategory_ReturnsOk(CreateParentIdContent dto)
+	public async Task CreateSubcategory_ReturnsOk(CreateContentParentId dto)
 	{
 		// Arrange
 		var jsonContent = JsonContent.Create(dto);
@@ -255,14 +255,14 @@ public class CategoriesControllerTests
 		Assert.That(results, Is.Not.Null);
 	}
 
-	public static readonly CreateParentIdContent[] CreateTopicData = new[]
+	public static readonly CreateContentParentId[] CreateTopicData = new[]
 	{
-		new CreateParentIdContent() { ParentId = 1, Content = "New Topic 1" },
-		new CreateParentIdContent() { ParentId = 2, Content = "New Topic 2" }
+		new CreateContentParentId() { ParentId = 1, Content = "New Topic 1" },
+		new CreateContentParentId() { ParentId = 2, Content = "New Topic 2" }
 	};
 	[Test]
 	[TestCaseSource(nameof(CreateTopicData))]
-	public async Task CreateTopic_ReturnsOk(CreateParentIdContent dto)
+	public async Task CreateTopic_ReturnsOk(CreateContentParentId dto)
 	{
 		// Arrange
 		var jsonContent = JsonContent.Create(dto);

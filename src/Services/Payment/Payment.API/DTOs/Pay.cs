@@ -1,4 +1,4 @@
-﻿using CommonLibrary.API.MessageBus.Commands;
+﻿using CommonLibrary.API.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Payment.API.DTOs;
@@ -18,7 +18,6 @@ public record Pay
 	[Range(0, 99)]
 	public int ExpiryDateYear { get; set; }
 
-	[EnumDataType(typeof(RoleType))]
 	public RoleType Role { get; set; }
 
 	[Range(1, 36)]

@@ -20,8 +20,6 @@ services:
     depends_on:
       - database
       - messagebus
-      - identity.api
-      - library.api
 
   identity.api:
     image: ${DOCKER_REGISTRY-}identityapi
@@ -33,7 +31,6 @@ services:
     depends_on:
       - database
       - messagebus
-      - library.api
 
   library.api:
     image: ${DOCKER_REGISTRY-}libraryapi
@@ -55,7 +52,17 @@ services:
       - backend
     depends_on:
       - messagebus
-      - authentication.api
+
+  userdata.api:
+    image: ${DOCKER_REGISTRY-}userdataapi
+    build:
+      context: .
+      dockerfile: Services/UserData/UserData.API/Dockerfile
+    networks:
+      - backend
+    depends_on:
+      - database
+      - messagebus
 
   database:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -69,19 +76,6 @@ services:
     image: masstransit/rabbitmq
     networks:
       - backend
-
-  userdata.api:
-    image: ${DOCKER_REGISTRY-}userdataapi
-    build:
-      context: .
-      dockerfile: Services/UserData/UserData.API/Dockerfile
-    networks:
-      - backend
-    depends_on:
-      - database
-      - messagebus
-      - identity.api
-      - library.api
 
 networks:
   frontend:

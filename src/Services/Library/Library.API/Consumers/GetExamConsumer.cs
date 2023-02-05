@@ -1,7 +1,7 @@
-﻿using CommonLibrary.API.MessageBus.Commands;
-using CommonLibrary.API.MessageBus.Responses;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using Library.API.Infrastructure.Contexts;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -21,20 +21,23 @@ public class GetExamConsumer : IConsumer<GetExam>
 
 	public async Task Consume(ConsumeContext<GetExam> context)
 	{
+		var query = context.Message.UnitId;
+
 		var result = await _context.Exams
-			.Include(x => x.Questions)
-			.ThenInclude(x => x.Choices)
-			.Where(x => x.UnitId == context.Message.UnitId && x.Lesson.Course.IsApproved)
+			.Where(x => x.UnitId == query && x.Lesson.Course.IsApproved)
 			.ProjectTo<ExamResult>(_mapper.ConfigurationProvider)
-			.SingleOrDefaultAsync();
+			.FirstOrDefaultAsync();
 		if (result == null)
 		{
-			var response = new NotFound() { Message = $"Approved Exam does not exist." };
-			await context.RespondAsync(response);
-
-			return;
+			await context.RespondAsync(new NotFound()
+			{
+				Message = $"UnitId does not exist or you're not authorized.",
+				Objects = query
+			});
 		}
-
-		await context.RespondAsync(result);
+		else
+		{
+			await context.RespondAsync(result);
+		}
 	}
 }

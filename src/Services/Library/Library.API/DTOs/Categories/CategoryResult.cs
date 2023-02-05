@@ -7,4 +7,11 @@ public record CategoryResult
 	public int CategoryId { get; set; }
 	public string Content { get; set; }
 	public List<SubcategoryResult> Subcategories { get; set; }
+
+	public record SubcategoryResult
+	{
+		public int SubcategoryId { get; set; }
+		public string Content { get; set; }
+		public List<IdContentResult> Topics { get; set; }
+	}
 }

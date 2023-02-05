@@ -8,37 +8,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Text.RegularExpressions;
+using System.Text;
 
 namespace CommonLibrary.API.Extensions;
 public static class BuilderExtensions
 {
-	private static void AddEssentialServices(
-		this IServiceCollection services,
-		IConfiguration configuration,
-		Assembly assembly)
-	{
-		services.AddControllers();
-
-		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-
-		services.AddCors(options =>
-		{
-			options.AddDefaultPolicy(configure =>
-			{
-				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-			});
-		});
-
-		services.AddAutoMapper(assembly);
-
-		services.AddMassTransitServices(configuration, assembly);
-
-		services.AddJWTAuthentication();
-
-		services.AddSwagger();
-	}
-
 	private static void AddMassTransitServices(
 		this IServiceCollection services,
 		IConfiguration configuration,
@@ -61,7 +35,8 @@ public static class BuilderExtensions
 	}
 
 	private static void AddJWTAuthentication(
-		this IServiceCollection services)
+		this IServiceCollection services,
+		IConfiguration configuration)
 	{
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(options =>
@@ -73,12 +48,31 @@ public static class BuilderExtensions
 					ValidateLifetime = false,
 					ValidateIssuerSigningKey = false,
 					RequireSignedTokens = false,
-					//IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("1234567890123456"))
-					SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+				};
+
+				var issuer = configuration["Jwt:Issuer"];
+				if (!string.IsNullOrWhiteSpace(issuer))
+				{
+					options.TokenValidationParameters.ValidateIssuer = true;
+					options.TokenValidationParameters.ValidIssuer = issuer;
+				}
+
+				var signingKey = configuration["Jwt:SigningKey"];
+				if (!string.IsNullOrWhiteSpace(signingKey))
+				{
+					options.TokenValidationParameters.ValidateLifetime = true;
+					options.TokenValidationParameters.ValidateIssuerSigningKey = true;
+					options.TokenValidationParameters.RequireSignedTokens = true;
+					options.TokenValidationParameters.IssuerSigningKey =
+						new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
+				}
+				else
+				{
+					options.TokenValidationParameters.SignatureValidator = delegate (string token, TokenValidationParameters parameters)
 					{
 						return new JwtSecurityToken(token);
-					}
-				};
+					};
+				}
 			});
 	}
 
@@ -135,6 +129,34 @@ public static class BuilderExtensions
 		}
 	}
 
+	private static void AddEssentialServices(
+		this IServiceCollection services,
+		IConfiguration configuration,
+		Assembly assembly)
+	{
+		services.AddControllers();
+
+		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
+		services.AddCors(options =>
+		{
+			options.AddDefaultPolicy(configure =>
+			{
+				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+			});
+		});
+
+		services.AddAutoMapper(assembly);
+
+		services.AddMassTransitServices(configuration, assembly);
+
+		services.AddJWTAuthentication(configuration);
+
+		services.AddAuthorization();
+
+		services.AddSwagger();
+	}
+
 
 	public static IServiceCollection AddDefaultServices(
 		this IServiceCollection services,
@@ -157,41 +179,4 @@ public static class BuilderExtensions
 
 		return services;
 	}
-
-
-	public static IServiceCollection AddRequiredOptions<TOptions>(
-		this IServiceCollection services,
-		IConfiguration configuration) where TOptions : class
-	{
-		string sectionName = Regex.Replace(typeof(TOptions).Name, @"Options$", string.Empty);
-		var section = configuration.GetRequiredSection(sectionName);
-		services.AddOptions<TOptions>()
-			.Bind(section)
-			.ValidateDataAnnotations()
-			.ValidateOnStart();
-
-		return services;
-	}
-
-	//public static IApplicationBuilder DatabaseStartup(this IApplicationBuilder app)
-	//{
-	//	using var scope = app.ApplicationServices.CreateScope();
-	//	var context = scope.ServiceProvider.GetService<DbContext>();
-	//	var options = app.ApplicationServices.GetService<IOptions<DatabaseOptions>>();
-
-	//	if (context != null && options != null)
-	//	{
-	//		if (options.Value.EnsureDeleted)
-	//		{
-	//			context.Database.EnsureDeleted();
-	//		}
-
-	//		if (options.Value.EnsureCreated)
-	//		{
-	//			context.Database.EnsureCreated();
-	//		}
-	//	}
-
-	//	return app;
-	//}
 }

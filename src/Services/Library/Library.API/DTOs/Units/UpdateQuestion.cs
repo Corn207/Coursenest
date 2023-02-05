@@ -6,5 +6,6 @@ public record UpdateQuestion
 {
 	public string? Content { get; set; }
 	public int? Point { get; set; }
-	public List<ChoiceResult>? Choices { get; set; }
+	public int ExamUnitId { get; set; }
+	public List<CreateQuestion.CreateChoice>? Choices { get; set; }
 }

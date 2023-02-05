@@ -2,63 +2,59 @@ version: '3.4'
 
 services:
   gatewayapi:
-    environment:
-      - Jwt__Key=Yh2k7QSu4l8CZg5p
     ports:
       - "21000:80"
 
   authentication.api:
     environment:
       - Database__ConnectionString=Server=database;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=true
       - MassTransit__Host=messagebus
-      - Jwt__SecretKey=1234567890123456
-      - Jwt__AccessTokenLifetime=10
-      - Jwt__RefreshTokenLifetime=60
-    ports:
-      - "21001:80"
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
+      - Jwt__AccessTokenLifetime=60
+      - Jwt__RefreshTokenLifetime=180
 
   identity.api:
     environment:
       - Database__ConnectionString=Server=database;Database=IdentityDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=true
       - MassTransit__Host=messagebus
-    ports:
-      - "21002:80"
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
 
   library.api:
     environment:
       - Database__ConnectionString=Server=database;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=true
       - MassTransit__Host=messagebus
-    ports:
-      - "21003:80"
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
 
   payment.api:
     environment:
       - MassTransit__Host=messagebus
-    ports:
-      - "21004:80"
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
 
   userdata.api:
     environment:
-
-    ports:
-      - "80"
+      - Database__ConnectionString=Server=database;Database=UserDataDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - MassTransit__Host=messagebus
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
 
   database:
     environment:
       - MSSQL_SA_PASSWORD=Pass@word
     volumes:
-      - coursenest-dev:/var/opt/mssql
+      - coursenest-prod-db:/var/opt/mssql
     ports:
       - "1433:1433"
 
   messagebus:
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    volumes:
+      - coursenest-prod-mb:/var/lib/rabbitmq
 
 volumes:
-  coursenest-dev:
+  coursenest-prod-db:
+    external: true
+  coursenest-prod-mb:
     external: true

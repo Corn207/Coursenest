@@ -1,4 +1,4 @@
-﻿using Library.API.Infrastructure.Entities;
+﻿using CommonLibrary.API.Models;
 
 namespace Library.API.DTOs.Courses;
 
@@ -12,8 +12,8 @@ public record CourseDetailedResult
 	public string About { get; set; }
 	public CourseTier Tier { get; set; }
 	public DateTime LastModified { get; set; }
-	public int? TopicId { get; set; }
-	public int PublisherUserId { get; set; }
 	public float RatingAverage { get; set; }
 	public int RatingTotal { get; set; }
+	public int? TopicId { get; set; }
+	public int PublisherUserId { get; set; }
 }

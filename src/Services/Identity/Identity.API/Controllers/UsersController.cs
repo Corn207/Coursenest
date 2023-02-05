@@ -1,12 +1,12 @@
-﻿using CommonLibrary.API.Constants;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.Constants;
 using CommonLibrary.API.MessageBus.Commands;
 using CommonLibrary.API.MessageBus.Events;
 using CommonLibrary.API.MessageBus.Responses;
 using CommonLibrary.API.Models;
 using CommonLibrary.API.Utilities.APIs;
 using CommonLibrary.API.Validations;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Identity.API.DTOs;
 using Identity.API.Infrastructure.Contexts;
 using Identity.API.Infrastructure.Entities;
@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using static Identity.API.DTOs.UserAdminResults;
 
 namespace Identity.API.Controllers
 {
@@ -46,37 +47,57 @@ namespace Identity.API.Controllers
 		// GET: /users/admin
 		[HttpGet("admin")]
 		[Authorize(Roles = nameof(RoleType.Admin))]
-		public async Task<ActionResult<IEnumerable<UserAdminResult>>> GetAllAdmin(
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserAdminResults))]
+		public async Task<IActionResult> GetAllAdmin(
 			[FromQuery] UserQuery query)
 		{
-			var results = await _context.Users
+			var dbQuery = _context.Users
 				.Where(x =>
 					string.IsNullOrWhiteSpace(query.FullName) ||
-					x.FullName.Contains(query.FullName))
+					x.FullName.Contains(query.FullName));
+
+			var count = await dbQuery
+				.CountAsync();
+
+			if (count == 0)
+			{
+				return Ok(new UserAdminResults()
+				{
+					Queried = Array.Empty<UserAdminResult>(),
+					Count = 0
+				});
+			}
+
+			var users = await dbQuery
+				.OrderBy(x => x.FullName)
 				.Skip((query.PageNumber - 1) * query.PageSize)
 				.Take(query.PageSize)
 				.ProjectTo<UserAdminResult>(_mapper.ConfigurationProvider)
-				.ToListAsync();
+				.ToArrayAsync();
 
 			var request = new GetCredentials()
 			{
-				Ids = results.Select(x => x.UserId)
+				Ids = users.Select(x => x.UserId).ToArray()
 			};
 			var response = await _getCredentialsClient
-				.GetResponse<CredentialsResult>(request);
+				.GetResponse<CredentialResults>(request);
 			if (response == null)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 
-			foreach (var result in results)
+			foreach (var user in users)
 			{
 				var cred = response.Message.Credentials
-					.FirstOrDefault(x => x.UserId == result.UserId);
-				_mapper.Map(cred, result);
+					.FirstOrDefault(x => x.UserId == user.UserId);
+				_mapper.Map(cred, user);
 			}
 
-			return results;
+			return Ok(new UserAdminResults()
+			{
+				Queried = users,
+				Count = count
+			});
 		}
 
 		// GET: /users/admin/count
@@ -117,7 +138,7 @@ namespace Identity.API.Controllers
 		[HttpGet]
 		[AllowAnonymous]
 		public async Task<ActionResult<IEnumerable<UserResult>>> GetAll(
-			[FromQuery] IEnumerable<int> ids)
+			[FromQuery] int[] ids)
 		{
 			var results = await _context.Users
 				.Where(x => ids.Contains(x.UserId))
@@ -399,7 +420,7 @@ namespace Identity.API.Controllers
 		}
 
 
-		public int GetUserId()
+		private int GetUserId()
 		{
 			return ClaimUtilities.GetUserId(User.Claims);
 		}

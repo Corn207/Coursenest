@@ -1,5 +1,5 @@
-﻿using CommonLibrary.API.MessageBus.Responses;
-using AutoMapper;
+﻿using AutoMapper;
+using CommonLibrary.API.MessageBus.Responses;
 using UserData.API.DTOs;
 using UserData.API.Infrastructure.Entities;
 
@@ -9,10 +9,11 @@ public class DefaultProfile : Profile
 {
 	public DefaultProfile()
 	{
-		CreateMap<Enrollment, EnrollmentResult>();
-		CreateMap<Enrollment, EnrollmentDetailResult>()
+		// Enrollment
+		CreateProjection<Enrollment, EnrollmentResult>();
+		CreateProjection<Enrollment, EnrollmentDetailResult>()
 			.ForMember(
-				dst => dst.CompletedUnits, opt => opt.MapFrom(
+				dst => dst.CompletedUnitIds, opt => opt.MapFrom(
 				src => src.CompletedUnits.Select(x => x.UnitId)));
 
 		// Submission
@@ -21,28 +22,28 @@ public class DefaultProfile : Profile
 				dst => dst.Created, opt => opt.MapFrom(
 				_ => DateTime.Now))
 			.ForMember(
-				dst => dst.Elapsed, opt => opt.MapFrom(
-				src => src.TimeLimit));
+				dst => dst.Deadline, opt => opt.MapFrom(
+				src => DateTime.Now.AddMinutes(src.TimeLimitInMinutes)))
+			.ForMember(
+				dst => dst.Ended, opt => opt.MapFrom(
+				src => DateTime.Now.AddMinutes(src.TimeLimitInMinutes)));
 		CreateMap<ExamResult.Question, Question>();
 		CreateMap<ExamResult.Choice, Choice>()
 			.ForMember(
 				dst => dst.IsChosen, opt => opt.MapFrom(
 				_ => false));
 
-		CreateMap<GradingSubmission, Submission>();
-		CreateMap<GradingSubmission.Criterion, Criterion>();
-		CreateMap<GradingSubmission.Checkpoint, Checkpoint>();
+		CreateMap<GradingSubmission.Review, Review>();
 
-		CreateMap<Submission, SubmissionGradeResult>();
+		CreateProjection<Submission, SubmissionResults.Submission>();
 
-		CreateMap<Submission, SubmissionOngoingResult>();
-		CreateMap<Question, SubmissionOngoingResult.Question>();
-		CreateMap<Choice, SubmissionOngoingResult.Choice>();
+		CreateProjection<Submission, SubmissionOngoingResult>();
+		CreateProjection<Question, SubmissionOngoingResult.QuestionOngoingResult>();
+		CreateProjection<Choice, SubmissionOngoingResult.ChoiceOngoingResult>();
 
-		CreateMap<Submission, SubmissionResult>();
-		CreateMap<Question, SubmissionResult.Question>();
-		CreateMap<Choice, SubmissionResult.Choice>();
-		CreateMap<Criterion, SubmissionResult.Criterion>();
-		CreateMap<Comment, SubmissionResult.Comment>();
+		CreateProjection<Submission, SubmissionDetailResult>();
+		CreateProjection<Question, SubmissionDetailResult.QuestionDetailResult>();
+		CreateProjection<Review, SubmissionDetailResult.ReviewDetailResult>();
+		CreateProjection<Comment, SubmissionDetailResult.CommentDetailResult>();
 	}
 }

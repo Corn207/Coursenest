@@ -1,9 +1,9 @@
-﻿using CommonLibrary.API.MessageBus.Commands;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.MessageBus.Commands;
 using CommonLibrary.API.MessageBus.Responses;
 using CommonLibrary.API.Models;
 using CommonLibrary.API.Utilities.APIs;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,26 +36,31 @@ public class SubmissionsController : ControllerBase
 
 	// GET: /submissions/ongoing
 	[HttpGet("ongoing")]
-	public async Task<ActionResult<SubmissionOngoingResult>> GetOngoing()
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubmissionOngoingResult))]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> GetOngoing()
 	{
 		var userId = GetUserId();
 
 		var result = await _context.Submissions
-			.AsNoTracking()
 			.Where(x =>
 				x.StudentUserId == userId &&
-				DateTime.Now < x.Created.Add(x.TimeLimit) &&
-				DateTime.Now < x.Created.Add(x.Elapsed))
+				DateTime.Now < x.Deadline &&
+				DateTime.Now < x.Ended)
 			.ProjectTo<SubmissionOngoingResult>(_mapper.ConfigurationProvider)
-			.SingleOrDefaultAsync();
-		if (result == null) return NotFound("There is no ongoing examination.");
+			.FirstOrDefaultAsync();
+		if (result == null)
+			return NotFound("There is no ongoing examination.");
 
-		return result;
+		return Ok(result);
 	}
 
 	// POST: /submissions
 	[HttpPost]
-	public async Task<ActionResult> StartExam(
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status409Conflict)]
+	public async Task<IActionResult> StartExam(
 		[FromBody] StartExam body)
 	{
 		var userId = GetUserId();
@@ -63,17 +68,21 @@ public class SubmissionsController : ControllerBase
 		var enrollmentExists = await _context.Enrollments
 			.AnyAsync(x =>
 				x.EnrollmentId == body.EnrollmentId &&
+				x.Completed != null &&
 				x.StudentUserId == userId);
 		if (!enrollmentExists)
-			return NotFound("Enrollment does not exist.");
+			return NotFound("EnrollmentId does not exist" +
+				" or is completed" +
+				" or you're not authorized.");
 
+		var now = DateTime.Now;
 		var ongoingExists = await _context.Submissions
 			.AnyAsync(x =>
 				x.StudentUserId == userId &&
-				DateTime.Now < x.Created.Add(x.TimeLimit) &&
-				DateTime.Now < x.Created.Add(x.Elapsed));
+				now < x.Deadline &&
+				now < x.Ended);
 		if (ongoingExists)
-			return Forbid("There is an ongoing examination.");
+			return Conflict("There is an ongoing examination or you're not authorized.");
 
 		var request = new GetExam()
 		{
@@ -98,94 +107,159 @@ public class SubmissionsController : ControllerBase
 
 		await _context.SaveChangesAsync();
 
-		var result = _mapper.Map<SubmissionOngoingResult>(submission);
-
-		return CreatedAtAction(nameof(GetOngoing), null, result);
+		return CreatedAtAction(nameof(GetOngoing), null);
 	}
 
 
 	// GET: /submissions
-	[HttpGet()]
-	public async Task<ActionResult<IEnumerable<SubmissionGradeResult>>> GetAll(
-		[FromBody] int enrollmentId)
+	[HttpGet]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubmissionResults))]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> GetAll(
+		[FromQuery] int enrollmentId)
 	{
 		var userId = GetUserId();
 
-		var results = await _context.Submissions
+		var exists = await _context.Enrollments
+			.AnyAsync(x =>
+				x.EnrollmentId == enrollmentId &&
+				x.StudentUserId == userId);
+		if (!exists)
+			return NotFound("EnrollmentId does not exist or you're not authorized.");
+
+		var submissions = await _context.Submissions
 			.Where(x =>
 				x.EnrollmentId == enrollmentId &&
 				x.StudentUserId == userId)
-			.ProjectTo<SubmissionGradeResult>(_mapper.ConfigurationProvider)
-			.ToListAsync();
+			.ProjectTo<SubmissionResults.Submission>(_mapper.ConfigurationProvider)
+			.ToArrayAsync();
 
-		return results;
+		var result = new SubmissionResults()
+		{
+			Queried = submissions,
+			Total = submissions.Length
+		};
+
+		return Ok(result);
+	}
+
+	// GET: /submissions/instructor
+	[HttpGet("instructor")]
+	[Authorize(Roles = nameof(RoleType.Instructor))]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubmissionResults))]
+	public async Task<IActionResult> GetAllInstructor(
+		[FromQuery] SubmissionQuery query)
+	{
+		var userId = GetUserId();
+
+		var dbQuery = _context.Submissions
+			.Where(x =>
+				(string.IsNullOrWhiteSpace(query.Title) || x.Title.Contains(query.Title)) &&
+				(query.TopicIds.Length > 0 || (x.TopicId != null && query.TopicIds.Contains((int)x.TopicId))) &&
+				(query.StudentUserId == null || query.StudentUserId == x.StudentUserId));
+
+		var searchQuery = dbQuery
+			.Skip((query.PageNumber - 1) * query.PageSize)
+			.Take(query.PageSize);
+
+		searchQuery = query.SortBy switch
+		{
+			SortBy.Title => searchQuery.OrderBy(x => x.Title),
+			_ => searchQuery.OrderByDescending(x => x.Created),
+		};
+
+		var result = new SubmissionResults
+		{
+			Queried = await searchQuery
+				.ProjectTo<SubmissionResults.Submission>(_mapper.ConfigurationProvider)
+				.ToArrayAsync(),
+			Total = await dbQuery
+				.CountAsync()
+		};
+
+		return Ok(result);
 	}
 
 	// GET: /submissions/5
 	[HttpGet("{submissionId}")]
-	public async Task<ActionResult<SubmissionResult>> Get(
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubmissionDetailResult))]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> Get(
 		int submissionId)
 	{
 		var userId = GetUserId();
+		var isInstructor = IsInstructor();
 
 		var result = await _context.Submissions
-			.ProjectTo<SubmissionResult>(_mapper.ConfigurationProvider)
+			.ProjectTo<SubmissionDetailResult>(_mapper.ConfigurationProvider)
 			.FirstOrDefaultAsync(x =>
 				x.SubmissionId == submissionId &&
-				x.StudentUserId == userId);
+				(isInstructor || x.StudentUserId == userId) &&
+				DateTime.Now > x.Ended);
 		if (result == null)
-			return NotFound("Submission does not exist.");
+			return NotFound("SubmissionId does not exist" +
+				" or hasn't ended yet" +
+				" or you're not authorized.");
 
-		return result;
+		return Ok(result);
 	}
 
 	// POST: /submissions/5/submit
 	[HttpPost("{submissionId}/submit")]
-	public async Task<ActionResult> Submit(
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> Submit(
 		int submissionId,
 		[FromBody] SubmitSubmission body)
 	{
 		var userId = GetUserId();
 
+		var now = DateTime.Now;
 		var ongoing = await _context.Submissions
 			.Include(x => x.Questions)
 			.ThenInclude(x => x.Choices)
 			.FirstOrDefaultAsync(x =>
 				x.SubmissionId == submissionId &&
 				x.StudentUserId == userId &&
-				DateTime.Now < x.Created.Add(x.TimeLimit) &&
-				DateTime.Now < x.Created.Add(x.Elapsed));
-		if (ongoing == null) return NotFound();
+				now < x.Deadline &&
+				now < x.Ended);
+		if (ongoing == null)
+			return NotFound("SubmissionId does not exist" +
+				" or has ended" +
+				" or you're not authorized.");
 
-		var instructorRequires = ongoing.Questions.Any(x => x.Choices.Count == 0);
+		var manualGrading = ongoing.Questions.Any(x => x.Choices.Count <= 1);
 
-		foreach (var item in body.Answers)
+		foreach (var answer in body.Answers)
 		{
 			var question = ongoing.Questions
-				.FirstOrDefault(x => x.QuestionId == item.QuestionId);
+				.FirstOrDefault(x => x.QuestionId == answer.QuestionId);
 			if (question == null)
-				return NotFound($"QuestionId: {item.QuestionId} is not existed.");
+				return NotFound($"QuestionId ({answer.QuestionId}) does not exist.");
 
-			if (item.ChoiceId != null)
+			if (answer.ChoiceId != null)
 			{
-				var choice = question.Choices.FirstOrDefault(x => x.ChoiceId == item.ChoiceId);
+				question.Choices.ForEach(x => x.IsChosen = false);
+				var choice = question.Choices
+					.FirstOrDefault(x => x.ChoiceId == answer.ChoiceId);
 				if (choice == null)
-					return NotFound($"ChoiceId: {item.ChoiceId} is not existed.");
+					return NotFound($"ChoiceId ({answer.ChoiceId}) does not exist.");
 
 				choice.IsChosen = true;
 			}
 			else
 			{
+				question.Choices.Clear();
 				var choice = new Choice()
 				{
-					Content = item.Content!
+					Content = answer.Content!
 				};
 				question.Choices.Add(choice);
 			}
 		}
-		ongoing.Elapsed = DateTime.Now - ongoing.Created;
+		ongoing.Ended = now;
 
-		if (!instructorRequires)
+		if (!manualGrading)
 		{
 			var maxGrade = ongoing.Questions.Sum(x => x.Point);
 			var quizGrade = ongoing.Questions
@@ -193,7 +267,7 @@ public class SubmissionsController : ControllerBase
 				.Sum(x => x.Point);
 
 			ongoing.Grade = quizGrade;
-			ongoing.Graded = DateTime.Now;
+			ongoing.Graded = now;
 
 			if (quizGrade / (float)maxGrade > 0.75)
 			{
@@ -208,15 +282,16 @@ public class SubmissionsController : ControllerBase
 
 		await _context.SaveChangesAsync();
 
-		var result = _mapper.Map<SubmissionResult>(ongoing);
-
-		return CreatedAtAction(nameof(Get), new { ongoing.SubmissionId }, result);
+		return CreatedAtAction(nameof(Get), new { ongoing.SubmissionId }, null);
 	}
 
 	// POST: /submissions/5/grading
 	[HttpPost("{submissionId}/grading")]
 	[Authorize(Roles = nameof(RoleType.Instructor))]
-	public async Task<ActionResult> Grading(
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> Grading(
 		int submissionId,
 		[FromBody] GradingSubmission body)
 	{
@@ -225,34 +300,30 @@ public class SubmissionsController : ControllerBase
 		var submission = await _context.Submissions
 			.Include(x => x.Questions)
 			.ThenInclude(x => x.Choices)
+			.Include(x => x.Reviews)
 			.FirstOrDefaultAsync(x =>
 				x.SubmissionId == submissionId &&
 				x.Graded != null);
-		if (submission == null) return NotFound();
+		if (submission == null)
+			return NotFound("SubmissionId does not exist or has graded.");
 
-		var availableCriteriaPoint = submission.Questions
-			.Where(x => x.Choices.All(x => x.IsChosen == null))
+		var maxManualGrade = submission.Questions
+			.Where(x => x.Choices.Count <= 1)
 			.Sum(x => x.Point);
-		var maxCriteriaPoint = body.Criteria.Sum(x => x.Checkpoints.Max(x => x.Point));
-		if (availableCriteriaPoint != maxCriteriaPoint)
-			return BadRequest(
-				$"Available criteria point is ({availableCriteriaPoint}).\n" +
-				$"Your maximum criteria point is ({maxCriteriaPoint})");
+		if (body.ManualGrade > maxManualGrade)
+			return BadRequest($"Maximum manual grade is ({maxManualGrade})");
 
-		_mapper.Map(body, submission);
+		var reviews = _mapper.Map<IEnumerable<Review>>(body.Reviews);
+		submission.Reviews.AddRange(reviews);
 
 		var maxGrade = submission.Questions.Sum(x => x.Point);
 		var quizGrade = submission.Questions
 			.Where(x => x.Choices.Any(x => x.IsCorrect == x.IsChosen))
 			.Sum(x => x.Point);
-		var criteriaGrade = submission.Criteria
-			.SelectMany(x => x.Checkpoints)
-			.Where(x => x.IsChosen)
-			.Sum(x => x.Point);
 
-		submission.Grade = quizGrade + criteriaGrade;
-		submission.InstructorUserId = userId;
+		submission.Grade = quizGrade + body.ManualGrade;
 		submission.Graded = DateTime.Now;
+		submission.InstructorUserId = userId;
 
 		if (quizGrade / (float)maxGrade > 0.75)
 		{
@@ -266,61 +337,56 @@ public class SubmissionsController : ControllerBase
 
 		await _context.SaveChangesAsync();
 
-		var result = _mapper.Map<SubmissionResult>(submission);
-
-		return CreatedAtAction(nameof(Get), new { submissionId }, result);
+		return CreatedAtAction(nameof(Get), new { submissionId }, null);
 	}
 
 
 	// POST: /submissions/5/comment
 	[HttpPost("{submissionId}/comment")]
-	public async Task<ActionResult> Comment(
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> Comment(
 		int submissionId,
 		[FromBody] string commentContent)
 	{
 		var userId = GetUserId();
+		var isInstructor = IsInstructor();
 
-		Submission? submission;
-		if (User.IsInRole(nameof(RoleTypes.Instructor)))
-		{
-			submission = await _context.Submissions
-				.FirstOrDefaultAsync(x =>
-					x.SubmissionId == submissionId &&
-					(x.InstructorUserId == userId ||
-					x.InstructorUserId == null));
-		}
-		else
-		{
-			submission = await _context.Submissions
-				.FirstOrDefaultAsync(x =>
-					x.SubmissionId == submissionId &&
-					x.StudentUserId == userId);
-		}
-
-		if (submission == null) return NotFound();
+		var submission = await _context.Submissions
+			.FirstOrDefaultAsync(x =>
+				x.SubmissionId == submissionId &&
+				x.Graded == null &&
+				(x.InstructorUserId == userId || x.StudentUserId == userId));
+		if (submission == null)
+			return NotFound("SubmissionId does not exist" +
+				" or hasn't graded yet" +
+				" or you're not authorized.");
 
 		var comment = new Comment()
 		{
 			Content = commentContent,
-			OwnerUserId = userId,
 			Created = DateTime.Now,
+			OwnerUserId = userId,
 			SubmissionId = submissionId
 		};
 		_context.Comments.Add(comment);
 
-		if (User.IsInRole(nameof(RoleTypes.Instructor)))
+		if (isInstructor)
 			submission.InstructorUserId ??= userId;
 
 		await _context.SaveChangesAsync();
 
-		var result = _mapper.Map<SubmissionResult.Comment>(comment);
-
-		return CreatedAtAction(nameof(Get), new { submissionId }, result);
+		return CreatedAtAction(nameof(Get), new { submissionId }, null);
 	}
 
 
 	private int GetUserId()
 	{
 		return ClaimUtilities.GetUserId(User.Claims);
+	}
+
+	private bool IsInstructor()
+	{
+		return User.IsInRole(nameof(RoleType.Instructor));
 	}
 }

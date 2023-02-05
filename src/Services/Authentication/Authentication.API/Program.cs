@@ -1,14 +1,24 @@
 using Authentication.API.Infrastructure.Contexts;
 using Authentication.API.Options;
+using Authentication.API.Utilities;
 using CommonLibrary.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDefaultServices<DataContext>(builder.Configuration);
-builder.Services.AddRequiredOptions<JwtOptions>(builder.Configuration);
 
-builder.Services.AddAuthorization();
+var section = builder.Configuration.GetSection("Jwt");
+if (section.Exists())
+{
+	builder.Services
+		.AddOptions<JwtOptions>()
+		.Bind(section)
+		.ValidateDataAnnotations()
+		.ValidateOnStart();
+
+	builder.Services.AddSingleton<JwtTokenHelper>();
+}
 
 var app = builder.Build();
 
