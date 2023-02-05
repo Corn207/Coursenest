@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -173,25 +174,12 @@ public static class BuilderExtensions
 		return services;
 	}
 
-	//public static IApplicationBuilder DatabaseStartup(this IApplicationBuilder app)
-	//{
-	//	using var scope = app.ApplicationServices.CreateScope();
-	//	var context = scope.ServiceProvider.GetService<DbContext>();
-	//	var options = app.ApplicationServices.GetService<IOptions<DatabaseOptions>>();
+	public static IApplicationBuilder DatabaseSetup(this IApplicationBuilder app)
+	{
+		using var scope = app.ApplicationServices.CreateScope();
+		var context = scope.ServiceProvider.GetRequiredService<DbContext>();
+		context.Database.EnsureCreated();
 
-	//	if (context != null && options != null)
-	//	{
-	//		if (options.Value.EnsureDeleted)
-	//		{
-	//			context.Database.EnsureDeleted();
-	//		}
-
-	//		if (options.Value.EnsureCreated)
-	//		{
-	//			context.Database.EnsureCreated();
-	//		}
-	//	}
-
-	//	return app;
-	//}
+		return app;
+	}
 }

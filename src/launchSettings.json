@@ -14,23 +14,6 @@
         "userdata.api": "DoNotStart"
       }
     },
-    "Library.API": {
-      "commandName": "DockerCompose",
-      "commandVersion": "1.0",
-      "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "library.api",
-      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
-      "serviceActions": {
-        "authentication.api": "DoNotStart",
-        "database": "StartWithoutDebugging",
-        "gatewayapi": "DoNotStart",
-        "identity.api": "DoNotStart",
-        "library.api": "StartDebugging",
-        "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging",
-        "userdata.api": "StartDebugging"
-      }
-    },
     "Authentication.API": {
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
@@ -41,45 +24,11 @@
         "authentication.api": "StartDebugging",
         "database": "StartWithoutDebugging",
         "gatewayapi": "DoNotStart",
-        "identity.api": "DoNotStart",
-        "library.api": "DoNotStart",
-        "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging",
-        "userdata.api": "StartDebugging"
-      }
-    },
-    "Authentication.API Integration": {
-      "commandName": "DockerCompose",
-      "commandVersion": "1.0",
-      "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "authentication.api",
-      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
-      "serviceActions": {
-        "authentication.api": "StartDebugging",
-        "database": "StartWithoutDebugging",
-        "gatewayapi": "DoNotStart",
         "identity.api": "StartDebugging",
         "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging",
-        "userdata.api": "StartDebugging"
-      }
-    },
-    "Identity.API": {
-      "commandName": "DockerCompose",
-      "commandVersion": "1.0",
-      "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "identity.api",
-      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
-      "serviceActions": {
-        "authentication.api": "DoNotStart",
-        "database": "StartWithoutDebugging",
-        "gatewayapi": "DoNotStart",
-        "identity.api": "StartDebugging",
-        "library.api": "DoNotStart",
-        "messagebus": "StartWithoutDebugging",
-        "payment.api": "StartDebugging",
-        "userdata.api": "StartDebugging"
+        "payment.api": "DoNotStart",
+        "userdata.api": "DoNotStart"
       }
     }
   }
