@@ -6,6 +6,8 @@ public record TopicDetailedResult
 {
 	public int TopicId { get; set; }
 	public string Content { get; set; }
+	public string CategoryId { get; set; }
 	public string CategoryContent { get; set; }
+	public string SubcategoryId { get; set; }
 	public string SubcategoryContent { get; set; }
 }

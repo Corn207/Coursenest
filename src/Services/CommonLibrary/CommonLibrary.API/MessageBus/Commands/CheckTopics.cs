@@ -4,5 +4,5 @@
 
 public record CheckTopics
 {
-	public IEnumerable<int> Ids { get; set; }
+	public int[] Ids { get; set; }
 }

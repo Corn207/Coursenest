@@ -21,16 +21,21 @@ public class GetExamConsumer : IConsumer<GetExam>
 
 	public async Task Consume(ConsumeContext<GetExam> context)
 	{
+		var query = context.Message;
+
 		var result = await _context.Exams
 			.Include(x => x.Questions)
 			.ThenInclude(x => x.Choices)
-			.Where(x => x.UnitId == context.Message.UnitId && x.Lesson.Course.IsApproved)
+			.Where(x => x.UnitId == query.UnitId && x.Lesson.Course.IsApproved)
 			.ProjectTo<ExamResult>(_mapper.ConfigurationProvider)
 			.SingleOrDefaultAsync();
 		if (result == null)
 		{
-			var response = new NotFound() { Message = $"Approved Exam does not exist." };
-			await context.RespondAsync(response);
+			await context.RespondAsync(new NotFound()
+			{
+				Message = $"Queried UnitId does not exist.",
+				Objects = query
+			});
 
 			return;
 		}
