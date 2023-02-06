@@ -4,6 +4,7 @@ import { React, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import classNames from 'classnames/bind';
+import axios from 'axios';
 
 import styles from './SignIn.module.scss';
 import Image from '~/components/Image';
@@ -14,6 +15,9 @@ import commonImages from '~/assets/images';
 const cx = classNames.bind(styles);
 
 function SignIn() {
+    const [userName, setUserName] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const [isShow, setIsShow] = useState(false);
 
     const handleShowPassword = (event) => {
@@ -23,18 +27,27 @@ function SignIn() {
 
     const {
         register,
-        handleSubmit,
-        // watch,
         formState: { errors },
     } = useForm({
         defaultValues: {
             userName: '',
-            email: '',
         },
     });
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post('http://localhost:21001/authenticate/login', {
+                userName,
+                password,
+            });
+            axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
+            window.location.href = '/';
+            console.log(res.data.accessToken);
+        } catch (err) {
+            // setError(err.response.data.message);
+            setError('Username or password incorrect');
+        }
     };
 
     return (
@@ -75,12 +88,9 @@ function SignIn() {
                     <p className={cx('forgot')}>
                         <Link to="/forgot-password">Forgot your password?</Link>
                     </p>
-                    {/* <div className={cx('forgot-container')}> */}
-
-                    {/* </div> */}
                 </div>
 
-                <form className={cx('loginForm')} onSubmit={handleSubmit(onSubmit)}>
+                <form className={cx('loginForm')} onSubmit={onSubmit}>
                     <div className={cx('inputContainer')}>
                         <label className={cx('inputTitle')}>Username</label>
                         <span className={cx('form-message')}>{errors.userName?.message}</span>
@@ -89,6 +99,8 @@ function SignIn() {
                             {...register('userName', {
                                 required: 'This input is required',
                             })}
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
                             style={{ border: errors.userName?.message ? '1px solid red' : '' }}
                             placeholder="Enter your username..."
                         />
@@ -107,6 +119,8 @@ function SignIn() {
                                 {...register('password', {
                                     required: 'This input is required.',
                                 })}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Enter your password..."
                             />
                             <button className={cx('showButton')} onClick={(event) => handleShowPassword(event)}>
@@ -114,7 +128,7 @@ function SignIn() {
                             </button>
                         </div>
                     </div>
-
+                    {error && <p className={cx('loginError')}>{error}</p>}
                     <button className={cx('loginButton')}>
                         {/* <Link className={cx('link')} to="/home"> */}
                         Log in
