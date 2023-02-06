@@ -1,0 +1,39 @@
+.bdropdown {
+    display: flex;
+    align-items: center;
+    width: 120px;
+    height: 30px;
+    margin-right: 24px;
+    margin-left: 30px;
+    justify-content: space-around;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
+
+.bdropdown {
+    transition: color 0.5s ease;
+}
+
+.bdropdown:hover {
+    cursor: pointer;
+    color: #C1A781;;
+}
+
+.ddcontent {
+    background-color: #4E6FB8;
+    width: 120px;
+    margin-left: 35px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.dditem p {
+    transition: color 0.5s ease;
+    padding: 15px;
+    margin: 0;
+}
+
+.dditem:hover p {
+    color: #C1A781;
+    cursor: pointer;
+}

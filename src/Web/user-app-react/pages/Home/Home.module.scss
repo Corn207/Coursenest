@@ -1,0 +1,21 @@
+.container{
+    // background-image: url('../../assets/images/home-bg.png');
+    // background-size: cover;
+    // aspect-ratio: 7/5;
+
+    .slogan {
+        text-align: end;
+        width: 45vw;
+        font-weight: 900;
+
+        .title {
+            font-size: 120px;
+            line-height: 130px;
+        }
+
+        .subTitle {
+            font-size: 20px;
+        }
+    }
+
+}

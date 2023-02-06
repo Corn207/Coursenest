@@ -1,0 +1,140 @@
+.container {
+    // background-image: url(../../assets/images/profile-bg.png);
+    // margin: 0px 24px 50px 24px;
+    .header {
+        display: flex;
+        gap: 24px;
+
+        .roundAvatar {
+            vertical-align: middle;
+            width: 153px;
+            height: 153px;  
+            border-radius: 50%;
+            border: 1px solid #0000;
+        }
+
+        .avatarContainer {
+            position: relative;
+
+            .roundAvatar {
+                opacity: 1;
+                transition: .5s ease;
+                backface-visibility: hidden;
+            }
+
+            .middle {
+                width: 153px;
+                height: 153px; 
+                border-radius: 50%;
+                background-color: #8C8C8C;
+                position: absolute;
+                top: 0;
+                opacity: 0;
+            }
+
+            .text {
+                color: #FFFF;
+                transition: .5s ease;
+                opacity: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                text-align: center;
+            }
+        }
+
+        .avatarContainer:hover {
+            cursor: pointer;
+
+            .roundAvatar:hover {
+                opacity: 0.3;
+            }
+
+            .middle {
+                opacity: 0.4;
+            }
+
+            .text {
+                opacity: 1;
+            }
+        }
+
+        .rightHeader {
+            background-image: url(../../assets/images/user-bg.jpg);
+            color: #FFFF;
+            border-radius: 8px;
+            width: 100%;
+            padding-left: 24px;
+            padding-top: 21px;
+            
+            .jobTitleLabel {
+                color: rgba(255, 255, 255, 0.75);
+                margin-top: 16px;
+                margin-bottom: 8px;
+            }
+        }
+    }
+
+    .body {
+        padding-left: 175px;
+
+        .heading {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        .seeAllBtn, .editBtn {
+            color: #8C8C8C;
+            cursor: pointer;
+        }
+
+        .tableInfo {
+            width: 100%;
+
+            .tableRightContent {
+                text-align: right;
+            }
+        }
+
+        .listExperience {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+
+            .experience {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                border: 1px solid #C677FC;
+                backdrop-filter: blur(21px);
+                background-color: rgba(255, 255, 255, 0.3);
+                border-radius: 8px;
+                width: 360px;
+                height: 80px;
+
+                .experienceImage {
+                    width: 60px;
+                    height: 48px;
+                    padding-left: 16px;
+                }
+                .experienceContent {
+                    padding-top: 16px;
+                }
+                .experienceContent p {
+                    color: #8C8C8C;
+                }
+            }
+        }
+    }
+
+    .listAchievement {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+}
