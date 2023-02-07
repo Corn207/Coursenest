@@ -24,8 +24,6 @@ public class GetExamConsumer : IConsumer<GetExam>
 		var query = context.Message;
 
 		var result = await _context.Exams
-			.Include(x => x.Questions)
-			.ThenInclude(x => x.Choices)
 			.Where(x => x.UnitId == query.UnitId && x.Lesson.Course.IsApproved)
 			.ProjectTo<ExamResult>(_mapper.ConfigurationProvider)
 			.SingleOrDefaultAsync();
@@ -36,10 +34,10 @@ public class GetExamConsumer : IConsumer<GetExam>
 				Message = $"Queried UnitId does not exist.",
 				Objects = query
 			});
-
-			return;
 		}
-
-		await context.RespondAsync(result);
+		else
+		{
+			await context.RespondAsync(result);
+		}
 	}
 }

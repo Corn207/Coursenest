@@ -1,4 +1,5 @@
-﻿using Library.API.Infrastructure.Entities;
+﻿using CommonLibrary.API.Models;
+using Library.API.Infrastructure.Entities;
 
 namespace Library.API.DTOs.Courses;
 

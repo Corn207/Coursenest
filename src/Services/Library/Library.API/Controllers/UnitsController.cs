@@ -1,12 +1,21 @@
-﻿using CommonLibrary.API.MessageBus.Responses;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
+using CommonLibrary.API.Models;
+using CommonLibrary.API.Utilities.APIs;
 using Library.API.DTOs;
+using Library.API.DTOs.Lessons;
 using Library.API.DTOs.Units;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
+using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using static MassTransit.Logging.OperationName;
+using ExamResult = Library.API.DTOs.Units.ExamResult;
 
 namespace Library.API.Controllers
 {
@@ -16,223 +25,239 @@ namespace Library.API.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly DataContext _context;
+		private readonly IRequestClient<CheckEnrollment> _checkEnrollmentClient;
 
-		public UnitsController(IMapper mapper, DataContext context)
+		public UnitsController(
+			IMapper mapper,
+			DataContext context,
+			IRequestClient<CheckEnrollment> checkEnrollmentClient)
 		{
 			_mapper = mapper;
 			_context = context;
+			_checkEnrollmentClient = checkEnrollmentClient;
 		}
 
-
-		private async Task<bool> IsLessonOwned(int lessonId, int publisherUserId)
-		{
-			var result = await _context.Lessons
-				.AsNoTracking()
-				.AnyAsync(x => x.LessonId == lessonId && x.Course.PublisherUserId == publisherUserId);
-
-			return result;
-		}
 
 		// GET: /units
-		[HttpGet()]
-		public async Task<ActionResult<IEnumerable<UnitResult>>> GetAll(
-			[FromHeader] int? publisherUserId,
-			int lessonId)
+		[HttpGet]
+		public async Task<ActionResult<UnitResult[]>> GetAll(
+			[BindRequired][FromQuery] int lessonId)
 		{
-			List<UnitResult> results;
-			if (publisherUserId == null)
-			{
-				results = await _context.Units
-					.AsNoTracking()
-					.Where(x => x.LessonId == lessonId && x.Lesson.Course.IsApproved)
-					.ProjectTo<UnitResult>(_mapper.ConfigurationProvider)
-					.ToListAsync();
-			}
-			else
-			{
-				results = await _context.Units
-					.AsNoTracking()
-					.Where(x => x.LessonId == lessonId && x.Lesson.Course.PublisherUserId == publisherUserId)
-					.ProjectTo<UnitResult>(_mapper.ConfigurationProvider)
-					.ToListAsync();
-			}
+			var userId = GetUserIdOrDefault();
+			var isAdmin = IsAdmin();
+
+			var lesson = await _context.Lessons
+				.Include(x => x.Units)
+				.FirstOrDefaultAsync(x =>
+					x.LessonId == lessonId &&
+					(isAdmin || x.Course.IsApproved || x.Course.PublisherUserId == userId));
+			if (lesson == null)
+				return NotFound("LessonId does not exist or you're not authorized.");
+
+			var results = lesson.Units
+				.Select(x => _mapper.Map<UnitResult>(x))
+				.ToArray();
 
 			return results;
 		}
 
 		// GET: /units/5
 		[HttpGet("{unitId}")]
-		public async Task<IActionResult> Get(
-			[FromHeader] int? publisherUserId,
+		public async Task<ActionResult<UnitResult>> Get(
 			int unitId)
 		{
-			Unit? unit;
-			if (publisherUserId == null)
-			{
-				unit = await _context.Units
-					.AsNoTracking()
-					.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.IsApproved);
-			}
-			else
-			{
-				unit = await _context.Units
-					.AsNoTracking()
-					.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			}
-			if (unit == null) return NotFound();
+			var userId = GetUserIdOrDefault();
+			var isAdmin = IsAdmin();
 
-			if (unit is Material material)
-			{
-				var result = _mapper.Map<MaterialResult>(material);
+			var result = await _context.Units
+				.Where(x =>
+					x.UnitId == unitId &&
+					(isAdmin || x.Lesson.Course.IsApproved || x.Lesson.Course.PublisherUserId == userId))
+				.ProjectTo<UnitResult>(_mapper.ConfigurationProvider)
+				.FirstOrDefaultAsync();
+			if (result == null)
+				return NotFound("UnitId does not exist or you're not authorized.");
 
-				return Ok(result);
-			}
-			else
-			{
-				var exam = unit as Exam;
-
-				await _context.Entry(exam!)
-					.Collection(x => x.Questions)
-					.Query()
-					.Include(x => x.Choices)
-					.LoadAsync();
-
-				var result = _mapper.Map<ExamResult>(exam);
-
-				return Ok(result);
-			}
+			return result;
 		}
 
-
-		// POST: /units/5/start
-		[HttpPost("{unitId}/start")]
-		public async Task<IActionResult> StartExam(
-			[FromHeader] int userId,
+		// GET: /units/5/material
+		[HttpGet("{unitId}/material")]
+		[Authorize]
+		public async Task<ActionResult<MaterialResult>> GetMaterial(
 			int unitId)
 		{
-			var createSubmission = await _context.Exams
-				.AsNoTracking()
-				.Where(x => x.UnitId == unitId && x.Lesson.Course.IsApproved)
-				.ProjectTo<CreateSubmission>(_mapper.ConfigurationProvider)
-				.SingleOrDefaultAsync();
-			if (createSubmission == null) return NotFound();
+			var userId = GetUserId();
+			var isAdmin = IsAdmin();
 
-			createSubmission.StudentUserId = userId;
+			var result = await _context.Materials
+				.Where(x => 
+					x.UnitId == unitId &&
+					(isAdmin || x.Lesson.Course.PublisherUserId == userId))
+				.ProjectTo<MaterialResult>(_mapper.ConfigurationProvider)
+				.FirstOrDefaultAsync();
+			if (result == null)
+				return NotFound("Material with UnitId does not exist or you're not authorized.");
 
+			var request = new CheckEnrollment()
+			{
+				CourseId = result.CourseId,
+				StudentUserId = userId
+			};
+			var response = await _checkEnrollmentClient
+				.GetResponse<Existed, NotFound>(request);
+
+			if (response.Is(out Response<NotFound>? notFoundResponse))
+			{
+				return NotFound(notFoundResponse!.Message.Message);
+			}
+
+			return result;
 		}
 
+		// GET: /units/5/exam
+		[HttpGet("{unitId}/exam")]
+		[Authorize]
+		public async Task<ActionResult<ExamResult>> GetExam(
+			int unitId)
+		{
+			var userId = GetUserId();
+			var isAdmin = IsAdmin();
+
+			var result = await _context.Exams
+				.Where(x =>
+					x.UnitId == unitId &&
+					(isAdmin || x.Lesson.Course.PublisherUserId == userId))
+				.ProjectTo<ExamResult>(_mapper.ConfigurationProvider)
+				.FirstOrDefaultAsync();
+			if (result == null)
+				return NotFound("Exam with UnitId does not exist or you're not authorized.");
+
+			return result;
+		}
 
 
 		// POST: /units/material
 		[HttpPost("material")]
-		public async Task<ActionResult<MaterialResult>> CreateMaterial(
-			[FromHeader] int publisherUserId,
-			CreateMaterial dto)
+		[Authorize(Roles = nameof(RoleType.Publisher))]
+		public async Task<ActionResult> CreateMaterial(
+			[FromBody] CreateMaterial body)
 		{
-			var exists = await _context.Lessons
-				.AsNoTracking()
-				.AnyAsync(x => x.LessonId == dto.LessonId && x.Course.PublisherUserId == publisherUserId);
-			if (!exists) return NotFound();
+			var userId = GetUserId();
 
-			var material = _mapper.Map<Material>(dto);
+			var lesson = await _context.Lessons
+				.Include(x => x.Units)
+				.FirstOrDefaultAsync(x => 
+					x.LessonId == body.LessonId &&
+					x.Course.PublisherUserId == userId);
+			if (lesson == null)
+				return NotFound("LessonId does not exist or you're not authorized.");
 
-			var max = await _context.Units
-				.AsNoTracking()
-				.Where(x => x.LessonId == dto.LessonId)
-				.OrderByDescending(x => x.Order)
+			var material = _mapper.Map<Material>(body);
+
+			var max = lesson.Units
 				.Select(x => x.Order)
-				.FirstOrDefaultAsync();
+				.OrderByDescending(x => x)
+				.FirstOrDefault();
 			material.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
 			material.OrderDenominator = 1;
 
-			_context.Materials.Add(material);
+			lesson.Units.Add(material);
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<MaterialResult>(material);
-
-			return CreatedAtAction(nameof(Get), new { publisherUserId, material.UnitId }, result);
+			return CreatedAtAction(nameof(GetMaterial), new { material.UnitId }, null);
 		}
 
 		// POST: /units/exam
 		[HttpPost("exam")]
-		public async Task<ActionResult<ExamResult>> CreateExam(
-			[FromHeader] int publisherUserId,
-			CreateExam dto)
+		[Authorize(Roles = nameof(RoleType.Publisher))]
+		public async Task<ActionResult> CreateExam(
+			[FromBody] CreateExam body)
 		{
-			var exists = await _context.Lessons
-				.AsNoTracking()
-				.AnyAsync(x => x.LessonId == dto.LessonId && x.Course.PublisherUserId == publisherUserId);
-			if (!exists) return NotFound();
+			var userId = GetUserId();
 
-			var exam = _mapper.Map<Exam>(dto);
+			var lesson = await _context.Lessons
+				.Include(x => x.Units)
+				.FirstOrDefaultAsync(x =>
+					x.LessonId == body.LessonId &&
+					x.Course.PublisherUserId == userId);
+			if (lesson == null)
+				return NotFound("LessonId does not exist or you're not authorized.");
 
-			var max = await _context.Units
-				.AsNoTracking()
-				.Where(x => x.LessonId == dto.LessonId)
-				.OrderByDescending(x => x.Order)
+			var exam = _mapper.Map<Exam>(body);
+
+			var max = lesson.Units
 				.Select(x => x.Order)
-				.FirstOrDefaultAsync();
+				.OrderByDescending(x => x)
+				.FirstOrDefault();
 			exam.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
 			exam.OrderDenominator = 1;
 
-			_context.Exams.Add(exam);
+			lesson.Units.Add(exam);
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<ExamResult>(exam);
-
-			return CreatedAtAction(nameof(Get), new { publisherUserId, exam.UnitId }, exam);
+			return CreatedAtAction(nameof(GetExam), new { exam.UnitId }, null);
 		}
 
 
 		// PUT: /units/5/material
 		[HttpPut("{unitId}/material")]
-		public async Task<ActionResult<MaterialResult>> UpdateMaterial(
-			[FromHeader] int publisherUserId,
+		[Authorize(Roles = nameof(RoleType.Publisher))]
+		public async Task<ActionResult> UpdateMaterial(
 			int unitId,
-			UpdateMaterial dto)
+			[FromBody] UpdateMaterial body)
 		{
-			var material = await _context.Materials
-				.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			if (material == null) return NotFound();
+			var userId = GetUserId();
 
-			_mapper.Map(dto, material);
+			var material = await _context.Materials
+				.FirstOrDefaultAsync(x =>
+					x.UnitId == unitId &&
+					x.Lesson.Course.PublisherUserId == userId);
+			if (material == null)
+				return NotFound("Material with UnitId does not exist or you're not authorized.");
+
+			_mapper.Map(body, material);
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<MaterialResult>(material);
-
-			return result;
+			return NoContent();
 		}
 
 		// PUT: /units/5/exam
 		[HttpPut("{unitId}/exam")]
-		public async Task<ActionResult<ExamResult>> UpdateExam(
-			[FromHeader] int publisherUserId,
+		[Authorize(Roles = nameof(RoleType.Publisher))]
+		public async Task<ActionResult> UpdateExam(
 			int unitId,
-			UpdateExam dto)
+			[FromBody] UpdateExam body)
 		{
-			var exam = await _context.Exams
-				.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			if (exam == null) return NotFound();
+			var userId = GetUserId();
 
-			_mapper.Map(dto, exam);
+			var exam = await _context.Materials
+				.FirstOrDefaultAsync(x =>
+					x.UnitId == unitId &&
+					x.Lesson.Course.PublisherUserId == userId);
+			if (exam == null)
+				return NotFound("Exam with UnitId does not exist or you're not authorized.");
+
+			_mapper.Map(body, exam);
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<ExamResult>(exam);
-
-			return result;
+			return NoContent();
 		}
 
 
 		// DELETE: /units/5
 		[HttpDelete("{unitId}")]
+		[Authorize(Roles = nameof(RoleType.Publisher))]
 		public async Task<ActionResult> Delete(
-			[FromHeader] int publisherUserId,
 			int unitId)
 		{
+			var userId = GetUserId();
+
 			var result = await _context.Units
-				.Where(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId)
+				.Where(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == userId)
 				.ExecuteDeleteAsync();
-			if (result == 0) return NotFound();
+			if (result == 0)
+				return NotFound("UnitId does not exist or you're not authorized.");
 
 			return NoContent();
 		}
@@ -240,113 +265,144 @@ namespace Library.API.Controllers
 
 		// PUT: /units/5/order
 		[HttpPut("{unitId}/order")]
-		public async Task<ActionResult<UnitResult>> ChangeOrder(
-			[FromHeader] int publisherUserId,
+		public async Task<ActionResult> ChangeOrder(
 			int unitId,
-			ChangeOrder dto)
+			[FromBody] ChangeOrder body)
 		{
-			var from = await _context.Units
-				.FirstOrDefaultAsync(x => x.UnitId == unitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			if (from == null) return NotFound();
+			var userId = GetUserId();
 
-			var to = await _context.Units
-				.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.UnitId == dto.ToId && x.LessonId == from.LessonId);
-			if (to == null) return NotFound();
+			if (unitId == body.ToId)
+				return BadRequest("Both UnitId is the same.");
 
-			if (dto.IsBefore)
+			var lesson = await _context.Lessons
+				.Include(x => x.Units)
+				.FirstOrDefaultAsync(x =>
+					x.Course.PublisherUserId == userId &&
+					x.Units.Any(x => x.UnitId == unitId) &&
+					x.Units.Any(x => x.LessonId == body.ToId));
+			if (lesson == null)
+				return NotFound("Lesson contains both LessonIds does not exist or you're not authorized.");
+
+			var from = lesson.Units.First(x => x.UnitId == unitId);
+			var to = lesson.Units.First(x => x.LessonId == body.ToId);
+
+			if (body.IsBefore)
 			{
-				var before = await _context.Units
-					.AsNoTracking()
-					.Where(x => x.Order < to.Order && x.LessonId == from.LessonId)
+				var before = lesson.Units
+					.Where(x => x.Order < to.Order)
 					.OrderByDescending(x => x.Order)
-					.FirstOrDefaultAsync();
+					.FirstOrDefault();
+				if (before == from)
+					return BadRequest("Nothing has changed.");
+
 				from.OrderNumerator = (before == null ? 0 : before.OrderNumerator) + to.OrderNumerator;
 				from.OrderDenominator = (before == null ? 1 : before.OrderDenominator) + to.OrderDenominator;
 			}
 			else
 			{
-				var after = await _context.Units
-					.AsNoTracking()
-					.Where(x => x.Order > to.Order && x.LessonId == from.LessonId)
+				var after = lesson.Units
+					.Where(x => x.Order > to.Order)
 					.OrderBy(x => x.Order)
-					.FirstOrDefaultAsync();
+					.FirstOrDefault();
+				if (after == from)
+					return BadRequest("Nothing has changed.");
+
 				from.OrderNumerator = (after == null ? (int)Math.Ceiling(to.Order) : after.OrderNumerator) + to.OrderNumerator;
 				from.OrderDenominator = (after == null ? 1 : after.OrderDenominator) + to.OrderDenominator;
 			}
 
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<UnitResult>(from);
-
-			return result;
+			return NoContent();
 		}
 
 
 		// POST: /units/5/questions
 		[HttpPost("{examUnitId}/questions")]
-		public async Task<ActionResult<QuestionResult>> CreateQuestion(
-			[FromHeader] int publisherUserId,
-			CreateQuestion dto)
+		[Authorize(Roles = nameof(RoleType.Publisher))]
+		public async Task<ActionResult> CreateQuestion(
+			int examUnitId,
+			[FromBody] CreateQuestion body)
 		{
-			var exists = await _context.Exams
-				.AsNoTracking()
-				.AnyAsync(x => x.UnitId == dto.ExamUnitId && x.Lesson.Course.PublisherUserId == publisherUserId);
-			if (!exists) return NotFound();
+			var userId = GetUserId();
 
-			var question = _mapper.Map<Question>(dto);
+			var exam = await _context.Exams
+				.FirstOrDefaultAsync(x =>
+					x.UnitId == body.ExamUnitId &&
+					x.Lesson.Course.PublisherUserId == userId);
+			if (exam == null)
+				return NotFound("Exam with UnitId does not exist or you're not authorized.");
 
-			_context.Questions.Add(question);
+			var question = _mapper.Map<Question>(body);
+
+			exam.Questions.Add(question);
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<QuestionResult>(question);
-
-			return CreatedAtAction(nameof(Get), new { publisherUserId, question.ExamUnitId }, result);
+			return CreatedAtAction(nameof(GetExam), new { question.ExamUnitId }, null);
 		}
 
 
 		// PUT: /units/5/questions/5
 		[HttpPut("{examUnitId}/questions/{questionId}")]
+		[Authorize(Roles = nameof(RoleType.Publisher))]
 		public async Task<ActionResult<QuestionResult>> UpdateQuestion(
-			[FromHeader] int publisherUserId,
 			int examUnitId,
 			int questionId,
-			UpdateQuestion dto)
+			[FromBody] UpdateQuestion body)
 		{
+			var userId = GetUserId();
+
 			var question = await _context.Questions
 				.Include(x => x.Choices)
 				.FirstOrDefaultAsync(x =>
 					x.QuestionId == questionId &&
 					x.ExamUnitId == examUnitId &&
-					x.Exam.Lesson.Course.PublisherUserId == publisherUserId);
-			if (question == null) return NotFound();
+					x.Exam.Lesson.Course.PublisherUserId == userId);
+			if (question == null)
+				return NotFound("Exam with UnitId or QuestionId does not exist or you're not authorized.");
 
-			_mapper.Map(dto, question);
+			_mapper.Map(body, question);
 
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<QuestionResult>(question);
-
-			return CreatedAtAction(nameof(Get), new { publisherUserId, question.ExamUnitId }, result);
+			return CreatedAtAction(nameof(GetExam), new { question.ExamUnitId }, null);
 		}
 
 
 		// DELETE: /units/5/questions/5
 		[HttpDelete("{examUnitId}/questions/{questionId}")]
 		public async Task<ActionResult> DeleteQuestion(
-			[FromHeader] int publisherUserId,
 			int examUnitId,
 			int questionId)
 		{
+			var userId = GetUserId();
+
 			var result = await _context.Questions
 				.Where(x =>
 					x.QuestionId == questionId &&
 					x.Exam.UnitId == examUnitId &&
-					x.Exam.Lesson.Course.PublisherUserId == publisherUserId)
+					x.Exam.Lesson.Course.PublisherUserId == userId)
 				.ExecuteDeleteAsync();
-			if (result == 0) return NotFound();
+			if (result == 0)
+				return NotFound("Exam with UnitId or QuestionId does not exist or you're not authorized.");
 
 			return NoContent();
+		}
+
+
+		private int GetUserId()
+		{
+			return ClaimUtilities.GetUserId(User.Claims);
+		}
+
+		private int GetUserIdOrDefault()
+		{
+			return User.Claims.Any() ? ClaimUtilities.GetUserId(User.Claims) : 0;
+		}
+
+		private bool IsAdmin()
+		{
+			return ClaimUtilities.GetRoles(User.Claims).Any(x => x == RoleType.Admin);
 		}
 	}
 }

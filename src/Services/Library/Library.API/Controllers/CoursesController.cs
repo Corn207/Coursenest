@@ -1,4 +1,6 @@
 ﻿using CommonLibrary.API.Constants;
+using CommonLibrary.API.Models;
+using CommonLibrary.API.Utilities.APIs;
 using CommonLibrary.API.Validations;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -8,6 +10,7 @@ using Library.API.Infrastructure.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Library.API.Controllers
 {
@@ -27,102 +30,55 @@ namespace Library.API.Controllers
 
 		// GET: /courses
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<CourseResult>>> GetAll(
+		public async Task<ActionResult<CourseResult[]>> GetAll(
 			[FromQuery] CourseQuery query)
 		{
-			var results = await _context.Courses
-				.AsNoTracking()
+			var userId = User.Claims.Any() ? GetUserId() : 0;
+			var isAdmin = GetRoles().Any(x => x == RoleType.Admin);
+
+			var dbQuery = _context.Courses
 				.Where(x =>
-					x.IsApproved &&
-					(query.Title == null || x.Title.Contains(query.Title)) &&
+					(isAdmin || x.IsApproved || x.PublisherUserId == userId) &&
+					(query.IsApproved == x.IsApproved) &&
+					(string.IsNullOrWhiteSpace(query.Title) || x.Title.Contains(query.Title)) &&
 					(query.TopicId == null || query.TopicId == x.TopicId) &&
-					(query.PublisherUserId == null || query.PublisherUserId == x.PublisherUserId))
-				.OrderByDescending(x => x.RatingAverage)
-				.Skip((int)query.Page! * (int)query.PageSize!)
-				.Take((int)query.PageSize)
+					(query.PublisherUserId == null || query.PublisherUserId == x.PublisherUserId));
+
+			dbQuery = query.SortBy switch
+			{
+				SortBy.Created => dbQuery.OrderByDescending(x => x.Created),
+				SortBy.LastModified => dbQuery.OrderByDescending(x => x.LastModified),
+				SortBy.Title => dbQuery.OrderBy(x => x.Title),
+				_ => dbQuery.OrderByDescending(x => x.RatingAverage),
+			};
+
+			dbQuery = dbQuery
+				.Skip((query.PageNumber - 1) * query.PageSize)
+				.Take(query.PageSize);
+
+			var results = await dbQuery
 				.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
-				.ToListAsync();
+				.ToArrayAsync();
 
-			return Ok(results);
-		}
-
-		// GET: /courses/publisher
-		[HttpGet("publisher")]
-		public async Task<ActionResult<IEnumerable<CourseResult>>> GetAllByPublisher(
-			[FromHeader] int publisherUserId,
-			[FromQuery] CoursePublisherQuery query)
-		{
-			var results = await _context.Courses
-				.AsNoTracking()
-				.Where(x =>
-					x.PublisherUserId == publisherUserId &&
-					(query.Title == null || x.Title.Contains(query.Title)))
-				.OrderByDescending(x => x.RatingAverage)
-				.Skip((int)query.Page! * (int)query.PageSize!)
-				.Take((int)query.PageSize)
-				.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
-				.ToListAsync();
-
-			return Ok(results);
-		}
-
-		// GET: /courses/unapproved (Admin only)
-		[HttpGet("unapproved")]
-		public async Task<ActionResult<IEnumerable<CourseResult>>> GetAllUnapproved(
-			[FromQuery] CoursePublisherQuery query)
-		{
-			var results = await _context.Courses
-				.AsNoTracking()
-				.Where(x =>
-					!x.IsApproved &&
-					(query.Title == null || x.Title.Contains(query.Title)))
-				.OrderBy(x => x.Created)
-				.Skip((int)query.Page! * (int)query.PageSize!)
-				.Take((int)query.PageSize)
-				.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
-				.ToListAsync();
-
-			return Ok(results);
+			return results;
 		}
 
 		// GET: /courses/5
 		[HttpGet("{courseId}")]
 		public async Task<ActionResult<CourseDetailedResult>> Get(
-			[FromHeader] int? publisherUserId,
 			int courseId)
 		{
-			CourseDetailedResult? result;
-			if (publisherUserId == null)
-			{
-				result = await _context.Courses
-					.AsNoTracking()
-					.Where(x => x.CourseId == courseId && x.IsApproved)
-					.ProjectTo<CourseDetailedResult>(_mapper.ConfigurationProvider)
-					.FirstOrDefaultAsync();
-			}
-			else
-			{
-				result = await _context.Courses
-					.AsNoTracking()
-					.Where(x => x.CourseId == courseId && x.PublisherUserId == publisherUserId)
-					.ProjectTo<CourseDetailedResult>(_mapper.ConfigurationProvider)
-					.FirstOrDefaultAsync();
-			}
-			if (result == null) return NotFound();
+			var userId = User.Claims.Any() ? GetUserId() : 0;
+			var isAdmin = GetRoles().Any(x => x == RoleType.Admin);
 
-			return result;
-		}
-
-		// GET: /courses/5/admin
-		[HttpGet("{courseId}/admin")]
-		public async Task<ActionResult<CourseDetailedResult>> GetAdmin(
-			int courseId)
-		{
 			var result = await _context.Courses
-				.AsNoTracking()
+				.Where(x =>
+					x.CourseId == courseId &&
+					(isAdmin || x.IsApproved || x.PublisherUserId == userId))
 				.ProjectTo<CourseDetailedResult>(_mapper.ConfigurationProvider)
-				.FirstOrDefaultAsync(x => x.CourseId == courseId);
-			if (result == null) return NotFound();
+				.FirstOrDefaultAsync();
+			if (result == null)
+				return NotFound("Course does not exist or you're not authorized.");
 
 			return result;
 		}
@@ -130,59 +86,64 @@ namespace Library.API.Controllers
 
 		// POST: /courses
 		[HttpPost]
-		public async Task<ActionResult<CourseDetailedResult>> Create(
-			[FromHeader] int publisherUserId,
-			CreateCourse dto)
+		[Authorize(Roles = nameof(RoleType.Publisher))]
+		public async Task<ActionResult> Create(
+			[FromBody] CreateCourse body)
 		{
-			if (dto.TopicId != null)
+			var userId = GetUserId();
+
+			if (body.TopicId != null)
 			{
 				var exists = await _context.Topics
-					.AsNoTracking()
-					.AnyAsync(x => x.TopicId == dto.TopicId);
-				if (!exists) return NotFound();
+					.AnyAsync(x => x.TopicId == body.TopicId);
+				if (!exists)
+					return NotFound("TopicId does not exist.");
 			}
 
-			var course = _mapper.Map<Course>(dto);
-			course.PublisherUserId = publisherUserId;
+			var course = _mapper.Map<Course>(body);
+			course.PublisherUserId = userId;
 
 			_context.Courses.Add(course);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { publisherUserId, course.CourseId },
-				_mapper.Map<CourseDetailedResult>(course));
+			return CreatedAtAction(nameof(Get), new { course.CourseId }, null);
 		}
 
 
 		// PUT: /courses/5
 		[HttpPut("{courseId}")]
-		public async Task<ActionResult<CourseDetailedResult>> Update(
-			[FromHeader] int publisherUserId,
+		[Authorize(Roles = nameof(RoleType.Publisher))]
+		public async Task<ActionResult> Update(
 			int courseId,
-			UpdateCourse dto)
+			[FromBody] UpdateCourse body)
 		{
-			var course = await _context.Courses
-				.FirstOrDefaultAsync(x => x.CourseId == courseId && x.PublisherUserId == publisherUserId);
-			if (course == null) return NotFound();
+			var userId = GetUserId();
 
-			_mapper.Map(dto, course);
+			var course = await _context.Courses
+				.FirstOrDefaultAsync(x => x.CourseId == courseId && x.PublisherUserId == userId);
+			if (course == null)
+				return NotFound("Course does not exist or you're not authorized.");
+
+			_mapper.Map(body, course);
 			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<CourseDetailedResult>(course);
-
-			return result;
+			return NoContent();
 		}
 
 
 		// DELETE: /courses/5
 		[HttpDelete("{courseId}")]
+		[Authorize(Roles = nameof(RoleType.Publisher))]
 		public async Task<ActionResult> Delete(
-			[FromHeader] int publisherUserId,
 			int courseId)
 		{
+			var userId = GetUserId();
+
 			var result = await _context.Courses
-				.Where(x => x.CourseId == courseId && x.PublisherUserId == publisherUserId)
+				.Where(x => x.CourseId == courseId && x.PublisherUserId == userId)
 				.ExecuteDeleteAsync();
-			if (result == 0) return NotFound();
+			if (result == 0)
+				return NotFound("Course does not exist or you're not authorized.");
 
 			return NoContent();
 		}
@@ -190,15 +151,18 @@ namespace Library.API.Controllers
 
 		// PUT: /courses/5/cover
 		[HttpPut("{courseId}/cover")]
+		[Authorize(Roles = nameof(RoleType.Publisher))]
 		public async Task<ActionResult> UpdateCover(
-			[FromHeader] int publisherUserId,
 			int courseId,
 			[BindRequired][MaxSize(0, 2 * 1024 * 1024)][ImageExtension] IFormFile formFile)
 		{
+			var userId = GetUserId();
+
 			var course = await _context.Courses
 				.Include(x => x.Cover)
-				.FirstOrDefaultAsync(x => x.CourseId == courseId && x.PublisherUserId == publisherUserId);
-			if (course == null) return NotFound();
+				.FirstOrDefaultAsync(x => x.CourseId == courseId && x.PublisherUserId == userId);
+			if (course == null)
+				return NotFound("Course does not exist or you're not authorized.");
 
 			using var memoryStream = new MemoryStream();
 			await formFile.CopyToAsync(memoryStream);
@@ -206,7 +170,7 @@ namespace Library.API.Controllers
 
 			course.Cover = new CourseCover()
 			{
-				MediaType = FormFileContants.Extensions.GetValueOrDefault(extension)!,
+				MediaType = FormFileContants.ExtensionMIMEs.GetValueOrDefault(extension)!,
 				Data = memoryStream.ToArray(),
 				CourseId = courseId
 			};
@@ -215,6 +179,17 @@ namespace Library.API.Controllers
 			await _context.SaveChangesAsync();
 
 			return NoContent();
+		}
+
+
+		private int GetUserId()
+		{
+			return ClaimUtilities.GetUserId(User.Claims);
+		}
+
+		private IEnumerable<RoleType> GetRoles()
+		{
+			return ClaimUtilities.GetRoles(User.Claims);
 		}
 	}
 }

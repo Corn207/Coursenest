@@ -8,4 +8,5 @@ public record UnitResult
 	public string Title { get; set; }
 	public TimeSpan RequiredTime { get; set; }
 	public decimal Order { get; set; }
+	public bool IsExam { get; set; }
 }

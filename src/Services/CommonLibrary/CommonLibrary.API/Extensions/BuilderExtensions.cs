@@ -14,32 +14,6 @@ using System.Text.RegularExpressions;
 namespace CommonLibrary.API.Extensions;
 public static class BuilderExtensions
 {
-	private static void AddEssentialServices(
-		this IServiceCollection services,
-		IConfiguration configuration,
-		Assembly assembly)
-	{
-		services.AddControllers();
-
-		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-
-		services.AddCors(options =>
-		{
-			options.AddDefaultPolicy(configure =>
-			{
-				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-			});
-		});
-
-		services.AddAutoMapper(assembly);
-
-		services.AddMassTransitServices(configuration, assembly);
-
-		services.AddJWTAuthentication();
-
-		services.AddSwagger();
-	}
-
 	private static void AddMassTransitServices(
 		this IServiceCollection services,
 		IConfiguration configuration,
@@ -136,6 +110,34 @@ public static class BuilderExtensions
 		}
 	}
 
+	private static void AddEssentialServices(
+		this IServiceCollection services,
+		IConfiguration configuration,
+		Assembly assembly)
+	{
+		services.AddControllers();
+
+		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
+		services.AddCors(options =>
+		{
+			options.AddDefaultPolicy(configure =>
+			{
+				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+			});
+		});
+
+		services.AddAutoMapper(assembly);
+
+		services.AddMassTransitServices(configuration, assembly);
+
+		services.AddJWTAuthentication();
+
+		services.AddAuthorization();
+
+		services.AddSwagger();
+	}
+
 
 	public static IServiceCollection AddDefaultServices(
 		this IServiceCollection services,
@@ -174,11 +176,12 @@ public static class BuilderExtensions
 		return services;
 	}
 
+
 	public static IApplicationBuilder DatabaseSetup(this IApplicationBuilder app)
 	{
 		using var scope = app.ApplicationServices.CreateScope();
-		var context = scope.ServiceProvider.GetRequiredService<DbContext>();
-		context.Database.EnsureCreated();
+		var context = scope.ServiceProvider.GetService<DbContext>();
+		context?.Database.EnsureCreated();
 
 		return app;
 	}

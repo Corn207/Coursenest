@@ -46,7 +46,7 @@ namespace Identity.API.Controllers
 		// GET: /users/admin
 		[HttpGet("admin")]
 		[Authorize(Roles = nameof(RoleType.Admin))]
-		public async Task<ActionResult<IEnumerable<UserAdminResult>>> GetAllAdmin(
+		public async Task<ActionResult<List<UserAdminResult>>> GetAllAdmin(
 			[FromQuery] UserQuery query)
 		{
 			var results = await _context.Users

@@ -30,6 +30,23 @@
         "payment.api": "DoNotStart",
         "userdata.api": "DoNotStart"
       }
+    },
+    "Library.API": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "library.api",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
+      "serviceActions": {
+        "authentication.api": "StartDebugging",
+        "database": "StartWithoutDebugging",
+        "gatewayapi": "DoNotStart",
+        "identity.api": "StartDebugging",
+        "library.api": "StartDebugging",
+        "messagebus": "StartWithoutDebugging",
+        "payment.api": "DoNotStart",
+        "userdata.api": "DoNotStart"
+      }
     }
   }
 }

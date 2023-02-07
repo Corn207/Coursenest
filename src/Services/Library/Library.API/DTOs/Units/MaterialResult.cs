@@ -5,6 +5,7 @@
 public record MaterialResult
 {
 	public int UnitId { get; set; }
+	public int CourseId { get; set; }
 	public string Title { get; set; }
 	public TimeSpan RequiredTime { get; set; }
 	public decimal Order { get; set; }
