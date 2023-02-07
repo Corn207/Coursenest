@@ -8,8 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDefaultServices<DataContext>(builder.Configuration);
 builder.Services.AddRequiredOptions<JwtOptions>(builder.Configuration);
 
-builder.Services.AddAuthorization();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

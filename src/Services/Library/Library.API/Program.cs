@@ -25,4 +25,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.DatabaseSetup();
+
 app.Run();

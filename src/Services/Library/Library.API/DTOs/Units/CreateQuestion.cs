@@ -7,5 +7,11 @@ public record CreateQuestion
 	public string Content { get; set; }
 	public int Point { get; set; }
 	public int ExamUnitId { get; set; }
-	public List<ChoiceResult> Choices { get; set; }
+	public List<CreateChoice> Choices { get; set; }
+
+	public record CreateChoice
+	{
+		public string Content { get; set; }
+		public bool IsCorrect { get; set; }
+	}
 }

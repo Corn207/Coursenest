@@ -23,21 +23,21 @@ public class CoursesControllerTests
 
 
 
-	public static readonly CourseQuery[] GetAllData = new[]
+	public static readonly CourseExtendedQuery[] GetAllData = new[]
 	{
-		new CourseQuery()
+		new CourseExtendedQuery()
 		{
 			TopicId = 1,
 		},
-		new CourseQuery()
+		new CourseExtendedQuery()
 		{
 			PublisherUserId = 1,
 		},
-		new CourseQuery()
+		new CourseExtendedQuery()
 		{
 			Title = "Test",
 		},
-		new CourseQuery()
+		new CourseExtendedQuery()
 		{
 			Page = 1,
 			PageSize = 3,
@@ -45,29 +45,29 @@ public class CoursesControllerTests
 	};
 	[Test]
 	[TestCaseSource(nameof(GetAllData))]
-	public async Task GetAll_ReturnsOk(CourseQuery query)
+	public async Task GetAll_ReturnsOk(CourseExtendedQuery query)
 	{
 		// Arrange
 		var queries = new List<KeyValuePair<string, string?>>();
 		if (query.TopicId != null)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.TopicId), query.TopicId.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.TopicId), query.TopicId.ToString()));
 		}
 		if (query.PublisherUserId != null)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.PublisherUserId), query.PublisherUserId.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.PublisherUserId), query.PublisherUserId.ToString()));
 		}
 		if (!string.IsNullOrWhiteSpace(query.Title))
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.Title), query.Title.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.Title), query.Title.ToString()));
 		}
 		if (query.Page >= 0)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.Page), query.Page.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.Page), query.Page.ToString()));
 		}
 		if (query.PageSize >= 1)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.PageSize), query.PageSize.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.PageSize), query.PageSize.ToString()));
 		}
 		var queryString = QueryString.Create(queries);
 
@@ -87,12 +87,12 @@ public class CoursesControllerTests
 		new object[]
 		{
 			1,
-			new CoursePublisherQuery()
+			new CourseQuery()
 		},
 		new object[]
 		{
 			1,
-			new CoursePublisherQuery()
+			new CourseQuery()
 			{
 				Title = "Test",
 			}
@@ -100,7 +100,7 @@ public class CoursesControllerTests
 		new object[]
 		{
 			1,
-			new CoursePublisherQuery()
+			new CourseQuery()
 			{
 				Page = 1,
 				PageSize = 3,
@@ -109,21 +109,21 @@ public class CoursesControllerTests
 	};
 	[Test]
 	[TestCaseSource(nameof(GetAllByPublisherData))]
-	public async Task GetAllByPublisher_ReturnsOk(int publisherUserId, CoursePublisherQuery query)
+	public async Task GetAllByPublisher_ReturnsOk(int publisherUserId, CourseQuery query)
 	{
 		// Arrange
 		var queries = new List<KeyValuePair<string, string?>>();
 		if (!string.IsNullOrWhiteSpace(query.Title))
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.Title), query.Title.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.Title), query.Title.ToString()));
 		}
 		if (query.Page >= 0)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.Page), query.Page.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.Page), query.Page.ToString()));
 		}
 		if (query.PageSize >= 1)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.PageSize), query.PageSize.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.PageSize), query.PageSize.ToString()));
 		}
 		var queryString = QueryString.Create(queries);
 
@@ -141,29 +141,29 @@ public class CoursesControllerTests
 	}
 
 
-	public static readonly CoursePublisherQuery[] GetAllUnapprovedData = new[]
+	public static readonly CourseQuery[] GetAllUnapprovedData = new[]
 	{
-		new CoursePublisherQuery(),
-		new CoursePublisherQuery() { Title = "Test" },
-		new CoursePublisherQuery() { Page = 1, PageSize = 3 }
+		new CourseQuery(),
+		new CourseQuery() { Title = "Test" },
+		new CourseQuery() { Page = 1, PageSize = 3 }
 	};
 	[Test]
 	[TestCaseSource(nameof(GetAllUnapprovedData))]
-	public async Task GetAllUnapproved_ReturnsOk(CoursePublisherQuery query)
+	public async Task GetAllUnapproved_ReturnsOk(CourseQuery query)
 	{
 		// Arrange
 		var queries = new List<KeyValuePair<string, string?>>();
 		if (!string.IsNullOrWhiteSpace(query.Title))
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.Title), query.Title.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.Title), query.Title.ToString()));
 		}
 		if (query.Page >= 0)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.Page), query.Page.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.Page), query.Page.ToString()));
 		}
 		if (query.PageSize >= 1)
 		{
-			queries.Add(new KeyValuePair<string, string?>(nameof(CourseQuery.PageSize), query.PageSize.ToString()));
+			queries.Add(new KeyValuePair<string, string?>(nameof(CourseExtendedQuery.PageSize), query.PageSize.ToString()));
 		}
 		var queryString = QueryString.Create(queries);
 

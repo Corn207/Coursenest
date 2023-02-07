@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.Utilities.APIs;
 using Library.API.DTOs.Ratings;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,60 +25,76 @@ namespace Library.API.Controllers
 
 
 		// GET: /ratings
-		[HttpGet()]
-		public async Task<ActionResult<IEnumerable<RatingResult>>> GetAll(
+		[HttpGet]
+		public async Task<ActionResult<RatingResult[]>> GetAll(
 			[FromQuery] RatingQuery query)
 		{
 			var results = await _context.Ratings
-				.AsNoTracking()
 				.Where(x =>
 					(query.CourseId == null || query.CourseId == x.CourseId) &&
 					(query.UserId == null || query.UserId == x.UserId))
-				.Skip(query.Page * query.PageSize)
+				.OrderByDescending(x => x.Stars)
+				.Skip((query.PageNumber - 1) * query.PageSize)
 				.Take(query.PageSize)
 				.ProjectTo<RatingResult>(_mapper.ConfigurationProvider)
-				.ToListAsync();
+				.ToArrayAsync();
 
 			return results;
 		}
 
 		// POST: /ratings
-		// TODO Add RatingStat to Course
-		[HttpPost()]
-		public async Task<ActionResult<RatingResult>> Create(
-			[FromHeader] int userId,
-			CreateRating dto)
+		[HttpPost]
+		[Authorize]
+		public async Task<ActionResult> Create(
+			[FromBody] CreateRating body)
 		{
-			var rating = _mapper.Map<Rating>(dto);
+			var userId = GetUserId();
+
+			var course = await _context.Courses.FindAsync(body.CourseId);
+			if (course == null)
+				return NotFound("CourseId does not exist.");
+
+			var exists = await _context.Ratings
+				.AnyAsync(x => x.UserId == userId && x.CourseId == body.CourseId);
+			if (exists)
+				return Conflict("Already rated this course.");
+
+			var rating = _mapper.Map<Rating>(body);
 			rating.UserId = userId;
 
+			course.RatingAverage = (course.RatingTotal * course.RatingAverage + body.Stars) / (course.RatingTotal + 1);
+			course.RatingTotal++;
+
 			_context.Ratings.Add(rating);
-			try
-			{
-				await _context.SaveChangesAsync();
-			}
-			catch (DbUpdateException)
-			{
-				return Conflict("Rating existed.");
-			}
+			await _context.SaveChangesAsync();
 
-			var result = _mapper.Map<RatingResult>(rating);
-
-			return result;
+			return CreatedAtAction(
+				nameof(GetAll),
+				new RatingQuery() { CourseId = body.CourseId, UserId = userId },
+				null);
 		}
 
 		// DELETE: /ratings
-		[HttpDelete()]
+		[HttpDelete]
+		[Authorize]
 		public async Task<ActionResult> Delete(
-			[FromHeader] int userId,
 			int courseId)
 		{
+			var userId = GetUserId();
+
 			var result = await _context.Ratings
 				.Where(x => x.CourseId == courseId && x.UserId == userId)
 				.ExecuteDeleteAsync();
-			if (result == 0) return NotFound();
+			if (result == 0)
+				return NotFound("CourseId does not exist or User hasn't rated yet.");
 
 			return NoContent();
+		}
+
+
+		private int GetUserId()
+		{
+			return ClaimUtilities.GetUserId(User.Claims);
 		}
 	}
 }

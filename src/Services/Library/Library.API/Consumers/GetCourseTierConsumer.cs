@@ -32,10 +32,10 @@ public class GetCourseTierConsumer : IConsumer<GetCourseTier>
 				Message = $"Queried Courses does not exist.",
 				Objects = query
 			});
-
-			return;
 		}
-
-		await context.RespondAsync(result);
+		else
+		{
+			await context.RespondAsync(result);
+		}
 	}
 }

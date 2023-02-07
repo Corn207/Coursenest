@@ -1,5 +1,4 @@
-﻿using CommonLibrary.API.MessageBus.Responses;
-using AutoMapper;
+﻿using AutoMapper;
 using Library.API.DTOs;
 using Library.API.DTOs.Categories;
 using Library.API.DTOs.Courses;
@@ -7,6 +6,7 @@ using Library.API.DTOs.Lessons;
 using Library.API.DTOs.Ratings;
 using Library.API.DTOs.Units;
 using Library.API.Infrastructure.Entities;
+using static Library.API.DTOs.Units.CreateQuestion;
 
 namespace Library.API.MappingProfiles;
 
@@ -14,92 +14,136 @@ public class DefaultProfile : Profile
 {
 	public DefaultProfile()
 	{
-		// Category
+		#region Category
 		CreateMap<Category, CategoryResult>();
-
-		CreateMap<Subcategory, SubcategoryResult>();
+		CreateMap<Subcategory, CategoryResult.SubcategoryResult>();
 
 		CreateMap<Topic, TopicDetailedResult>()
-			.ForMember(des => des.SubcategoryContent, opt => opt.MapFrom(x => x.Subcategory.Content))
-			.ForMember(des => des.CategoryContent, opt => opt.MapFrom(x => x.Subcategory.Category.Content));
+			.ForMember(dst => dst.SubcategoryId, opt => opt.MapFrom(x => x.SubcategoryId))
+			.ForMember(dst => dst.SubcategoryContent, opt => opt.MapFrom(x => x.Subcategory.Content))
+			.ForMember(dst => dst.CategoryId, opt => opt.MapFrom(x => x.Subcategory.CategoryId))
+			.ForMember(dst => dst.CategoryContent, opt => opt.MapFrom(x => x.Subcategory.Category.Content));
 
 		CreateMap<Category, IdContentResult>()
-			.ForMember(des => des.Id, opt => opt.MapFrom(x => x.CategoryId));
+			.ForMember(dst => dst.Id, opt => opt.MapFrom(x => x.CategoryId));
 		CreateMap<Subcategory, IdContentResult>()
-			.ForMember(des => des.Id, opt => opt.MapFrom(x => x.SubcategoryId));
+			.ForMember(dst => dst.Id, opt => opt.MapFrom(x => x.SubcategoryId));
 		CreateMap<Topic, IdContentResult>()
-			.ForMember(des => des.Id, opt => opt.MapFrom(x => x.TopicId));
+			.ForMember(dst => dst.Id, opt => opt.MapFrom(x => x.TopicId)); 
+		#endregion
 
-		// Course
+
+		#region Course
 		CreateMap<CreateCourse, Course>()
-			.ForMember(des => des.IsApproved, opt => opt.MapFrom(_ => false))
-			.ForMember(des => des.Created, opt => opt.MapFrom(_ => DateTime.Now))
-			.ForMember(des => des.LastModified, opt => opt.MapFrom(_ => DateTime.Now));
+			.ForMember(dst => dst.IsApproved, opt => opt.MapFrom(_ => false))
+			.ForMember(dst => dst.Created, opt => opt.MapFrom(_ => DateTime.Now))
+			.ForMember(dst => dst.LastModified, opt => opt.MapFrom(_ => DateTime.Now))
+			.ForMember(dst => dst.RatingAverage, opt => opt.MapFrom(_ => 0))
+			.ForMember(dst => dst.RatingTotal, opt => opt.MapFrom(_ => 0));
 		CreateMap<UpdateCourse, Course>()
-			.ForMember(des => des.LastModified, opt => opt.MapFrom(_ => DateTime.Now))
+			.ForMember(dst => dst.LastModified, opt => opt.MapFrom(_ => DateTime.Now))
 			.ForAllMembers(options =>
 			{
-				options.Condition((source, destination, member) => member != null);
+				options.Condition((source, dsttination, member) => member != null);
 			});
 
 		CreateMap<Course, CourseResult>();
 		CreateMap<Course, CourseDetailedResult>();
 		CreateMap<CourseCover, ImageResult>()
 			.ForMember(
-				nameof(ImageResult.URI),
-				options => options.MapFrom(src => $"data:{src.MediaType};base64,{Convert.ToBase64String(src.Data)}"));
+				dst => dst.URI, opt => opt.MapFrom(
+				src => $"data:{src.MediaType};base64,{Convert.ToBase64String(src.Data)}"));
+		#endregion
 
-		// Rating
+
+		#region Rating
 		CreateMap<CreateRating, Rating>()
-			.ForMember(des => des.Created, opt => opt.MapFrom(_ => DateTime.Now));
+			.ForMember(dst => dst.Created, opt => opt.MapFrom(_ => DateTime.Now));
 
 		CreateMap<Rating, RatingResult>();
+		#endregion
 
-		// Lesson
+
+		#region Lesson
 		CreateMap<CreateLesson, Lesson>();
 		CreateMap<UpdateLesson, Lesson>()
 			.ForAllMembers(options =>
 			{
-				options.Condition((source, destination, member) => member != null);
+				options.Condition((source, dsttination, member) => member != null);
 			});
 
 		CreateMap<Lesson, LessonResult>();
+		#endregion
 
-		// Unit
-		CreateMap<Unit, UnitResult>();
 
-		// Material
+		#region Unit
+		CreateMap<Unit, UnitResult>()
+			.Include<Material, UnitResult>()
+			.ForMember(
+				dst => dst.IsExam, opt => opt.MapFrom(
+				_ => true));
+
+		CreateMap<Material, UnitResult>()
+			.ForMember(
+				dst => dst.IsExam, opt => opt.MapFrom(
+				_ => false));
+		#endregion
+
+
+		#region Material
 		CreateMap<CreateMaterial, Material>();
 		CreateMap<UpdateMaterial, Material>()
 			.ForAllMembers(options =>
 			{
-				options.Condition((source, destination, member) => member != null);
+				options.Condition((source, dsttination, member) => member != null);
 			});
 
-		CreateMap<Material, MaterialResult>();
+		CreateMap<Material, MaterialResult>()
+			.ForMember(
+				dst => dst.CourseId, opt => opt.MapFrom(
+				src => src.Lesson.CourseId)); 
+		#endregion
 
-		// Exam
+
 		CreateMap<CreateExam, Exam>();
 		CreateMap<UpdateExam, Exam>()
 			.ForAllMembers(options =>
 			{
-				options.Condition((source, destination, member) => member != null);
+				options.Condition((source, dsttination, member) => member != null);
 			});
 
-		CreateMap<Exam, ExamResult>();
+		CreateMap<Exam, ExamResult>()
+			.ForMember(
+				dst => dst.CourseId, opt => opt.MapFrom(
+				src => src.Lesson.CourseId));
+
+		CreateMap<Exam, CommonLibrary.API.MessageBus.Responses.ExamResult>()
+			.ForMember(
+				dst => dst.LessonTitle, opt => opt.MapFrom(
+				src => src.Lesson.Title))
+			.ForMember(
+				dst => dst.CourseTitle, opt => opt.MapFrom(
+				src => src.Lesson.Course.Title))
+			.ForMember(
+				dst => dst.TimeLimit, opt => opt.MapFrom(
+				src => src.RequiredTime))
+			.ForMember(
+				dst => dst.TopicId, opt => opt.MapFrom(
+				src => src.Lesson.Course.TopicId));
 
 		// Question
 		CreateMap<CreateQuestion, Question>();
+		CreateMap<CreateChoice, Choice>();
+
 		CreateMap<UpdateQuestion, Question>()
 			.ForAllMembers(options =>
 			{
-				options.Condition((source, destination, member) => member != null);
+				options.Condition((source, dsttination, member) => member != null);
 			});
 
 		CreateMap<Question, QuestionResult>();
 
 		// Choice
-		CreateMap<ChoiceResult, Choice>();
 
 		CreateMap<Choice, ChoiceResult>();
 	}
