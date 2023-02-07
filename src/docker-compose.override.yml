@@ -12,11 +12,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=true
+      - Database__EnsureCreated=false
       - MassTransit__Host=messagebus
       - Jwt__SecretKey=1234567890123456
-      - Jwt__AccessTokenLifetime=10
-      - Jwt__RefreshTokenLifetime=60
+      - Jwt__AccessTokenLifetime=60
+      - Jwt__RefreshTokenLifetime=180
     ports:
       - "21001:80"
 
@@ -24,7 +24,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=IdentityDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=true
+      - Database__EnsureCreated=false
       - MassTransit__Host=messagebus
     ports:
       - "21002:80"
@@ -33,7 +33,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=true
+      - Database__EnsureCreated=false
       - MassTransit__Host=messagebus
     ports:
       - "21003:80"

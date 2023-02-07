@@ -60,7 +60,7 @@ namespace Identity.API.Controllers
 
 			var request = new GetCredentials()
 			{
-				Ids = results.Select(x => x.UserId)
+				Ids = results.Select(x => x.UserId).ToArray()
 			};
 			var response = await _getCredentialsClient
 				.GetResponse<CredentialsResult>(request);

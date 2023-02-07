@@ -5,6 +5,6 @@
 public record CreateExam
 {
 	public string Title { get; set; }
-	public TimeSpan RequiredTime { get; set; }
+	public int RequiredTimeMinutes { get; set; }
 	public int LessonId { get; set; }
 }

@@ -317,16 +317,16 @@ namespace Library.API.Controllers
 		}
 
 
-		// POST: /units/5/questions
-		[HttpPost("{examUnitId}/questions")]
+		// POST: /units/questions
+		[HttpPost("questions")]
 		[Authorize(Roles = nameof(RoleType.Publisher))]
 		public async Task<ActionResult> CreateQuestion(
-			int examUnitId,
 			[FromBody] CreateQuestion body)
 		{
 			var userId = GetUserId();
 
 			var exam = await _context.Exams
+				.Include(x => x.Questions)
 				.FirstOrDefaultAsync(x =>
 					x.UnitId == body.ExamUnitId &&
 					x.Lesson.Course.PublisherUserId == userId);
@@ -338,15 +338,14 @@ namespace Library.API.Controllers
 			exam.Questions.Add(question);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetExam), new { question.ExamUnitId }, null);
+			return CreatedAtAction(nameof(GetExam), new { exam.UnitId }, null);
 		}
 
 
-		// PUT: /units/5/questions/5
-		[HttpPut("{examUnitId}/questions/{questionId}")]
+		// PUT: /units/questions/5
+		[HttpPut("questions/{questionId}")]
 		[Authorize(Roles = nameof(RoleType.Publisher))]
 		public async Task<ActionResult<QuestionResult>> UpdateQuestion(
-			int examUnitId,
 			int questionId,
 			[FromBody] UpdateQuestion body)
 		{
@@ -356,7 +355,7 @@ namespace Library.API.Controllers
 				.Include(x => x.Choices)
 				.FirstOrDefaultAsync(x =>
 					x.QuestionId == questionId &&
-					x.ExamUnitId == examUnitId &&
+					x.ExamUnitId == body.ExamUnitId &&
 					x.Exam.Lesson.Course.PublisherUserId == userId);
 			if (question == null)
 				return NotFound("Exam with UnitId or QuestionId does not exist or you're not authorized.");
@@ -369,10 +368,9 @@ namespace Library.API.Controllers
 		}
 
 
-		// DELETE: /units/5/questions/5
-		[HttpDelete("{examUnitId}/questions/{questionId}")]
+		// DELETE: /units/questions/5
+		[HttpDelete("questions/{questionId}")]
 		public async Task<ActionResult> DeleteQuestion(
-			int examUnitId,
 			int questionId)
 		{
 			var userId = GetUserId();
@@ -380,11 +378,10 @@ namespace Library.API.Controllers
 			var result = await _context.Questions
 				.Where(x =>
 					x.QuestionId == questionId &&
-					x.Exam.UnitId == examUnitId &&
 					x.Exam.Lesson.Course.PublisherUserId == userId)
 				.ExecuteDeleteAsync();
 			if (result == 0)
-				return NotFound("Exam with UnitId or QuestionId does not exist or you're not authorized.");
+				return NotFound("QuestionId does not exist or you're not authorized.");
 
 			return NoContent();
 		}
