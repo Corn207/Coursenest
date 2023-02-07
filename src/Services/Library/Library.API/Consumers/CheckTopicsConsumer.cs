@@ -23,7 +23,7 @@ public class CheckTopicsConsumer : IConsumer<CheckTopics>
 
 		var existing = await _context.Topics
 			.Select(x => x.TopicId)
-			.Intersect(queries)
+			.Where(x => queries.Contains(x))
 			.ToArrayAsync();
 
 		var missing = queries

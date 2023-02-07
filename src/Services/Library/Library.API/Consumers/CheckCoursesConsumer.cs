@@ -33,7 +33,7 @@ public class CheckCoursesConsumer : IConsumer<CheckCourses>
 				Id = x.CourseId,
 				IsApproved = x.IsApproved
 			})
-			.IntersectBy(idQueries, x => x.Id)
+			.Where(x => idQueries.Contains(x.Id))
 			.ToArrayAsync();
 
 		var missing = queries
