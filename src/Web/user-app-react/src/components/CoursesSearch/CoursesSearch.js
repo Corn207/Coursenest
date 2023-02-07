@@ -24,7 +24,7 @@ function CoursesSearch({ handleTopicsId }) {
     const [dropDown, setDropDown] = useState(false);
     const [chosenArr, setChosenArr] = useState([]);
 
-    const debouncedValue = useDebounce(searchValue, 500);
+    const debouncedValue = useDebounce(searchValue, 1000);
 
     const inputRef = useRef();
 

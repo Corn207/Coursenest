@@ -39,13 +39,14 @@ function Forgot() {
     const onSubmit = async () => {
         // e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:21001/authenticate/forgot-password', {
+            const res = await axios.put('http://localhost:21001/authenticate/forgot-password', {
                 userName,
                 email,
             });
             // axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
             // window.location.href = '/';
-            console.log(res.data.accessToken);
+            console.log(res.data);
+            setNewPassword(res.data);
         } catch (err) {
             // setError(err.response.data.message);
             setError('Username or email incorrect');
