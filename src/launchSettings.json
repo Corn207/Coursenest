@@ -5,12 +5,12 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "authentication.api": "StartDebugging",
-        "gatewayapi": "StartDebugging",
+        "gatewayapi": "DoNotStart",
         "database": "StartWithoutDebugging",
         "messagebus": "StartWithoutDebugging",
         "identity.api": "StartDebugging",
         "library.api": "StartDebugging",
-        "payment.api": "StartDebugging",
+        "payment.api": "DoNotStart",
         "userdata.api": "DoNotStart"
       }
     },

@@ -56,13 +56,9 @@ public class AuthenticateController : ControllerBase
 		if (exists)
 			return Conflict("Username existed.");
 
-		var checkUsersQueries = body.InterestedTopicIds.Select(x => new CheckUsers.Query()
+		var checkTopicsRequest = new CheckTopics()
 		{
-			Id = x
-		});
-		var checkTopicsRequest = new CheckUsers()
-		{
-			Queries = checkUsersQueries
+			Ids = body.InterestedTopicIds
 		};
 		var checkTopicsResponse = await _checkTopicsClient
 			.GetResponse<Existed, NotFound>(checkTopicsRequest);

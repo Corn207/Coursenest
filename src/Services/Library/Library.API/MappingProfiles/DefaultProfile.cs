@@ -101,10 +101,11 @@ public class DefaultProfile : Profile
 		CreateMap<Material, MaterialResult>()
 			.ForMember(
 				dst => dst.CourseId, opt => opt.MapFrom(
-				src => src.Lesson.CourseId)); 
+				src => src.Lesson.CourseId));
 		#endregion
 
 
+		#region Exam
 		CreateMap<CreateExam, Exam>();
 		CreateMap<UpdateExam, Exam>()
 			.ForAllMembers(options =>
@@ -130,8 +131,10 @@ public class DefaultProfile : Profile
 			.ForMember(
 				dst => dst.TopicId, opt => opt.MapFrom(
 				src => src.Lesson.Course.TopicId));
+		#endregion
 
-		// Question
+
+		#region Question && Choice
 		CreateMap<CreateQuestion, Question>();
 		CreateMap<CreateChoice, Choice>();
 
@@ -142,9 +145,7 @@ public class DefaultProfile : Profile
 			});
 
 		CreateMap<Question, QuestionResult>();
-
-		// Choice
-
-		CreateMap<Choice, ChoiceResult>();
+		CreateMap<Choice, ChoiceResult>(); 
+		#endregion
 	}
 }

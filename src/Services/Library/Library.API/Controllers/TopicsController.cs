@@ -27,10 +27,12 @@ namespace Library.API.Controllers
 		// GET: /topics
 		[HttpGet]
 		public async Task<ActionResult<List<IdContentResult>>> GetAll(
-			[FromQuery] int subcategoryId)
+			[FromQuery] TopicQuery query)
 		{
 			var results = await _context.Topics
-				.Where(x => x.SubcategoryId == subcategoryId)
+				.Where(x =>
+					(query.SubcategoryId == null || x.SubcategoryId == query.SubcategoryId) &&
+					(string.IsNullOrWhiteSpace(query.Content) || x.Content == query.Content))
 				.ProjectTo<IdContentResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 

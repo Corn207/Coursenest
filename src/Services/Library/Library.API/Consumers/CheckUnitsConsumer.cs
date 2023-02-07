@@ -34,7 +34,7 @@ public class CheckUnitsConsumer : IConsumer<CheckUnits>
 				Id = x.UnitId,
 				IsExam = x.GetType() == typeof(Exam)
 			})
-			.IntersectBy(idQueries, x => x.Id)
+			.Where(x => idQueries.Contains(x.Id))
 			.ToArrayAsync();
 
 		var missing = queries
