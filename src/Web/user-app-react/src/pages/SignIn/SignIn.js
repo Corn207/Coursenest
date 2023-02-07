@@ -27,6 +27,7 @@ function SignIn() {
 
     const {
         register,
+        handleSubmit,
         formState: { errors },
     } = useForm({
         defaultValues: {
@@ -34,18 +35,18 @@ function SignIn() {
         },
     });
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    const onSubmit = async () => {
+        // e.preventDefault();
         try {
             const res = await axios.post('http://localhost:21001/authenticate/login', {
-                userName,
-                password,
+                username: userName,
+                password: password,
             });
             axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
             window.location.href = '/';
             console.log(res.data.accessToken);
         } catch (err) {
-            // setError(err.response.data.message);
+            // setError(err.data.message);
             setError('Username or password incorrect');
         }
     };
@@ -90,7 +91,7 @@ function SignIn() {
                     </p>
                 </div>
 
-                <form className={cx('loginForm')} onSubmit={onSubmit}>
+                <form className={cx('loginForm')} onSubmit={handleSubmit(onSubmit)}>
                     <div className={cx('inputContainer')}>
                         <label className={cx('inputTitle')}>Username</label>
                         <span className={cx('form-message')}>{errors.userName?.message}</span>

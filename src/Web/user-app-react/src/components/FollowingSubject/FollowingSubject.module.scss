@@ -1,9 +1,9 @@
 .wrapper {
     background-color: rgba(255, 255, 255, 0.5);
-    width: 480px;
+    width: calc(100% - 32px);
     border-radius: 8px;
     margin-left: 16px;
-    margin-right: 16px;
+    // margin-right: 32px;
     margin-bottom: 20px;
     padding-top: 13px;
 

@@ -3,13 +3,12 @@
     background-image: url('../../assets/images/forgot-background-2.png');
     background-color: #c677fc;
     width: 100vw;
-    height: 100vh;
 
     .forgot-form-container {
         display: flex;
         flex-direction: column;
         margin: 0 auto;
-        margin-top: 80px;
+        margin-top: 60px;
 
         background-color: white;
         border-top-left-radius: 40px;
@@ -44,6 +43,7 @@
                 .email-fill {
                     display: flex;
                     flex-direction: column;
+                    margin-bottom: 16px;
 
                     label {
                         color: #8c8c8c;
@@ -61,11 +61,26 @@
                     .registerInput {
                         padding: 14px;
                         font-size: 14px;
-                        font-weight: 500;
+                        font-weight: 700;
                         border: 2px solid #8c8c8c;
                         border-radius: 6px;
-                        opacity: 0.7;
+                        opacity: 0.8;
                     }
+                }
+
+                .passAnnoucement {
+                    color: rgba($color: #59e765, $alpha: 1);
+                    align-self: center;
+                    margin-top: 4px;
+                    margin-bottom: 4px;
+                    font-size: 24px;
+                }
+
+                .loginError {
+                    color: red;
+                    align-self: center;
+                    margin-top: 4px;
+                    margin-bottom: 4px;
                 }
 
                 .confirmButton {
@@ -75,7 +90,7 @@
                     border: none;
                     border-radius: 10px;
                     padding: 10px;
-                    margin-top: 28px;
+                    margin-top: 12px;
                     font-size: 20px;
                     font-weight: 500;
                     color: white;
@@ -92,6 +107,7 @@
                 flex-direction: row;
                 color: #8c8c8c;
                 font-size: 20px;
+                margin-top: 8px;
 
                 .signInUp-btn {
                     margin-left: 8px;

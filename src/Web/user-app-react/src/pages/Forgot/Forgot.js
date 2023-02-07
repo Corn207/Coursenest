@@ -1,16 +1,23 @@
 import classNames from 'classnames/bind';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+import { useState } from 'react';
 
 import { adImages } from '~/mockupData/AdsData/AdsData';
 import ImageSliders from '~/components/ImageSliders';
 import styles from './Forgot.module.scss';
+import axios from 'axios';
 
 const cx = classNames.bind(styles);
 
 function Forgot() {
+    const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+
     const {
         register,
         handleSubmit,
@@ -22,21 +29,32 @@ function Forgot() {
         },
     });
 
-    const notify = () => {
-        toast.success('Email has been sent successfully.', {
-            position: toast.POSITION.TOP_CENTER,
-            className: 'toast-success',
-        });
-    };
+    // const notify = () => {
+    //     toast.success('Email has been sent successfully.', {
+    //         position: toast.POSITION.TOP_CENTER,
+    //         className: 'toast-success',
+    //     });
+    // };
 
-    const onSubmit = (data) => {
-        console.log(data);
-        notify();
+    const onSubmit = async () => {
+        // e.preventDefault();
+        try {
+            const res = await axios.post('http://localhost:21001/authenticate/forgot-password', {
+                userName,
+                email,
+            });
+            // axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
+            // window.location.href = '/';
+            console.log(res.data.accessToken);
+        } catch (err) {
+            // setError(err.response.data.message);
+            setError('Username or email incorrect');
+        }
     };
 
     return (
         <div className={cx('wrapper')}>
-            <ToastContainer />
+            {/* <ToastContainer /> */}
             <div className={cx('forgot-form-container')}>
                 <div className={cx('forgot-form')}>
                     <div className={cx('form-header')}>
@@ -45,7 +63,21 @@ function Forgot() {
                     </div>
                     <form className={cx('email-fill-form')} onSubmit={handleSubmit(onSubmit)}>
                         <div className={cx('email-fill')}>
-                            <label>Enter your email address and we'll send you a link to reset your password.</label>
+                            <label className={cx('inputTitle')}>Username</label>
+                            <span className={cx('form-message')}>{errors.userName?.message}</span>
+                            <input
+                                className={cx('registerInput')}
+                                {...register('userName', {
+                                    required: 'This input is required',
+                                })}
+                                value={userName}
+                                onChange={(e) => setUserName(e.target.value)}
+                                style={{ border: errors.userName?.message ? '1px solid red' : '' }}
+                                placeholder="Enter your username..."
+                            />
+                        </div>
+                        <div className={cx('email-fill')}>
+                            <label>Email</label>
                             <span className={cx('form-message')}>{errors.email?.message}</span>
                             <input
                                 type="email"
@@ -58,10 +90,14 @@ function Forgot() {
                                         message: 'Invalid email!',
                                     },
                                 })}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 style={{ border: errors.email?.message ? '1px solid red' : '' }}
                                 placeholder="Enter your email..."
                             />
                         </div>
+                        {newPassword && <p className={cx('passAnnoucement')}> Password mới là: {newPassword}</p>}
+                        {error && <p className={cx('loginError')}>{error}</p>}
                         <button className={cx('confirmButton')}>Confirm</button>
                     </form>
                     <div className={cx('member-yet')}>
