@@ -20,7 +20,7 @@ function SignUp() {
     const [interestedTopicId, setInterestedTopicId] = useState([]);
     const [error, setError] = useState(false);
 
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(1);
 
     const {
         register,

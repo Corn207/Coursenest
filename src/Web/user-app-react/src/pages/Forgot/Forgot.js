@@ -21,7 +21,6 @@ function Forgot() {
     const {
         register,
         handleSubmit,
-        // watch,
         formState: { errors },
     } = useForm({
         defaultValues: {
@@ -29,28 +28,22 @@ function Forgot() {
         },
     });
 
-    // const notify = () => {
-    //     toast.success('Email has been sent successfully.', {
-    //         position: toast.POSITION.TOP_CENTER,
-    //         className: 'toast-success',
-    //     });
-    // };
-
     const onSubmit = async () => {
-        // e.preventDefault();
-        try {
-            const res = await axios.put('http://localhost:21001/authenticate/forgot-password', {
-                userName,
-                email,
+        setNewPassword('');
+        setError('');
+        await axios
+            .put('http://corn207.loseyourip.com:21001/authenticate/forgot-password', {
+                username: userName,
+                email: email,
+            })
+            .then((response) => {
+                console.log(response.data);
+                setNewPassword('Password mới là: ' + response.data);
+            })
+            .catch((err) => {
+                // setError(err.response.data.message);
+                setError('Username or email incorrect');
             });
-            // axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
-            // window.location.href = '/';
-            console.log(res.data);
-            setNewPassword(res.data);
-        } catch (err) {
-            // setError(err.response.data.message);
-            setError('Username or email incorrect');
-        }
     };
 
     return (
@@ -97,7 +90,7 @@ function Forgot() {
                                 placeholder="Enter your email..."
                             />
                         </div>
-                        {newPassword && <p className={cx('passAnnoucement')}> Password mới là: {newPassword}</p>}
+                        {newPassword && <p className={cx('passAnnoucement')}> {newPassword}</p>}
                         {error && <p className={cx('loginError')}>{error}</p>}
                         <button className={cx('confirmButton')}>Confirm</button>
                     </form>
