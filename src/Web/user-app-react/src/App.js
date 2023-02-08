@@ -16,6 +16,7 @@ import Pending from '~/pages/Instructor/Pending';
 import History from '~/pages/Instructor/History';
 import Publisher from '~/pages/Publisher/Publisher';
 import Courses from './pages/Publisher/Courses';
+import AddCourses from './pages/Publisher/AddCourses';
 
 function App() {
     return (
@@ -39,6 +40,7 @@ function App() {
                 <Route path="publisher" element={<Publisher />}>
                     <Route index element={<Courses />}></Route>
                     <Route path="courses" element={<Courses />}></Route>
+                    <Route path="add-course" element={<AddCourses />}></Route>
                 </Route>
                 <Route path="*" element={<p>Path not resolved</p>} />
             </Routes>

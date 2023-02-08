@@ -6,12 +6,7 @@ import styles from './Courses.module.scss';
 const cx = classNames.bind(styles);
 
 function Courses() {
-    return (
-        <div className={cx('wrapper')}>
-            <PublisherSideBar />
-            Dashboard
-        </div>
-    );
+    return <div className={cx('wrapper')}>Dashboard</div>;
 }
 
 export default Courses;

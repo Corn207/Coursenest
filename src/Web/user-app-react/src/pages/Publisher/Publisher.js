@@ -1,6 +1,8 @@
 import classNames from 'classnames/bind';
 import { Outlet } from 'react-router-dom';
+import Footer from '~/components/Footer/Footer';
 import Header from '~/components/Header/Header';
+import PublisherSideBar from '~/components/PublisherPage/PublisherSideBar';
 
 import styles from './Publisher.module.scss';
 
@@ -11,6 +13,7 @@ function Publisher() {
         <div className={cx('wrapper')}>
             <Header />
             <div className={cx('bodyContainer')}>
+                <PublisherSideBar />
                 <Outlet />
             </div>
         </div>

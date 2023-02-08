@@ -12,6 +12,7 @@ import { Wrapper as PopperWrapper } from '~/components/Popper';
 import coursesApi from '~/api/coursesApi';
 import { useDebounce } from '~/hooks';
 import ChosenTopicsList from '../ChosenTopicsList';
+import axios from 'axios';
 
 const cx = classNames.bind(styles);
 
@@ -46,12 +47,16 @@ function TopicsSearch({ handleTopicsId }) {
             return;
         }
 
-        const resultsArray = allCourses.filter(
-            (post) =>
-                post.title.includes(debouncedValue.toLowerCase()) || post.body.includes(debouncedValue.toLowerCase()),
-        );
+        // const resultsArray = allCourses.filter(
+        //     (post) =>
+        //         post.title.includes(debouncedValue.toLowerCase()) || post.body.includes(debouncedValue.toLowerCase()),
+        // );
 
-        setSearchResult(resultsArray);
+        // const resultArr = async () => {
+        //     await axios.
+        // }
+
+        // setSearchResult(resultsArray);
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedValue]);
