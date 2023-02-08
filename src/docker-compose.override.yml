@@ -48,6 +48,8 @@ services:
   userdata.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Database__ConnectionString=Server=database;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
+      - Database__EnsureCreated=false
       - MassTransit__Host=messagebus
     ports:
       - "21005:80"

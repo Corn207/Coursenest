@@ -1,39 +1,46 @@
 ﻿using CommonLibrary.API.MessageBus.Commands;
 using CommonLibrary.API.MessageBus.Responses;
+using CommonLibrary.API.Models;
+using CommonLibrary.API.Utilities.APIs;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payment.API.DTOs;
 using System.Globalization;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Payment.API.Controllers;
+
 [Route("[controller]")]
 [ApiController]
 public class PaymentController : ControllerBase
 {
-	private readonly IRequestClient<ExtendRole> _setRoleClient;
+	private readonly IRequestClient<ExtendRole> _extendRoleClient;
 
-	public PaymentController(
-		IRequestClient<ExtendRole> setRoleClient)
+	public PaymentController(IRequestClient<ExtendRole> extendRoleClient)
 	{
-		_setRoleClient = setRoleClient;
+		_extendRoleClient = extendRoleClient;
 	}
 
 	// POST: /payment
 	[HttpPost]
+	[Authorize]
 	public async Task<ActionResult> Pay(
-		[FromHeader] int userId,
 		[FromBody] Pay body)
 	{
+		if (body.Role == RoleType.Admin)
+		{
+			return BadRequest();
+		}
+
+		var userId = ClaimUtilities.GetUserId(User.Claims);
+
 		var cardExpiry = DateTime.ParseExact(
 			$"{body.ExpiryDateMonth}/{body.ExpiryDateYear}",
 			"MM/yy",
 			CultureInfo.InvariantCulture);
 		if (cardExpiry < DateTime.Now)
-		{
 			return BadRequest("Card expired.");
-		}
 
 		var request = new ExtendRole()
 		{
@@ -41,16 +48,14 @@ public class PaymentController : ControllerBase
 			Type = body.Role,
 			ExtendedDays = body.Months * 30
 		};
-		var response = await _setRoleClient.GetResponse<Succeeded, NotFound>(request);
+		var response = await _extendRoleClient
+			.GetResponse<Succeeded, NotFound>(request);
 
-		if (response.Is(out Response<Succeeded> _))
+		if (response.Is(out Response<NotFound>? notFoundResponse))
 		{
-			return Ok();
-		}
-		else
-		{
-			response.Is(out Response<NotFound>? notFoundResponse);
 			return NotFound(notFoundResponse!.Message.Message);
 		}
+
+		return Ok();
 	}
 }
