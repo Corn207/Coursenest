@@ -1,11 +1,11 @@
 version: '3.4'
 
 services:
-  gatewayapi:
-    environment:
-      - Jwt__Key=Yh2k7QSu4l8CZg5p
-    ports:
-      - "21000:80"
+  #gatewayapi:
+  #  environment:
+  #    - Jwt__Key=Yh2k7QSu4l8CZg5p
+  #  ports:
+  #    - "21000:80"
 
   authentication.api:
     environment:
