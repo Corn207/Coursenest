@@ -1,13 +1,9 @@
+using CommonLibrary.API.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddMinimalDefaultServices(builder.Configuration);
-
-builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddDefaultServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -19,6 +15,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

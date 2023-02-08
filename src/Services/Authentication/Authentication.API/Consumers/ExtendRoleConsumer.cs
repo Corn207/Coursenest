@@ -42,7 +42,8 @@ public class ExtendRoleConsumer : IConsumer<ExtendRole>
 		}
 		else
 		{
-			role.Expiry = role.Expiry.AddDays(context.Message.ExtendedDays);
+			var baseExpiry = role.Expiry < DateTime.Now ? DateTime.Now : role.Expiry;
+			role.Expiry = baseExpiry.AddDays(context.Message.ExtendedDays);
 			_context.Roles.Update(role);
 		}
 

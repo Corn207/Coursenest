@@ -10,8 +10,8 @@
         "messagebus": "StartWithoutDebugging",
         "identity.api": "StartDebugging",
         "library.api": "StartDebugging",
-        "payment.api": "DoNotStart",
-        "userdata.api": "DoNotStart"
+        "payment.api": "StartDebugging",
+        "userdata.api": "StartDebugging"
       }
     },
     "Authentication.API": {
@@ -43,6 +43,20 @@
         "gatewayapi": "DoNotStart",
         "identity.api": "StartDebugging",
         "library.api": "StartDebugging",
+        "messagebus": "StartWithoutDebugging",
+        "payment.api": "DoNotStart",
+        "userdata.api": "DoNotStart"
+      }
+    },
+    "Common Services": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "authentication.api": "DoNotStart",
+        "database": "StartWithoutDebugging",
+        "gatewayapi": "DoNotStart",
+        "identity.api": "DoNotStart",
+        "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging",
         "payment.api": "DoNotStart",
         "userdata.api": "DoNotStart"

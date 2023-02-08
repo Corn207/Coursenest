@@ -60,7 +60,7 @@ namespace Identity.API.Controllers
 
 			var request = new GetCredentials()
 			{
-				Ids = results.Select(x => x.UserId)
+				Ids = results.Select(x => x.UserId).ToArray()
 			};
 			var response = await _getCredentialsClient
 				.GetResponse<CredentialsResult>(request);
@@ -399,7 +399,7 @@ namespace Identity.API.Controllers
 		}
 
 
-		public int GetUserId()
+		private int GetUserId()
 		{
 			return ClaimUtilities.GetUserId(User.Claims);
 		}

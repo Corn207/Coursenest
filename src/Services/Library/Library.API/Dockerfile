@@ -7,7 +7,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["Services/Library/Library.API/Library.API.csproj", "Services/Library/Library.API/"]
-COPY ["Services/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary.API/"]
+COPY ["Services/CommonLibrary/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary/CommonLibrary.API/"]
 RUN dotnet restore "Services/Library/Library.API/Library.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Library/Library.API"

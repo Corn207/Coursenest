@@ -91,7 +91,10 @@ public class DefaultProfile : Profile
 
 
 		#region Material
-		CreateMap<CreateMaterial, Material>();
+		CreateMap<CreateMaterial, Material>()
+			.ForMember(
+				dst => dst.RequiredTime, opt => opt.MapFrom(
+				src => TimeSpan.FromMinutes(src.RequiredTimeMinutes)));
 		CreateMap<UpdateMaterial, Material>()
 			.ForAllMembers(options =>
 			{
@@ -106,7 +109,10 @@ public class DefaultProfile : Profile
 
 
 		#region Exam
-		CreateMap<CreateExam, Exam>();
+		CreateMap<CreateExam, Exam>()
+			.ForMember(
+				dst => dst.RequiredTime, opt => opt.MapFrom(
+				src => TimeSpan.FromMinutes(src.RequiredTimeMinutes)));
 		CreateMap<UpdateExam, Exam>()
 			.ForAllMembers(options =>
 			{

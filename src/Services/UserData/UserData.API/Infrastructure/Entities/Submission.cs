@@ -21,6 +21,6 @@ public class Submission
 	public int EnrollmentId { get; set; }
 	public Enrollment Enrollment { get; set; }
 	public List<Question> Questions { get; set; }
-	public List<Criterion> Criteria { get; set; }
+	public List<Review> Reviews { get; set; }
 	public List<Comment> Comments { get; set; }
 }

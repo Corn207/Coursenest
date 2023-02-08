@@ -14,7 +14,6 @@ public class DataContext : DbContext
 	public DbSet<Submission> Submissions { get; set; }
 	public DbSet<Question> Questions { get; set; }
 	public DbSet<Choice> Choices { get; set; }
-	public DbSet<Criterion> Criteria { get; set; }
-	public DbSet<Checkpoint> Checkpoints { get; set; }
+	public DbSet<Review> Reviews { get; set; }
 	public DbSet<Comment> Comments { get; set; }
 }

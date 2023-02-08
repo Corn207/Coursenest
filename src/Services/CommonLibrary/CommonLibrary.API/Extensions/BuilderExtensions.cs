@@ -175,14 +175,4 @@ public static class BuilderExtensions
 
 		return services;
 	}
-
-
-	public static IApplicationBuilder DatabaseSetup(this IApplicationBuilder app)
-	{
-		using var scope = app.ApplicationServices.CreateScope();
-		var context = scope.ServiceProvider.GetService<DbContext>();
-		context?.Database.EnsureCreated();
-
-		return app;
-	}
 }
