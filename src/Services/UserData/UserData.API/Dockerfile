@@ -7,7 +7,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["Services/UserData/UserData.API/UserData.API.csproj", "Services/UserData/UserData.API/"]
-COPY ["Services/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary.API/"]
+COPY ["Services/CommonLibrary/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary/CommonLibrary.API/"]
 RUN dotnet restore "Services/UserData/UserData.API/UserData.API.csproj"
 COPY . .
 WORKDIR "/src/Services/UserData/UserData.API"
