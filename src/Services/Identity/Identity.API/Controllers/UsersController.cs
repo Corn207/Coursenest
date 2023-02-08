@@ -399,7 +399,7 @@ namespace Identity.API.Controllers
 		}
 
 
-		public int GetUserId()
+		private int GetUserId()
 		{
 			return ClaimUtilities.GetUserId(User.Claims);
 		}
