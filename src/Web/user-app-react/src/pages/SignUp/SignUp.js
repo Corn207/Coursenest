@@ -7,7 +7,7 @@ import classNames from 'classnames/bind';
 
 import ReviewList from '~/components/ReviewList';
 import styles from './SignUp.module.scss';
-import CoursesSearch from '~/components/CoursesSearch';
+import TopicsSearch from '~/components/TopicsSearch';
 import axios from 'axios';
 
 const cx = classNames.bind(styles);
@@ -257,7 +257,7 @@ function SignUp() {
 
                 {page === 1 && (
                     <div className="signUpSecondPage">
-                        <CoursesSearch handleTopicsId={handleGetTopics} />
+                        <TopicsSearch handleTopicsId={handleGetTopics} />
                         <div className={cx('buttonsDiv')}>
                             <button className={cx('previousPageButton')} onClick={handleClickPreviousPage}>
                                 <FontAwesomeIcon className={cx('leftArrow')} icon={faArrowLeft} />

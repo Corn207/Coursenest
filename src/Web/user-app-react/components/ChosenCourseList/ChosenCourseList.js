@@ -1,13 +1,13 @@
 import { React } from 'react';
 import classNames from 'classnames/bind';
 
-import styles from './ChosenCourseList.module.scss';
+import styles from './ChosenTopicsList.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
 
-function ChosenCourseList({ courses, onChose }) {
+function ChosenTopicsList({ courses, onChose }) {
     const handleRemove = (id) => {
         onChose(id);
     };
@@ -26,4 +26,4 @@ function ChosenCourseList({ courses, onChose }) {
     );
 }
 
-export default ChosenCourseList;
+export default ChosenTopicsList;

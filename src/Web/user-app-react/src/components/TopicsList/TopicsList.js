@@ -1,11 +1,11 @@
 import { React } from 'react';
 import classNames from 'classnames/bind';
 
-import styles from './CoursesList.module.scss';
+import styles from './TopicsList.module.scss';
 
 const cx = classNames.bind(styles);
 
-function CoursesList({ courses, children, onChose }) {
+function TopicsList({ courses, children, onChose }) {
     const handleItemClick = (id) => {
         onChose(id);
     };
@@ -22,4 +22,4 @@ function CoursesList({ courses, children, onChose }) {
     );
 }
 
-export default CoursesList;
+export default TopicsList;

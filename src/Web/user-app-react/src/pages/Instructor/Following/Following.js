@@ -8,7 +8,7 @@ import Image from '~/components/Image';
 import images from '~/assets/images';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import CoursesList from '~/components/CoursesList';
+import TopicsList from '~/components/TopicsList';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
@@ -87,9 +87,9 @@ function Following() {
 
     useEffect(() => {
         // const fetchCourses = async () => {
-        //      const coursesList = await coursesApi.getAll();
-        //     setAllCourses(coursesList);
-        //     setSearchResult(coursesList);
+        //      const TopicsList = await coursesApi.getAll();
+        //     setAllCourses(TopicsList);
+        //     setSearchResult(TopicsList);
         // };
         // fetchCourses();
     }, []);
@@ -156,7 +156,7 @@ function Following() {
                                 <div className={cx('search-result')} tabIndex="-1" {...attrs}>
                                     <PopperWrapper className={cx('popper-result')}>
                                         <InstructorSearchResult
-                                            className={cx('coursesListDropDown')}
+                                            className={cx('TopicsListDropDown')}
                                             courses={courses}
                                             topics={topics}
                                             subCategories={subCategories}

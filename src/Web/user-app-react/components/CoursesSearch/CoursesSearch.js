@@ -4,18 +4,18 @@ import classNames from 'classnames/bind';
 import { useEffect, useRef, useState } from 'react';
 import HeadlessTippy from '@tippyjs/react/headless';
 
-import styles from './CoursesSearch.module.scss';
+import styles from './TopicsSearch.module.scss';
 import images from '~/assets/images';
 import Image from '~/components/Image';
-import CoursesList from '../CoursesList/CoursesList';
+import TopicsList from '../TopicsList/TopicsList';
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import coursesApi from '~/api/coursesApi';
 import { useDebounce } from '~/hooks';
-import ChosenCourseList from '../ChosenCourseList';
+import ChosenTopicsList from '../ChosenTopicsList';
 
 const cx = classNames.bind(styles);
 
-function CoursesSearch({ handleTopicsId }) {
+function TopicsSearch({ handleTopicsId }) {
     // const [inputText, setInputText] = useState('');
     const [allCourses, setAllCourses] = useState([]);
     const [chosenCourses, setChosenCourses] = useState([]);
@@ -32,9 +32,9 @@ function CoursesSearch({ handleTopicsId }) {
 
     useEffect(() => {
         const fetchCourses = async () => {
-            const coursesList = await coursesApi.getAll();
-            setAllCourses(coursesList);
-            setSearchResult(coursesList);
+            const TopicsList = await coursesApi.getAll();
+            setAllCourses(TopicsList);
+            setSearchResult(TopicsList);
         };
 
         fetchCourses();
@@ -107,8 +107,8 @@ function CoursesSearch({ handleTopicsId }) {
                     render={(attrs) => (
                         <div className={cx('search-result')} tabIndex="-1" {...attrs}>
                             <PopperWrapper className={cx('popper-result')}>
-                                <CoursesList
-                                    className={cx('coursesListDropDown')}
+                                <TopicsList
+                                    className={cx('TopicsListDropDown')}
                                     courses={searchResult}
                                     onChose={handleClick}
                                 />
@@ -137,9 +137,9 @@ function CoursesSearch({ handleTopicsId }) {
                     </div>
                 </HeadlessTippy>
             </div>
-            <ChosenCourseList courses={chosenCourses} onChose={handleRemoveCourse} />
+            <ChosenTopicsList courses={chosenCourses} onChose={handleRemoveCourse} />
         </div>
     );
 }
 
-export default CoursesSearch;
+export default TopicsSearch;

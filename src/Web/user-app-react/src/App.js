@@ -14,6 +14,8 @@ import Instructor from '~/pages/Instructor';
 import Following from '~/pages/Instructor/Following';
 import Pending from '~/pages/Instructor/Pending';
 import History from '~/pages/Instructor/History';
+import Publisher from '~/pages/Publisher/Publisher';
+import Courses from './pages/Publisher/Courses';
 
 function App() {
     return (
@@ -33,6 +35,10 @@ function App() {
                     <Route path="following" element={<Following />}></Route>
                     <Route path="pending" element={<Pending />}></Route>
                     <Route path="history" element={<History />}></Route>
+                </Route>
+                <Route path="publisher" element={<Publisher />}>
+                    <Route index element={<Courses />}></Route>
+                    <Route path="courses" element={<Courses />}></Route>
                 </Route>
                 <Route path="*" element={<p>Path not resolved</p>} />
             </Routes>
