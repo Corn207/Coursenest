@@ -3,7 +3,6 @@ using CommonLibrary.API.MessageBus.Responses;
 using Identity.API.Infrastructure.Contexts;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Identity.API.Consumers;
 
@@ -19,7 +18,7 @@ public class CheckUsersConsumer : IConsumer<CheckUsers>
 	public async Task Consume(ConsumeContext<CheckUsers> context)
 	{
 		var validQueries = context.Message.Queries
-			.Where(q => 
+			.Where(q =>
 				(q.Id == null || q.Id > 0) &&
 				(q.Email == null || !string.IsNullOrWhiteSpace(q.Email)) &&
 				!(q.Id == null && q.Email == null))

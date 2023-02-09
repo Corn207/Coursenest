@@ -1,8 +1,9 @@
-﻿using CommonLibrary.API.MessageBus.Commands;
-using AutoMapper;
+﻿using AutoMapper;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using Identity.API.DTOs;
 using Identity.API.Infrastructure.Entities;
-using CommonLibrary.API.MessageBus.Responses;
+using static Identity.API.DTOs.UserAdminResults;
 
 namespace Identity.API.MappingProfiles;
 
@@ -31,8 +32,9 @@ public class DefaultProfile : Profile
 				options.Condition((source, dstination, member) => member != null);
 			});
 
-		CreateMap<User, UserAdminResult>();
-		CreateMap<CredentialsResult.Credential, UserAdminResult>();
+		CreateProjection<User, UserAdminResult>();
+		CreateMap<CredentialResults.CredentialResult, UserAdminResult>();
+
 		CreateMap<User, UserResult>();
 		CreateMap<User, UserProfileResult>();
 		CreateMap<User, UserInstructorResult>();

@@ -1,20 +1,21 @@
 version: '3.4'
 
 services:
-  #gatewayapi:
-  #  environment:
-  #    - ASPNETCORE_ENVIRONMENT=Development
-  #    - Jwt__Key=Yh2k7QSu4l8CZg5p
-  #  ports:
-  #    - "21000:80"
+  gatewayapi:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80:80"
+      - "443:443"
+      - "21000:80"
 
   authentication.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=AuthenticationDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=false
       - MassTransit__Host=messagebus
-      - Jwt__SecretKey=1234567890123456
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
       - Jwt__AccessTokenLifetime=60
       - Jwt__RefreshTokenLifetime=180
     ports:
@@ -24,8 +25,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=IdentityDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=false
       - MassTransit__Host=messagebus
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
     ports:
       - "21002:80"
 
@@ -33,8 +35,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__ConnectionString=Server=database;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=false
       - MassTransit__Host=messagebus
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
     ports:
       - "21003:80"
 
@@ -42,15 +45,18 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - MassTransit__Host=messagebus
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
     ports:
       - "21004:80"
 
   userdata.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Database__ConnectionString=Server=database;Database=LibraryDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
-      - Database__EnsureCreated=false
+      - Database__ConnectionString=Server=database;Database=UserDataDB;User Id=sa;Password=Pass@word;TrustServerCertificate=True;
       - MassTransit__Host=messagebus
+      - Jwt__SigningKey=1234567890123456
+      - Jwt__Issuer=http://authentication.api
     ports:
       - "21005:80"
 
@@ -58,15 +64,19 @@ services:
     environment:
       - MSSQL_SA_PASSWORD=Pass@word
     volumes:
-      - coursenest-dev:/var/opt/mssql
+      - coursenest-dev-db:/var/opt/mssql
     ports:
       - "1433:1433"
 
   messagebus:
+    volumes:
+      - coursenest-dev-mb:/var/lib/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
 
 volumes:
-  coursenest-dev:
+  coursenest-dev-db:
+    external: true
+  coursenest-dev-mb:
     external: true

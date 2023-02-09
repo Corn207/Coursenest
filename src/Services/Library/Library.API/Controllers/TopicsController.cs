@@ -26,14 +26,14 @@ namespace Library.API.Controllers
 
 		// GET: /topics
 		[HttpGet]
-		public async Task<ActionResult<List<IdContentResult>>> GetAll(
+		public async Task<ActionResult<List<TopicDetailedResult>>> GetAll(
 			[FromQuery] TopicQuery query)
 		{
 			var results = await _context.Topics
 				.Where(x =>
 					(query.SubcategoryId == null || x.SubcategoryId == query.SubcategoryId) &&
-					(string.IsNullOrWhiteSpace(query.Content) || x.Content == query.Content))
-				.ProjectTo<IdContentResult>(_mapper.ConfigurationProvider)
+					(string.IsNullOrWhiteSpace(query.Content) || x.Content.Contains(query.Content)))
+				.ProjectTo<TopicDetailedResult>(_mapper.ConfigurationProvider)
 				.ToListAsync();
 
 			return results;
@@ -41,12 +41,12 @@ namespace Library.API.Controllers
 
 		// GET: /topics/5
 		[HttpGet("{topicId}")]
-		public async Task<ActionResult<IdContentResult>> Get(
+		public async Task<ActionResult<TopicDetailedResult>> Get(
 			int topicId)
 		{
 			var result = await _context.Topics
-				.ProjectTo<IdContentResult>(_mapper.ConfigurationProvider)
-				.FirstOrDefaultAsync(x => x.Id == topicId);
+				.ProjectTo<TopicDetailedResult>(_mapper.ConfigurationProvider)
+				.FirstOrDefaultAsync(x => x.TopicId == topicId);
 			if (result == null)
 				return NotFound("TopicId does not exist.");
 

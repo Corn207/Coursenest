@@ -1,16 +1,13 @@
-﻿using CommonLibrary.API.MessageBus.Commands;
-using CommonLibrary.API.MessageBus.Responses;
-using CommonLibrary.API.Models;
-using CommonLibrary.API.Utilities.APIs;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.Utilities.APIs;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserData.API.DTOs;
 using UserData.API.Infrastructure.Contexts;
-using UserData.API.Infrastructure.Entities;
 
 namespace UserData.API.Controllers;
 

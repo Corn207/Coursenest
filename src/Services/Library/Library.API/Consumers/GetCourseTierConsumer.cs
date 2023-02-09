@@ -20,7 +20,7 @@ public class GetCourseTierConsumer : IConsumer<GetCourseTier>
 		var query = context.Message;
 
 		var result = await _context.Courses
-			.Where(x => 
+			.Where(x =>
 				x.CourseId == query.Id &&
 				(query.IsApproved == null || query.IsApproved == x.IsApproved))
 			.Select(x => new CourseTierResult() { Tier = x.Tier })

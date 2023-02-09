@@ -33,9 +33,9 @@ public class UsersControllerTests
 
 				x.AddHandler<GetCredentials>(context =>
 				{
-					var response = new CredentialsResult()
+					var response = new CredentialResults()
 					{
-						Credentials = new CredentialsResult.Credential[]
+						Credentials = new CredentialResults.CredentialResult[]
 						{
 							new()
 							{

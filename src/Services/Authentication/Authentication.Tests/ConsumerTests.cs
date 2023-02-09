@@ -70,7 +70,7 @@ public class ConsumerTests
 		};
 
 		// Act
-		var response = await client.GetResponse<CredentialsResult>(request);
+		var response = await client.GetResponse<CredentialResults>(request);
 
 		// Assert
 		Assert.That(response.Message.Credentials.Count, Is.EqualTo(request.Ids.Count()));

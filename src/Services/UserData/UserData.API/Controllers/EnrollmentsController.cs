@@ -1,9 +1,9 @@
-﻿using CommonLibrary.API.MessageBus.Commands;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.MessageBus.Commands;
 using CommonLibrary.API.MessageBus.Responses;
 using CommonLibrary.API.Models;
 using CommonLibrary.API.Utilities.APIs;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +46,7 @@ public class EnrollmentsController : ControllerBase
 
 		var results = await _context.Enrollments
 			.Where(x => x.StudentUserId == userId)
-			.ProjectTo<EnrollmentResult>(_mapper.ConfigurationProvider)
+			//.ProjectTo<EnrollmentResult>(_mapper.ConfigurationProvider)
 			.ToArrayAsync();
 
 		return Ok(results);
@@ -142,7 +142,7 @@ public class EnrollmentsController : ControllerBase
 				x.EnrollmentId == enrollmentId &&
 				x.StudentUserId == userId)
 			.ExecuteDeleteAsync();
-		if (affected == 0) 
+		if (affected == 0)
 			return NotFound("EnrollmentId does not exist or you're not authorized.");
 
 		return NoContent();

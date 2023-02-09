@@ -20,14 +20,14 @@ public class GetCredentialsConsumer : IConsumer<GetCredentials>
 
 	public async Task Consume(ConsumeContext<GetCredentials> context)
 	{
-		var credentials = await _context.Credentials
-			.ProjectTo<CredentialsResult.Credential>(_mapper.ConfigurationProvider)
+		var results = await _context.Credentials
 			.Where(x => context.Message.Ids.Contains(x.UserId))
-			.ToListAsync();
+			.ProjectTo<CredentialResults.CredentialResult>(_mapper.ConfigurationProvider)
+			.ToArrayAsync();
 
-		var response = new CredentialsResult()
+		var response = new CredentialResults()
 		{
-			Credentials = credentials
+			Credentials = results
 		};
 		await context.RespondAsync(response);
 	}

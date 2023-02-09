@@ -1,7 +1,7 @@
-﻿using CommonLibrary.API.MessageBus.Commands;
-using CommonLibrary.API.MessageBus.Responses;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.MessageBus.Commands;
+using CommonLibrary.API.MessageBus.Responses;
 using Library.API.Infrastructure.Contexts;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;

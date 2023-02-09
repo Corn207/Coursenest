@@ -1,14 +1,14 @@
 version: '3.4'
 
 services:
-  #gatewayapi:
-  #  image: ${DOCKER_REGISTRY-}gatewayapi
-  #  build:
-  #    context: .
-  #    dockerfile: GatewayAPI/Dockerfile
-  #  networks:
-  #    - frontend
-  #    - backend
+  gatewayapi:
+    image: ${DOCKER_REGISTRY-}gatewayapi
+    build:
+      context: .
+      dockerfile: GatewayAPI/Dockerfile
+    networks:
+      - frontend
+      - backend
 
   authentication.api:
     image: ${DOCKER_REGISTRY-}authenticationapi
@@ -53,6 +53,17 @@ services:
     depends_on:
       - messagebus
 
+  userdata.api:
+    image: ${DOCKER_REGISTRY-}userdataapi
+    build:
+      context: .
+      dockerfile: Services/UserData/UserData.API/Dockerfile
+    networks:
+      - backend
+    depends_on:
+      - database
+      - messagebus
+
   database:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
@@ -65,17 +76,6 @@ services:
     image: masstransit/rabbitmq
     networks:
       - backend
-
-  userdata.api:
-    image: ${DOCKER_REGISTRY-}userdataapi
-    build:
-      context: .
-      dockerfile: Services/UserData/UserData.API/Dockerfile
-    networks:
-      - backend
-    depends_on:
-      - database
-      - messagebus
 
 networks:
   frontend:

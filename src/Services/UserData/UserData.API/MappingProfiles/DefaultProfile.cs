@@ -1,5 +1,4 @@
-﻿using CommonLibrary.API.MessageBus.Responses;
-using AutoMapper;
+﻿using AutoMapper;
 using UserData.API.DTOs;
 using UserData.API.Infrastructure.Entities;
 

@@ -5,7 +5,6 @@ using CommonLibrary.API.MessageBus.Responses;
 using CommonLibrary.API.Models;
 using CommonLibrary.API.Utilities.APIs;
 using Library.API.DTOs;
-using Library.API.DTOs.Lessons;
 using Library.API.DTOs.Units;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using static MassTransit.Logging.OperationName;
 using ExamResult = Library.API.DTOs.Units.ExamResult;
 
 namespace Library.API.Controllers
@@ -61,6 +59,29 @@ namespace Library.API.Controllers
 			return results;
 		}
 
+		// GET: /units/count
+		[HttpGet("count")]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> GetCountByCourseId(
+			[BindRequired][FromQuery] int courseId)
+		{
+			var userId = GetUserIdOrDefault();
+			var isAdmin = IsAdmin();
+
+			var exists = await _context.Courses
+				.AnyAsync(x =>
+					x.CourseId == courseId &&
+					(isAdmin || x.IsApproved || x.PublisherUserId == userId));
+			if (!exists)
+				return NotFound("CourseId does not exist or you're not authorized.");
+
+			var count = await _context.Units
+				.CountAsync(x => x.Lesson.CourseId == courseId);
+
+			return Ok(count);
+		}
+
 		// GET: /units/5
 		[HttpGet("{unitId}")]
 		public async Task<ActionResult<UnitResult>> Get(
@@ -91,7 +112,7 @@ namespace Library.API.Controllers
 			var isAdmin = IsAdmin();
 
 			var result = await _context.Materials
-				.Where(x => 
+				.Where(x =>
 					x.UnitId == unitId &&
 					(isAdmin || x.Lesson.Course.PublisherUserId == userId))
 				.ProjectTo<MaterialResult>(_mapper.ConfigurationProvider)
@@ -147,7 +168,7 @@ namespace Library.API.Controllers
 
 			var lesson = await _context.Lessons
 				.Include(x => x.Units)
-				.FirstOrDefaultAsync(x => 
+				.FirstOrDefaultAsync(x =>
 					x.LessonId == body.LessonId &&
 					x.Course.PublisherUserId == userId);
 			if (lesson == null)

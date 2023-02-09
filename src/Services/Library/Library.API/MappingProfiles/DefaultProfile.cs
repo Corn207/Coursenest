@@ -29,7 +29,7 @@ public class DefaultProfile : Profile
 		CreateMap<Subcategory, IdContentResult>()
 			.ForMember(dst => dst.Id, opt => opt.MapFrom(x => x.SubcategoryId));
 		CreateMap<Topic, IdContentResult>()
-			.ForMember(dst => dst.Id, opt => opt.MapFrom(x => x.TopicId)); 
+			.ForMember(dst => dst.Id, opt => opt.MapFrom(x => x.TopicId));
 		#endregion
 
 
@@ -151,7 +151,7 @@ public class DefaultProfile : Profile
 			});
 
 		CreateMap<Question, QuestionResult>();
-		CreateMap<Choice, ChoiceResult>(); 
+		CreateMap<Choice, ChoiceResult>();
 		#endregion
 	}
 }
