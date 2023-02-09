@@ -5,13 +5,13 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "authentication.api": "StartDebugging",
-        "gatewayapi": "DoNotStart",
         "database": "StartWithoutDebugging",
         "messagebus": "StartWithoutDebugging",
         "identity.api": "StartDebugging",
         "library.api": "StartDebugging",
         "payment.api": "StartDebugging",
-        "userdata.api": "StartDebugging"
+        "userdata.api": "StartDebugging",
+        "gatewayapi": "StartDebugging"
       }
     },
     "Authentication.API": {
@@ -23,12 +23,12 @@
       "serviceActions": {
         "authentication.api": "StartDebugging",
         "database": "StartWithoutDebugging",
-        "gatewayapi": "DoNotStart",
         "identity.api": "StartDebugging",
         "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging",
         "payment.api": "DoNotStart",
-        "userdata.api": "DoNotStart"
+        "userdata.api": "DoNotStart",
+        "gatewayapi": "StartDebugging"
       }
     },
     "Library.API": {
@@ -40,12 +40,12 @@
       "serviceActions": {
         "authentication.api": "StartDebugging",
         "database": "StartWithoutDebugging",
-        "gatewayapi": "DoNotStart",
         "identity.api": "StartDebugging",
         "library.api": "StartDebugging",
         "messagebus": "StartWithoutDebugging",
         "payment.api": "DoNotStart",
-        "userdata.api": "DoNotStart"
+        "userdata.api": "DoNotStart",
+        "gatewayapi": "StartDebugging"
       }
     },
     "Common Services": {
@@ -54,12 +54,12 @@
       "serviceActions": {
         "authentication.api": "DoNotStart",
         "database": "StartWithoutDebugging",
-        "gatewayapi": "DoNotStart",
         "identity.api": "DoNotStart",
         "library.api": "DoNotStart",
         "messagebus": "StartWithoutDebugging",
         "payment.api": "DoNotStart",
-        "userdata.api": "DoNotStart"
+        "userdata.api": "DoNotStart",
+        "gatewayapi": "StartDebugging"
       }
     }
   }

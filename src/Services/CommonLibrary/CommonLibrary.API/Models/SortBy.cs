@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CommonLibrary.API.Models;
+﻿namespace CommonLibrary.API.Models;
 public enum SortBy
 {
 	Rating = 0,

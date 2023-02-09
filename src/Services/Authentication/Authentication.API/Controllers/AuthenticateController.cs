@@ -24,7 +24,8 @@ public class AuthenticateController : ControllerBase
 {
 	private readonly IMapper _mapper;
 	private readonly DataContext _context;
-	private readonly IOptions<JwtOptions> _jwtOptions;
+	private readonly IOptionsMonitor<JwtOptions> _jwtOptions;
+	private readonly JwtTokenHelper _jwtTokenHelper;
 	private readonly IRequestClient<CreateUser> _createUserClient;
 	private readonly IRequestClient<CheckTopics> _checkTopicsClient;
 	private readonly IRequestClient<CheckUsers> _checkUsersClient;
@@ -32,7 +33,8 @@ public class AuthenticateController : ControllerBase
 	public AuthenticateController(
 		IMapper mapper,
 		DataContext context,
-		IOptions<JwtOptions> jwtOptions,
+		IOptionsMonitor<JwtOptions> jwtOptions,
+		JwtTokenHelper jwtTokenHelper,
 		IRequestClient<CreateUser> createUserClient,
 		IRequestClient<CheckTopics> checkTopicsClient,
 		IRequestClient<CheckUsers> checkUsersClient)
@@ -40,6 +42,7 @@ public class AuthenticateController : ControllerBase
 		_mapper = mapper;
 		_context = context;
 		_jwtOptions = jwtOptions;
+		_jwtTokenHelper = jwtTokenHelper;
 		_createUserClient = createUserClient;
 		_checkTopicsClient = checkTopicsClient;
 		_checkUsersClient = checkUsersClient;
@@ -107,7 +110,7 @@ public class AuthenticateController : ControllerBase
 		(string accessTokenContent, DateTime accessTokenExpiry) = CreateAccessToken(credential.UserId, credential.Roles);
 
 		string refreshTokenContent = Guid.NewGuid().ToString();
-		var refreshTokenExpiry = DateTime.Now.AddMinutes(_jwtOptions.Value.RefreshTokenLifetime);
+		var refreshTokenExpiry = DateTime.Now.AddMinutes(_jwtOptions.CurrentValue.RefreshTokenLifetime);
 		var refreshToken = new RefreshToken()
 		{
 			Token = refreshTokenContent,
@@ -252,7 +255,7 @@ public class AuthenticateController : ControllerBase
 	}
 
 
-	private (string content, DateTime expiry) CreateAccessToken(
+	private (string, DateTime) CreateAccessToken(
 		int userId,
 		IEnumerable<Role> roles)
 	{
@@ -261,19 +264,21 @@ public class AuthenticateController : ControllerBase
 			new Claim(ClaimTypes.NameIdentifier, userId.ToString())
 		};
 
-		var validRoles = roles.Where(x => x.Expiry > DateTime.Now);
-		var roleClaims = validRoles.Select(x => new Claim(ClaimTypes.Role, x.Type.ToString()));
+		var validRoles = roles
+			.Where(x => x.Expiry > DateTime.Now.AddMinutes(5));
+
+		var roleClaims = validRoles
+			.Select(x => new Claim(ClaimTypes.Role, x.Type.ToString()));
 		claims.AddRange(roleClaims);
 
 		var expiry = validRoles
 			.Select(x => x.Expiry)
-			.Append(DateTime.Now.AddMinutes(_jwtOptions.Value.AccessTokenLifetime))
+			.Append(DateTime.Now.AddMinutes(_jwtOptions.CurrentValue.AccessTokenLifetime))
 			.Min();
 
-		var helper = new JwtTokenHelper(_jwtOptions.Value.SecretKey, expiry, claims);
-		var content = helper.WriteToken();
+		var token = _jwtTokenHelper.CreateToken(claims, expiry);
 
-		return (content, expiry);
+		return (token, expiry);
 	}
 
 	private int GetUserId()

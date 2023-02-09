@@ -1,16 +1,16 @@
-﻿using CommonLibrary.API.Constants;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using CommonLibrary.API.Constants;
 using CommonLibrary.API.Models;
 using CommonLibrary.API.Utilities.APIs;
 using CommonLibrary.API.Validations;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Library.API.DTOs.Courses;
 using Library.API.Infrastructure.Contexts;
 using Library.API.Infrastructure.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Library.API.Controllers
 {
@@ -30,7 +30,8 @@ namespace Library.API.Controllers
 
 		// GET: /courses
 		[HttpGet]
-		public async Task<ActionResult<CourseResult[]>> GetAll(
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourseResults))]
+		public async Task<IActionResult> GetAll(
 			[FromQuery] CourseQuery query)
 		{
 			var userId = User.Claims.Any() ? GetUserId() : 0;
@@ -44,23 +45,28 @@ namespace Library.API.Controllers
 					(query.TopicId == null || query.TopicId == x.TopicId) &&
 					(query.PublisherUserId == null || query.PublisherUserId == x.PublisherUserId));
 
-			dbQuery = query.SortBy switch
-			{
-				SortBy.Created => dbQuery.OrderByDescending(x => x.Created),
-				SortBy.LastModified => dbQuery.OrderByDescending(x => x.LastModified),
-				SortBy.Title => dbQuery.OrderBy(x => x.Title),
-				_ => dbQuery.OrderByDescending(x => x.RatingAverage),
-			};
-
-			dbQuery = dbQuery
+			var searchQuery = dbQuery
 				.Skip((query.PageNumber - 1) * query.PageSize)
 				.Take(query.PageSize);
 
-			var results = await dbQuery
-				.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
-				.ToArrayAsync();
+			searchQuery = query.SortBy switch
+			{
+				SortBy.Created => searchQuery.OrderByDescending(x => x.Created),
+				SortBy.LastModified => searchQuery.OrderByDescending(x => x.LastModified),
+				SortBy.Title => searchQuery.OrderBy(x => x.Title),
+				_ => searchQuery.OrderByDescending(x => x.RatingAverage),
+			};
 
-			return results;
+			var result = new CourseResults
+			{
+				Courses = await searchQuery
+					.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
+					.ToArrayAsync(),
+				Total = await dbQuery
+					.CountAsync()
+			};
+
+			return Ok(result);
 		}
 
 		// GET: /courses/5

@@ -1,6 +1,5 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Text.RegularExpressions;
+using System.Text;
 
 namespace CommonLibrary.API.Extensions;
 public static class BuilderExtensions
@@ -36,7 +35,8 @@ public static class BuilderExtensions
 	}
 
 	private static void AddJWTAuthentication(
-		this IServiceCollection services)
+		this IServiceCollection services,
+		IConfiguration configuration)
 	{
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(options =>
@@ -48,12 +48,31 @@ public static class BuilderExtensions
 					ValidateLifetime = false,
 					ValidateIssuerSigningKey = false,
 					RequireSignedTokens = false,
-					//IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("1234567890123456"))
-					SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+				};
+
+				var issuer = configuration["Jwt:Issuer"];
+				if (!string.IsNullOrWhiteSpace(issuer))
+				{
+					options.TokenValidationParameters.ValidateIssuer = true;
+					options.TokenValidationParameters.ValidIssuer = issuer;
+				}
+
+				var signingKey = configuration["Jwt:SigningKey"];
+				if (!string.IsNullOrWhiteSpace(signingKey))
+				{
+					options.TokenValidationParameters.ValidateLifetime = true;
+					options.TokenValidationParameters.ValidateIssuerSigningKey = true;
+					options.TokenValidationParameters.RequireSignedTokens = true;
+					options.TokenValidationParameters.IssuerSigningKey =
+						new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
+				}
+				else
+				{
+					options.TokenValidationParameters.SignatureValidator = delegate (string token, TokenValidationParameters parameters)
 					{
 						return new JwtSecurityToken(token);
-					}
-				};
+					};
+				}
 			});
 	}
 
@@ -131,7 +150,7 @@ public static class BuilderExtensions
 
 		services.AddMassTransitServices(configuration, assembly);
 
-		services.AddJWTAuthentication();
+		services.AddJWTAuthentication(configuration);
 
 		services.AddAuthorization();
 
@@ -157,21 +176,6 @@ public static class BuilderExtensions
 		services.AddEssentialServices(configuration, assembly);
 
 		services.AddEFCoreServices<TDbContext>(configuration);
-
-		return services;
-	}
-
-
-	public static IServiceCollection AddRequiredOptions<TOptions>(
-		this IServiceCollection services,
-		IConfiguration configuration) where TOptions : class
-	{
-		string sectionName = Regex.Replace(typeof(TOptions).Name, @"Options$", string.Empty);
-		var section = configuration.GetRequiredSection(sectionName);
-		services.AddOptions<TOptions>()
-			.Bind(section)
-			.ValidateDataAnnotations()
-			.ValidateOnStart();
 
 		return services;
 	}

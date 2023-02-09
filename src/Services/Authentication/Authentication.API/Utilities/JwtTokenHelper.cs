@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Authentication.API.Options;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -7,27 +9,38 @@ namespace Authentication.API.Utilities;
 
 public class JwtTokenHelper
 {
-	public JwtTokenHelper(string key, DateTime expiry, IEnumerable<Claim>? claims = null)
+	private readonly IOptionsMonitor<JwtOptions> _options;
+	private SigningCredentials _signingCredentials;
+
+	public JwtTokenHelper(IOptionsMonitor<JwtOptions> options)
 	{
-		SecurityKey = key;
-		Claims = claims;
-		Expiry = expiry;
+		_options = options;
+		_options.OnChange((options) =>
+		{
+			_signingCredentials = CreateSigningCredentials(options.SigningKey);
+		});
+
+		_signingCredentials = CreateSigningCredentials(_options.CurrentValue.SigningKey);
 	}
 
-	public string SecurityKey { get; set; }
-	public IEnumerable<Claim>? Claims { get; set; }
-	public DateTime Expiry { get; set; }
 
-
-	public string WriteToken()
+	private static SigningCredentials CreateSigningCredentials(string signingKey)
 	{
-		var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecurityKey));
-		var signingCreds = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+		var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
+		return new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+	}
+
+	public string CreateToken(IEnumerable<Claim>? claims, DateTime expiry)
+	{
 		var securityToken = new JwtSecurityToken(
-			signingCredentials: signingCreds,
-			claims: Claims,
-			expires: Expiry
+			issuer: _options.CurrentValue.Issuer,
+			claims: claims,
+			expires: expiry,
+			signingCredentials: _signingCredentials
 		);
-		return new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+		var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+		return token;
 	}
 }

@@ -16,7 +16,7 @@ public class DefaultProfile : Profile
 		CreateMap<Register, CreateUser>();
 		CreateMap<Register, Credential>();
 
-		CreateMap<Credential, CredentialsResult.Credential>()
+		CreateMap<Credential, CredentialResults.CredentialResult>()
 			.ForMember(
 				dst => dst.Roles, opt => opt.MapFrom(
 				src => src.Roles.Select(x => x.Type)));
