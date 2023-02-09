@@ -66,6 +66,9 @@ function SignUp() {
             setPage(page + 1);
         } else {
             // e.preventDefault();
+            const chosenTopicsId = [...interestedTopicId.map((item) => item.topicId)];
+            console.log(chosenTopicsId);
+
             setError(false);
             try {
                 const res = await axios.post('http://corn207.loseyourip.com/authenticate/register', {
@@ -73,7 +76,7 @@ function SignUp() {
                     password: password,
                     email: email,
                     fullname: fullname,
-                    interestedTopicId: interestedTopicId,
+                    interestedTopicId: [...chosenTopicsId],
                 });
                 res.data && window.location.replace('/login');
             } catch (err) {
