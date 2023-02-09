@@ -1,3 +1,17 @@
 .wrapper {
-    display: flex;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 40px;
+    width: 100%;
+    margin-left: 16px;
+
+    .title {
+        margin-left: 42px;
+        font-size: 24px;
+    }
+
+    .courses-dashboard {
+        .mainRow {
+            display: flex;
+        }
+    }
 }

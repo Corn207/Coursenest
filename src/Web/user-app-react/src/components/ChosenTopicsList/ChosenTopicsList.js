@@ -16,8 +16,8 @@ function ChosenTopicsList({ courses, onChose }) {
         <ul className={cx('course-list')}>
             {courses.map((item, index) => (
                 <li className={cx('course-item')} key={index}>
-                    {item.title}
-                    <button className={cx('deleteCourseButton')} onClick={() => handleRemove(item.id)}>
+                    {item.content}
+                    <button className={cx('deleteCourseButton')} onClick={() => handleRemove(item.topicId)}>
                         <FontAwesomeIcon className={cx('deleteCourse')} icon={faMinus} />
                     </button>
                 </li>

@@ -20,7 +20,7 @@ function SignUp() {
     const [interestedTopicId, setInterestedTopicId] = useState([]);
     const [error, setError] = useState(false);
 
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(0);
 
     const {
         register,
@@ -68,12 +68,12 @@ function SignUp() {
             // e.preventDefault();
             setError(false);
             try {
-                const res = await axios.post('http://localhost:21001/authenticate/register', {
-                    username,
-                    password,
-                    email,
-                    fullname,
-                    interestedTopicId,
+                const res = await axios.post('http://corn207.loseyourip.com/authenticate/register', {
+                    username: username,
+                    password: password,
+                    email: email,
+                    fullname: fullname,
+                    interestedTopicId: interestedTopicId,
                 });
                 res.data && window.location.replace('/login');
             } catch (err) {

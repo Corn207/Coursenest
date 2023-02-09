@@ -13,8 +13,8 @@ function TopicsList({ courses, children, onChose }) {
     return (
         <ul className={cx('course-list')}>
             {courses.map((item, index) => (
-                <li className={cx('course-item')} key={index} onClick={() => handleItemClick(item.id)}>
-                    {item.title}
+                <li className={cx('course-item')} key={index} onClick={() => handleItemClick(item.topicId)}>
+                    {item.content}
                     {children}
                 </li>
             ))}

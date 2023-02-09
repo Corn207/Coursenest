@@ -9,10 +9,10 @@ import images from '~/assets/images';
 import Image from '~/components/Image';
 import TopicsList from '../TopicsList/TopicsList';
 import { Wrapper as PopperWrapper } from '~/components/Popper';
-import coursesApi from '~/api/coursesApi';
 import { useDebounce } from '~/hooks';
 import ChosenTopicsList from '../ChosenTopicsList';
 import axios from 'axios';
+import topicsApi from '~/api/topicsApi';
 
 const cx = classNames.bind(styles);
 
@@ -43,7 +43,7 @@ function TopicsSearch({ handleTopicsId }) {
 
     useEffect(() => {
         if (!debouncedValue.trim()) {
-            setSearchResult([]);
+            // setSearchResult([]);
             return;
         }
 
@@ -52,25 +52,28 @@ function TopicsSearch({ handleTopicsId }) {
         //         post.title.includes(debouncedValue.toLowerCase()) || post.body.includes(debouncedValue.toLowerCase()),
         // );
 
-        // const resultArr = async () => {
-        //     await axios.
-        // }
-
+        const fetchTopics = async () => {
+            const response = await axios.get(`http://corn207.loseyourip.com/topics?Content=${debouncedValue}`);
+            setSearchResult(response.data);
+            console.log(response.data);
+        };
+        fetchTopics();
         // setSearchResult(resultsArray);
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedValue]);
 
     const handleClick = async (courseId) => {
-        const chosenCourse = await coursesApi.get(courseId);
-        const newArr = searchResult.filter((item) => item.id !== courseId);
+        const chosenCourse = await topicsApi.get(courseId);
+        const newArr = searchResult.filter((item) => item.topicId !== courseId);
 
-        setChosenArr([searchResult.findIndex((e) => e.id === courseId), ...chosenArr]);
-        setSearchValue('');
+        setChosenArr([searchResult.findIndex((e) => e.topicId === courseId), ...chosenArr]);
+        // setSearchValue('');
         setDropDown(false);
         setSearchResult(newArr);
-        await setChosenCourses((chosenCourses) => [chosenCourse, ...chosenCourses]);
+        setChosenCourses((chosenCourses) => [chosenCourse, ...chosenCourses]);
         handleTopicsId(chosenCourses);
+        console.log(chosenCourses);
     };
 
     const handleDropDownClick = () => {
@@ -90,9 +93,9 @@ function TopicsSearch({ handleTopicsId }) {
     };
 
     const handleRemoveCourse = async (courseId) => {
-        const chosenCourse = await coursesApi.get(courseId);
+        const chosenCourse = await topicsApi.get(courseId);
 
-        const newArr = chosenCourses.filter((item) => item.id !== courseId);
+        const newArr = chosenCourses.filter((item) => item.topicId !== courseId);
         const leftSearchArr = searchResult.slice(0, chosenArr[0]);
         const rightSearchArr = searchResult.slice(chosenArr[0], searchResult.length);
         const searchArr = [...leftSearchArr, chosenCourse, ...rightSearchArr];

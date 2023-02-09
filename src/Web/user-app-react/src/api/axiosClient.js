@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-    baseURL: 'https://jsonplaceholder.typicode.com',
+    baseURL: 'http://corn207.loseyourip.com',
     // headers: {
     //     'Content-Type': 'application/json',
     // }
