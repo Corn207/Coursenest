@@ -261,6 +261,7 @@ function SignUp() {
                 {page === 1 && (
                     <div className="signUpSecondPage">
                         <TopicsSearch handleTopicsId={handleGetTopics} />
+                        {error && <p style={{ color: 'red' }}>Something wrong !!!</p>}
                         <div className={cx('buttonsDiv')}>
                             <button className={cx('previousPageButton')} onClick={handleClickPreviousPage}>
                                 <FontAwesomeIcon className={cx('leftArrow')} icon={faArrowLeft} />

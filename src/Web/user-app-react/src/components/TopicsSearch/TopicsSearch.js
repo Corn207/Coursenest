@@ -20,8 +20,10 @@ function TopicsSearch({ handleTopicsId }) {
     // const [inputText, setInputText] = useState('');
     const [allCourses, setAllCourses] = useState([]);
     const [chosenCourses, setChosenCourses] = useState([]);
+    const [chosenTopicsId, setChosenTopicsId] = useState([]);
     const [searchValue, setSearchValue] = useState('');
     const [searchResult, setSearchResult] = useState([]);
+    const [searchResultFiltered, setSearchResultFiltered] = useState([]);
     const [dropDown, setDropDown] = useState(false);
     const [chosenArr, setChosenArr] = useState([]);
 
@@ -40,6 +42,7 @@ function TopicsSearch({ handleTopicsId }) {
 
     //     fetchCourses();
     // }, []);
+    useEffect(() => {});
 
     useEffect(() => {
         if (!debouncedValue.trim()) {
@@ -54,7 +57,15 @@ function TopicsSearch({ handleTopicsId }) {
 
         const fetchTopics = async () => {
             const response = await axios.get(`http://corn207.loseyourip.com/topics?Content=${debouncedValue}`);
-            setSearchResult(response.data);
+            // if (chosenTopicsId.length !== 0 || chosenTopicsId !== undefined) {
+            if (chosenTopicsId !== undefined) {
+                await setSearchResultFiltered(response.data.filter((item) => !chosenTopicsId.includes(item.topicId)));
+                // console.log(response.data.filter((item) => item.topicId !== chosenTopicsId[i]));
+                // i++;
+                // setSearchResult(searchResultFiltered);
+            } else setSearchResultFiltered(response.data);
+            // setSearchResult(searchResultFiltered);
+
             console.log(response.data);
         };
         fetchTopics();
@@ -62,19 +73,6 @@ function TopicsSearch({ handleTopicsId }) {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedValue]);
-
-    const handleClick = async (courseId) => {
-        const chosenCourse = await topicsApi.get(courseId);
-        const newArr = searchResult.filter((item) => item.topicId !== courseId);
-
-        setChosenArr([searchResult.findIndex((e) => e.topicId === courseId), ...chosenArr]);
-        // setSearchValue('');
-        setDropDown(false);
-        setSearchResult(newArr);
-        setChosenCourses((chosenCourses) => [chosenCourse, ...chosenCourses]);
-        handleTopicsId(chosenCourses);
-        console.log(chosenCourses);
-    };
 
     const handleDropDownClick = () => {
         setDropDown(!dropDown);
@@ -92,16 +90,44 @@ function TopicsSearch({ handleTopicsId }) {
         }
     };
 
+    const handleClick = async (courseId) => {
+        const chosenCourse = await topicsApi.get(courseId);
+        const newArr = searchResultFiltered.filter((item) => item.topicId !== courseId);
+        // if (!Array.isArray(chosenTopicsId)) {
+        //     setChosenTopicsId([...[chosenTopicsId]], courseId);
+        // }
+
+        // setChosenTopicsId([...[chosenTopicsId]], courseId);
+
+        if (chosenTopicsId !== undefined) {
+            setChosenTopicsId([courseId, ...chosenTopicsId]);
+        } else setChosenTopicsId([courseId]);
+
+        // setChosenTopicsId([courseId, ...chosenTopicsId]);
+
+        setChosenArr([searchResultFiltered.findIndex((e) => e.topicId === courseId), ...chosenArr]);
+        // setSearchValue('');
+        setDropDown(false);
+        setSearchResultFiltered(newArr);
+        setChosenCourses((chosenCourses) => [chosenCourse, ...chosenCourses]);
+        // setChosenTopicsId((chosenCourse) => [chosenCourse.topicId, ...chosenCourses.map((topic) => topic.topicId)]);
+        handleTopicsId(chosenCourses);
+        console.log(chosenCourses);
+        console.log(chosenTopicsId);
+    };
+
     const handleRemoveCourse = async (courseId) => {
         const chosenCourse = await topicsApi.get(courseId);
 
         const newArr = chosenCourses.filter((item) => item.topicId !== courseId);
-        const leftSearchArr = searchResult.slice(0, chosenArr[0]);
-        const rightSearchArr = searchResult.slice(chosenArr[0], searchResult.length);
+        const leftSearchArr = searchResultFiltered.slice(0, chosenArr[0]);
+        const rightSearchArr = searchResultFiltered.slice(chosenArr[0], searchResultFiltered.length);
         const searchArr = [...leftSearchArr, chosenCourse, ...rightSearchArr];
 
-        await setSearchResult(searchArr);
+        await setSearchResultFiltered(searchArr);
         await setChosenCourses(newArr);
+        setChosenTopicsId(...newArr.map((topic) => topic.topicId));
+
         handleTopicsId(chosenCourses);
     };
 
@@ -118,7 +144,7 @@ function TopicsSearch({ handleTopicsId }) {
                             <PopperWrapper className={cx('popper-result')}>
                                 <TopicsList
                                     className={cx('TopicsListDropDown')}
-                                    courses={searchResult}
+                                    courses={searchResultFiltered}
                                     onChose={handleClick}
                                 />
                             </PopperWrapper>
