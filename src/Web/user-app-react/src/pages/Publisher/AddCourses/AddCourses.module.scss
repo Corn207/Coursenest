@@ -1,0 +1,92 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.5);
+    // height: 100vh;
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+    width: 100%;
+    margin-left: 16px;
+
+    .title {
+        margin: 0 auto;
+        font-size: 24px;
+    }
+
+    .contentContainer {
+        display: flex;
+        flex-direction: column;
+        margin: 16px;
+        padding: 8px 16px;
+        padding-right: 48px;
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+
+        .fileTitle {
+            margin-bottom: 8px;
+            margin-right: 36px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .imageDiv {
+            display: flex;
+            width: 100%;
+            margin-bottom: 16px;
+            padding: 15px 8px;
+
+            .imageActionDiv {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .imageContainer {
+                // width: 800px;
+                height: 60px;
+                width: 100%;
+                // margin-right: 32px;
+                margin-left: 24px;
+                border-radius: 8px;
+            }
+        }
+
+        .courseInfoDiv {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 15px 8px;
+
+            .courseInputInfo {
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 16px;
+
+                .inputTitle {
+                    display: block;
+                    width: 140px;
+                    margin-right: 32px;
+                }
+
+                .input {
+                    width: 100%;
+                    border-radius: 8px;
+                    border-color: rgba(184, 184, 184, 1);
+                    color: rgba(184, 184, 184, 1);
+                }
+                .courseTierDiv {
+                    display: flex;
+                    .courseTier {
+                        padding: 4px 28px;
+                        background-color: rgb(201, 252, 215);
+                        border-radius: 8px;
+                        color: rgba(46, 181, 83, 1);
+                    }
+                }
+            }
+            .courseInfo {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 32px;
+            }
+        }
+    }
+}
