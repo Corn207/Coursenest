@@ -7,14 +7,8 @@ import styles from './LessonsMaterialLists.module.scss';
 
 const cx = classNames.bind(styles);
 
-function LessonsMaterialLists() {
-    const [lessons, setLessons] = useState([
-        { LessonId: 1, Title: 'Lesson 1', Description: 'Description of lesson 1', Order: 1.5 },
-        { LessonId: 2, Title: 'Lesson 2', Description: 'Description of lesson 2', Order: 2.5 },
-        { LessonId: 3, Title: 'Lesson 3', Description: 'Description of lesson 3', Order: 3.5 },
-        { LessonId: 4, Title: 'Lesson 4', Description: 'Description of lesson 4', Order: 4.5 },
-        { LessonId: 5, Title: 'Lesson 5', Description: 'Description of lesson 5', Order: 5.5 },
-    ]);
+function LessonsMaterialLists({ lessonsList }) {
+    const [lessons, setLessons] = useState(lessonsList);
 
     const moveItem = (LessonId, direction) => {
         const newItems = [...lessons];

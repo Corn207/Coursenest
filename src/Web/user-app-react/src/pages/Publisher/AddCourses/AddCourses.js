@@ -10,6 +10,14 @@ function AddCourses() {
     const [image, setImage] = useState(null);
     const [isSelected, setIsSlected] = useState(1);
 
+    const lessonsList = [
+        { LessonId: 1, Title: 'Lesson 1', Description: 'Description of lesson 1', Order: 1.5 },
+        { LessonId: 2, Title: 'Lesson 2', Description: 'Description of lesson 2', Order: 2.5 },
+        { LessonId: 3, Title: 'Lesson 3', Description: 'Description of lesson 3', Order: 3.5 },
+        { LessonId: 4, Title: 'Lesson 4', Description: 'Description of lesson 4', Order: 4.5 },
+        { LessonId: 5, Title: 'Lesson 5', Description: 'Description of lesson 5', Order: 5.5 },
+    ];
+
     const handleChange = (e) => {
         setImage(URL.createObjectURL(e.target.files[0]));
     };
@@ -70,9 +78,9 @@ function AddCourses() {
                 <div className={cx('lessonsContainer')}>
                     <div className={cx('topContainer')}>
                         <p className={cx('topTitle')}>Lessons</p>
-                        <button className={cx('topTitleBtn')}>Add Criteria</button>
+                        <button className={cx('topTitleBtn')}>Add Lessons</button>
                     </div>
-                    <LessonsMaterialLists />
+                    <LessonsMaterialLists lessonsList={lessonsList} />
                 </div>
             </div>
             <div className={cx('bottomBtnContainer')}>

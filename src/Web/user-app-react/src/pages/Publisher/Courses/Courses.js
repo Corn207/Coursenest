@@ -108,6 +108,10 @@ function Courses() {
         setPage(page - 1);
     };
 
+    const handleEditCourse = () => {
+        console.log('');
+    };
+
     const classes = useStyles();
     const currentData = data.slice(page * pageSize, (page + 1) * pageSize);
 

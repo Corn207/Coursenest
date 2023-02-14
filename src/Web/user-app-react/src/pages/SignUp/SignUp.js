@@ -18,7 +18,7 @@ function SignUp() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [interestedTopicId, setInterestedTopicId] = useState([]);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState('');
 
     const [page, setPage] = useState(0);
 
@@ -76,11 +76,12 @@ function SignUp() {
                     password: password,
                     email: email,
                     fullname: fullname,
-                    interestedTopicId: [...chosenTopicsId],
+                    interestedTopicIds: [...chosenTopicsId],
                 });
-                res.data && window.location.replace('/login');
-            } catch (err) {
-                setError(true);
+                console.log(res.data);
+                window.location.href = '/';
+            } catch (error) {
+                setError(error.response.data.message);
             }
         }
     };
@@ -261,7 +262,7 @@ function SignUp() {
                 {page === 1 && (
                     <div className="signUpSecondPage">
                         <TopicsSearch handleTopicsId={handleGetTopics} />
-                        {error && <p style={{ color: 'red' }}>Something wrong !!!</p>}
+                        {error && <p style={{ color: 'red' }}>Some thing wrong</p>}
                         <div className={cx('buttonsDiv')}>
                             <button className={cx('previousPageButton')} onClick={handleClickPreviousPage}>
                                 <FontAwesomeIcon className={cx('leftArrow')} icon={faArrowLeft} />
