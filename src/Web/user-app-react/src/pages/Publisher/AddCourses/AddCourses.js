@@ -1,5 +1,6 @@
 import classNames from 'classnames/bind';
 import { useState } from 'react';
+import LessonsMaterialLists from '~/components/PublisherPage/LessonsMaterialLists';
 
 import styles from './AddCourses.module.scss';
 
@@ -7,9 +8,14 @@ const cx = classNames.bind(styles);
 
 function AddCourses() {
     const [image, setImage] = useState(null);
+    const [isSelected, setIsSlected] = useState(1);
 
     const handleChange = (e) => {
         setImage(URL.createObjectURL(e.target.files[0]));
+    };
+
+    const handleClick = (id) => {
+        setIsSlected(id);
     };
 
     return (
@@ -26,19 +32,47 @@ function AddCourses() {
                 <div className={cx('courseInfoDiv')}>
                     <div className={cx('courseInputInfo')}>
                         <p className={cx('inputTitle')}>Course Title</p>
-                        <input className={cx('input')} type={'text'}></input>
+                        <textarea className={cx('input')} type={'text'} placeholder={'Title name...'}></textarea>
                     </div>
                     <div className={cx('courseInputInfo')}>
                         <p className={cx('inputTitle')}>Description</p>
-                        <input className={cx('input')} type={'text'}></input>
+                        <textarea className={cx('input')} type={'text'} placeholder={'Description...'}></textarea>
                     </div>
                     <div className={cx('courseInputInfo')}>
                         <p className={cx('inputTitle')}>Course Tier</p>
                         <div className={cx('courseTierDiv')}>
-                            <p className={cx('courseTier')}>Free</p>
-                            <p className={cx('courseTier')}>Premium</p>
+                            <p
+                                className={cx('courseTier')}
+                                style={{ opacity: isSelected === 1 ? 1 : 0.3 }}
+                                onClick={() => handleClick(1)}
+                            >
+                                Free
+                            </p>
+                            <p
+                                className={cx('courseTier')}
+                                style={{ opacity: isSelected === 2 ? 1 : 0.3 }}
+                                onClick={() => handleClick(2)}
+                            >
+                                Premium
+                            </p>
                         </div>
                     </div>
+                    <div className={cx('courseInputInfo')}>
+                        <p className={cx('inputTitle')}>About</p>
+                        <textarea
+                            className={cx('inputAbout')}
+                            type={'text'}
+                            placeholder={'Write something...'}
+                        ></textarea>
+                    </div>
+                </div>
+
+                <div className={cx('lessonsContainer')}>
+                    <div className={cx('topContainer')}>
+                        <p className={cx('topTitle')}>Lessons</p>
+                        <button className={cx('topTitleBtn')}>Add Criteria</button>
+                    </div>
+                    <LessonsMaterialLists />
                 </div>
             </div>
         </div>

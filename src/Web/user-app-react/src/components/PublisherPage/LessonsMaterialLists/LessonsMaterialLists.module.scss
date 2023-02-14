@@ -1,0 +1,37 @@
+.wrapper {
+    .itemDiv {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: -8px;
+
+        .itemAction {
+            display: flex;
+            align-items: center;
+
+            .btnAction {
+                margin-right: 16px;
+                color: rgba(140, 140, 140, 1);
+            }
+
+            .itemOrder {
+                padding: 8px;
+                border: 1px solid;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+
+            .moveBtnContainer {
+                display: flex;
+                flex-direction: column;
+                margin-top: -8px;
+
+                .moveBtn {
+                    margin-top: -8px;
+                    border: transparent;
+                    background-color: transparent;
+                }
+            }
+        }
+    }
+}
