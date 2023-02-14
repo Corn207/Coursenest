@@ -10,8 +10,13 @@
             align-items: center;
 
             .btnAction {
+                cursor: pointer;
                 margin-right: 16px;
                 color: rgba(140, 140, 140, 1);
+
+                &:hover {
+                    opacity: 0.7;
+                }
             }
 
             .itemOrder {

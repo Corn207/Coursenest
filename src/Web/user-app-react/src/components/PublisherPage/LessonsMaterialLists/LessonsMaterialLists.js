@@ -53,14 +53,22 @@ function LessonsMaterialLists() {
                             <button
                                 className={cx('moveBtn')}
                                 style={lessons[lessons.indexOf(item) - 1] ? activeBtn : disableBtn}
-                                onClick={() => moveItem(item.LessonId, -1)}
+                                onClick={() =>
+                                    lessons[lessons.indexOf(item) - 1]
+                                        ? moveItem(item.LessonId, -1)
+                                        : console.log('not allowed to click')
+                                }
                             >
                                 <FontAwesomeIcon icon={faChevronUp} />
                             </button>
                             <button
                                 className={cx('moveBtn')}
                                 style={lessons[lessons.indexOf(item) + 1] ? activeBtn : disableBtn}
-                                onClick={() => moveItem(item.LessonId, 1)}
+                                onClick={() =>
+                                    lessons[lessons.indexOf(item) + 1]
+                                        ? moveItem(item.LessonId, 1)
+                                        : console.log('not allowed to click')
+                                }
                             >
                                 <FontAwesomeIcon icon={faChevronDown} />
                             </button>
