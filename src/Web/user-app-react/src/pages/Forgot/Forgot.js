@@ -32,7 +32,7 @@ function Forgot() {
         setNewPassword('');
         setError('');
         await axios
-            .put('http://corn207.loseyourip.com/authenticate/forgot-password', {
+            .put('https://coursenest.corn207.loseyourip.com/authenticate/forgot-password', {
                 username: userName,
                 email: email,
             })

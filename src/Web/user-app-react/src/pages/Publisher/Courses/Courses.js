@@ -1,7 +1,7 @@
 // import { Table, TableBody, TableCell, TableRow } from '@mui/material';
 import classNames from 'classnames/bind';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Checkbox,
     makeStyles,
@@ -16,6 +16,8 @@ import {
 } from '@material-ui/core';
 
 import styles from './Courses.module.scss';
+import coursesApi from '~/api/coursesApi';
+import axios from 'axios';
 
 const useStyles = makeStyles({
     table: {
@@ -33,7 +35,7 @@ const useStyles = makeStyles({
 function createData(id, title, description, status, topic, courseTier, action) {
     return { id, title, description, status, topic, courseTier, action };
 }
-const rows = [
+const data = [
     createData(1, 'Title 1', 'Description 1', 'Status 1', 'Topic 1', 'Course Tier 1', 'Action 1'),
     createData(2, 'Title 2', 'Description 2', 'Status 2', 'Topic 2', 'Course Tier 2', 'Action 2'),
     createData(3, 'Title 3', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
@@ -58,20 +60,33 @@ function Courses() {
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(5);
 
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await axios.get('https://coursenest.corn207.loseyourip.com/courses');
+                setData(response.data.queried);
+                console.log(response.data.queried);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchCourses();
+    }, []);
+
     const handleSelectAll = (event) => {
         if (event.target.checked) {
-            setSelected(rows.map((item) => item.id));
+            setSelected(data.map((item) => item.courseId));
             return;
         }
         setSelected([]);
     };
 
-    const handleSelect = (id) => {
-        const selectedIndex = selected.indexOf(id);
+    const handleSelect = (courseId) => {
+        const selectedIndex = selected.indexOf(courseId);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
+            newSelected = newSelected.concat(selected, courseId);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -83,7 +98,7 @@ function Courses() {
         setSelected(newSelected);
     };
 
-    const isSelected = (id) => selected.indexOf(id) !== -1;
+    const isSelected = (courseId) => selected.indexOf(courseId) !== -1;
 
     const handleNextPage = () => {
         setPage(page + 1);
@@ -94,7 +109,7 @@ function Courses() {
     };
 
     const classes = useStyles();
-    const currentData = rows.slice(page * pageSize, (page + 1) * pageSize);
+    const currentData = data.slice(page * pageSize, (page + 1) * pageSize);
 
     return (
         <div className={cx('wrapper')}>
@@ -105,8 +120,8 @@ function Courses() {
                         <TableRow>
                             <TableCell padding="checkbox">
                                 <Checkbox
-                                    indeterminate={selected.length > 0 && selected.length < rows.length}
-                                    checked={rows.length > 0 && selected.length === rows.length}
+                                    indeterminate={selected.length > 0 && selected.length < data.length}
+                                    checked={data.length > 0 && selected.length === data.length}
                                     onChange={handleSelectAll}
                                 />
                             </TableCell>
@@ -124,8 +139,8 @@ function Courses() {
                                 <TableCell>
                                     <input
                                         type="checkbox"
-                                        checked={selected.includes(row.id)}
-                                        onClick={() => handleSelect(row.id)}
+                                        checked={selected.includes(row.courseId)}
+                                        onClick={() => handleSelect(row.courseId)}
                                     />
                                 </TableCell>
                                 <TableCell component="th" scope="row">
@@ -143,11 +158,11 @@ function Courses() {
                     </TableBody>
                     <TableFooter>
                         <TableRow className={classes.footer}>
-                            <TableCell align="left">*{selected.length} rows selected</TableCell>
+                            <TableCell align="left">*{selected.length} data selected</TableCell>
 
                             <TableCell className={classes.nextBtn}>
                                 {page > 0 && <button onClick={handleBackPage}>Prev</button>}
-                                {(page + 1) * pageSize < rows.length && <button onClick={handleNextPage}>Next</button>}
+                                {(page + 1) * pageSize < data.length && <button onClick={handleNextPage}>Next</button>}
                             </TableCell>
                         </TableRow>
                     </TableFooter>

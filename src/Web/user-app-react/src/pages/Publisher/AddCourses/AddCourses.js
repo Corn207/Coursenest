@@ -75,6 +75,10 @@ function AddCourses() {
                     <LessonsMaterialLists />
                 </div>
             </div>
+            <div className={cx('bottomBtnContainer')}>
+                <button className={cx('cancelBtn')}>Cancel</button>
+                <button className={cx('confirmBtn')}>Confirm</button>
+            </div>
         </div>
     );
 }

@@ -56,7 +56,9 @@ function TopicsSearch({ handleTopicsId }) {
         // );
 
         const fetchTopics = async () => {
-            const response = await axios.get(`http://corn207.loseyourip.com/topics?Content=${debouncedValue}`);
+            const response = await axios.get(
+                `https://coursenest.corn207.loseyourip.com/topics?Content=${debouncedValue}`,
+            );
             // if (chosenTopicsId.length !== 0 || chosenTopicsId !== undefined) {
             if (chosenTopicsId !== undefined) {
                 await setSearchResultFiltered(response.data.filter((item) => !chosenTopicsId.includes(item.topicId)));

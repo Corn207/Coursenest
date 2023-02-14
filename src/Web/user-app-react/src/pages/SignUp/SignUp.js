@@ -71,7 +71,7 @@ function SignUp() {
 
             setError(false);
             try {
-                const res = await axios.post('http://corn207.loseyourip.com/authenticate/register', {
+                const res = await axios.post('https://coursenest.corn207.loseyourip.com/authenticate/register', {
                     username: username,
                     password: password,
                     email: email,

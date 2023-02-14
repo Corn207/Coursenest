@@ -129,7 +129,44 @@
                     border-radius: 4px;
                     background-color: rgba(198, 119, 252, 1);
                     color: rgba(255, 255, 255, 1);
+
+                    &:hover {
+                        opacity: 0.7;
+                    }
                 }
+            }
+        }
+    }
+
+    .bottomBtnContainer {
+        display: flex;
+        justify-content: flex-end;
+        margin-right: 64px;
+        margin-bottom: 8px;
+
+        .cancelBtn {
+            font-size: 16px;
+            padding: 4px 12px;
+            color: rgba(255, 37, 40, 1);
+            border: 1px solid rgba(255, 37, 40, 1);
+            border-radius: 4px;
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
+
+        .confirmBtn {
+            font-size: 16px;
+            padding: 4px 12px;
+            color: rgba(255, 255, 255, 1);
+            background-color: rgba(198, 119, 252, 1);
+            border: transparent;
+            border-radius: 4px;
+            margin-left: 12px;
+
+            &:hover {
+                opacity: 0.7;
             }
         }
     }
