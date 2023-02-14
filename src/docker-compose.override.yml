@@ -1,4 +1,5 @@
 version: '3.4'
+name: Coursenest-Dev
 
 services:
   gatewayapi:
@@ -16,8 +17,8 @@ services:
       - Jwt__Issuer=http://authentication.api
       - Jwt__AccessTokenLifetime=60
       - Jwt__RefreshTokenLifetime=180
-    ports:
-      - "21001:80"
+    #ports:
+    #  - "21001:80"
 
   identity.api:
     environment:
@@ -26,8 +27,8 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    ports:
-      - "21002:80"
+    #ports:
+    #  - "21002:80"
 
   library.api:
     environment:
@@ -36,8 +37,8 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    ports:
-      - "21003:80"
+    #ports:
+    #  - "21003:80"
 
   payment.api:
     environment:
@@ -45,8 +46,8 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    ports:
-      - "21004:80"
+    #ports:
+    #  - "21004:80"
 
   userdata.api:
     environment:
@@ -55,8 +56,8 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    ports:
-      - "21005:80"
+    #ports:
+    #  - "21005:80"
 
   database:
     environment:
@@ -70,7 +71,7 @@ services:
     volumes:
       - coursenest-dev-mb:/var/lib/rabbitmq
     ports:
-      - "5672:5672"
+    #  - "5672:5672"
       - "15672:15672"
 
 volumes:

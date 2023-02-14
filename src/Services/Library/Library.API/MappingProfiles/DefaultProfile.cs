@@ -46,7 +46,8 @@ public class DefaultProfile : Profile
 				options.Condition((source, dsttination, member) => member != null);
 			});
 
-		CreateMap<Course, CourseResult>();
+		CreateMap<Course, CourseResult>()
+			.ForMember(dst => dst.TopicTitle, opt => opt.MapFrom(src => src.Topic == null ? null : src.Topic.Content));
 		CreateMap<Course, CourseDetailedResult>();
 		CreateMap<CourseCover, ImageResult>()
 			.ForMember(
