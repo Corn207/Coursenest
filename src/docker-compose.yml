@@ -3,6 +3,7 @@ version: '3.4'
 services:
   gatewayapi:
     image: ${DOCKER_REGISTRY-}gatewayapi
+    container_name: GatewayAPI
     build:
       context: .
       dockerfile: GatewayAPI/Dockerfile
@@ -12,6 +13,7 @@ services:
 
   authentication.api:
     image: ${DOCKER_REGISTRY-}authenticationapi
+    container_name: API-Authentication
     build:
       context: .
       dockerfile: Services/Authentication/Authentication.API/Dockerfile
@@ -23,6 +25,7 @@ services:
 
   identity.api:
     image: ${DOCKER_REGISTRY-}identityapi
+    container_name: API-Identity
     build:
       context: .
       dockerfile: Services/Identity/Identity.API/Dockerfile
@@ -34,6 +37,7 @@ services:
 
   library.api:
     image: ${DOCKER_REGISTRY-}libraryapi
+    container_name: API-Library
     build:
       context: .
       dockerfile: Services/Library/Library.API/Dockerfile
@@ -45,6 +49,7 @@ services:
 
   payment.api:
     image: ${DOCKER_REGISTRY-}paymentapi
+    container_name: API-Payment
     build:
       context: .
       dockerfile: Services/Payment/Payment.API/Dockerfile
@@ -55,6 +60,7 @@ services:
 
   userdata.api:
     image: ${DOCKER_REGISTRY-}userdataapi
+    container_name: API-Userdata
     build:
       context: .
       dockerfile: Services/UserData/UserData.API/Dockerfile
@@ -66,6 +72,7 @@ services:
 
   database:
     image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: Database
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_PID=Express
@@ -74,6 +81,7 @@ services:
 
   messagebus:
     image: masstransit/rabbitmq
+    container_name: MessageBus
     networks:
       - backend
 
