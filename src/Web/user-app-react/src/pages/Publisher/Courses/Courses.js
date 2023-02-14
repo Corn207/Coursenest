@@ -108,8 +108,8 @@ function Courses() {
         setPage(page - 1);
     };
 
-    const handleEditCourse = () => {
-        console.log('');
+    const handleEditCourse = (courseId) => {
+        console.log(courseId);
     };
 
     const classes = useStyles();
@@ -151,11 +151,11 @@ function Courses() {
                                     {row.title}
                                 </TableCell>
                                 <TableCell align="right">{row.description}</TableCell>
-                                <TableCell align="right">{row.status}</TableCell>
-                                <TableCell align="right">{row.topic}</TableCell>
-                                <TableCell align="right">{row.courseTier}</TableCell>
+                                <TableCell align="right">{row.isApproved ? 'Approved' : 'Pending'}</TableCell>
+                                <TableCell align="right">{row.topicTitle}</TableCell>
+                                <TableCell align="right">{row.tier === 0 ? 'Free' : 'Premium'}</TableCell>
                                 <TableCell align="right">
-                                    <button>Edit</button>
+                                    <button onClick={() => handleEditCourse(row.courseId)}>Edit</button>
                                 </TableCell>
                             </TableRow>
                         ))}
