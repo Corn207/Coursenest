@@ -69,7 +69,7 @@ namespace Library.API.Controllers
 			_context.Topics.Add(topic);
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(Get), new { topic.SubcategoryId }, null);
+			return CreatedAtAction(nameof(Get), new { TopicId = topic.SubcategoryId }, null);
 		}
 
 
