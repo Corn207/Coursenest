@@ -14,11 +14,13 @@ import commonImages from '~/assets/images';
 
 const cx = classNames.bind(styles);
 
-function SignIn() {
+function SignIn(props) {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isShow, setIsShow] = useState(false);
+
+    const { setAccessToken } = props;
 
     const handleShowPassword = (event) => {
         event.preventDefault();
@@ -43,7 +45,9 @@ function SignIn() {
                 password: password,
             });
             axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
-            window.location.href = '/';
+            localStorage.setItem('accessToken', res.data.accessToken);
+            // setAccessToken(res.data.accessToken);
+            // window.location.href = '/';
             console.log(res.data.accessToken);
         } catch (err) {
             // setError(err.response.data.message);

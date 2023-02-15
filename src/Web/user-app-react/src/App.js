@@ -38,7 +38,8 @@ function App() {
                     <Route path="history" element={<History />}></Route>
                 </Route>
                 <Route path="publisher" element={<Publisher />}>
-                    <Route index element={<PublisherCourses />}></Route>
+                    {/* <Route index element={<PublisherCourses />}></Route> */}
+                    <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
                     <Route path="courses" element={<PublisherCourses />}></Route>
                     <Route path="add-course" element={<AddCourses />}></Route>
                 </Route>

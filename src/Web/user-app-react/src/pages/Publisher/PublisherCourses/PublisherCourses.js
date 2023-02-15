@@ -17,6 +17,7 @@ import {
 
 import styles from './PublisherCourses.module.scss';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles({
     table: {
@@ -39,12 +40,19 @@ function PublisherCourses() {
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(5);
 
+    let params = useParams();
+
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios.get('https://coursenest.corn207.loseyourip.com/courses');
+                const response = await axios.get('https://coursenest.corn207.loseyourip.com/courses', {
+                    params: {
+                        PublisherUserId: params.PublisherUserId,
+                    },
+                });
                 setData(response.data.queried);
                 console.log(response.data.queried);
+                console.log(params.PublisherUserId);
             } catch (error) {
                 console.error(error);
             }
