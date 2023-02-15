@@ -1,0 +1,44 @@
+.wrapper {
+    // height: ;
+
+    .itemDiv {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: -14px;
+
+        .itemAction {
+            display: flex;
+            align-items: center;
+
+            .btnAction {
+                cursor: pointer;
+                margin-right: 16px;
+                color: rgba(140, 140, 140, 1);
+
+                &:hover {
+                    opacity: 0.7;
+                }
+            }
+
+            .itemOrder {
+                padding: 8px;
+                border: 1px solid;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+
+            .moveBtnContainer {
+                display: flex;
+                flex-direction: column;
+                margin-top: -8px;
+
+                .moveBtn {
+                    margin-top: -8px;
+                    border: transparent;
+                    background-color: transparent;
+                }
+            }
+        }
+    }
+}
