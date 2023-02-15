@@ -20,8 +20,6 @@ function SignIn(props) {
     const [error, setError] = useState('');
     const [isShow, setIsShow] = useState(false);
 
-    const { setAccessToken } = props;
-
     const handleShowPassword = (event) => {
         event.preventDefault();
         setIsShow(!isShow);
@@ -46,8 +44,7 @@ function SignIn(props) {
             });
             axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
             localStorage.setItem('accessToken', res.data.accessToken);
-            // setAccessToken(res.data.accessToken);
-            // window.location.href = '/';
+            window.location.href = '/';
             console.log(res.data.accessToken);
         } catch (err) {
             // setError(err.response.data.message);
