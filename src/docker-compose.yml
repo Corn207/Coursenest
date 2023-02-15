@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   gatewayapi:
-    image: ${DOCKER_REGISTRY-}gatewayapi
+    image: coursenest-gatewayapi
     container_name: GatewayAPI
     build:
       context: .
@@ -12,7 +12,7 @@ services:
       - backend
 
   authentication.api:
-    image: ${DOCKER_REGISTRY-}authenticationapi
+    image: coursenest-authenticationapi
     container_name: API-Authentication
     build:
       context: .
@@ -24,7 +24,7 @@ services:
       - messagebus
 
   identity.api:
-    image: ${DOCKER_REGISTRY-}identityapi
+    image: coursenest-identityapi
     container_name: API-Identity
     build:
       context: .
@@ -36,7 +36,7 @@ services:
       - messagebus
 
   library.api:
-    image: ${DOCKER_REGISTRY-}libraryapi
+    image: coursenest-libraryapi
     container_name: API-Library
     build:
       context: .
@@ -48,7 +48,7 @@ services:
       - messagebus
 
   payment.api:
-    image: ${DOCKER_REGISTRY-}paymentapi
+    image: coursenest-paymentapi
     container_name: API-Payment
     build:
       context: .
@@ -59,7 +59,7 @@ services:
       - messagebus
 
   userdata.api:
-    image: ${DOCKER_REGISTRY-}userdataapi
+    image: coursenest-userdataapi
     container_name: API-Userdata
     build:
       context: .

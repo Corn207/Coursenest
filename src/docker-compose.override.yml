@@ -1,5 +1,5 @@
 version: '3.4'
-name: Coursenest-Dev
+name: coursenest-dev
 
 services:
   gatewayapi:

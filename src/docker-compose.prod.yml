@@ -1,5 +1,5 @@
 version: '3.4'
-name: Coursenest
+name: coursenest
 
 services:
   gatewayapi:
@@ -47,8 +47,6 @@ services:
       - MSSQL_SA_PASSWORD=Pass@word
     volumes:
       - coursenest-prod-db:/var/opt/mssql
-    ports:
-      - "1433:1433"
 
   messagebus:
     volumes:

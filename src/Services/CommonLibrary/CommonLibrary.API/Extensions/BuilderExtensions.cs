@@ -138,13 +138,13 @@ public static class BuilderExtensions
 
 		services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
-		services.AddCors(options =>
-		{
-			options.AddDefaultPolicy(configure =>
-			{
-				configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-			});
-		});
+		//services.AddCors(options =>
+		//{
+		//	options.AddDefaultPolicy(configure =>
+		//	{
+		//		configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+		//	});
+		//});
 
 		services.AddAutoMapper(assembly);
 
