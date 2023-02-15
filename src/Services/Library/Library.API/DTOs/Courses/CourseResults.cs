@@ -4,6 +4,6 @@
 
 public record CourseResults
 {
-	public IEnumerable<CourseResult> Courses { get; set; }
+	public CourseResult[] Queried { get; set; }
 	public int Total { get; set; }
 }

@@ -30,7 +30,7 @@ function DisplayListUser(props) {
                                     <img src={user.avatar?.uri ?? avatarDefault} className={styles.avatar} alt=""/>
                                     <div>
                                         <p className={styles.fullname}>{user.fullName}</p>
-                                        {/* <p>{user.username}</p> */}
+                                        <p>{user.username}</p>
                                     </div>
                                 </td>
                                 <td className={styles.email}>
@@ -38,7 +38,9 @@ function DisplayListUser(props) {
                                 </td>
                                 
                                 <td>
-                                    <GetRolesByUserId userId={user.userId}/>
+                                    {/* <GetRolesByUserId userId={user.userId}/> */}
+                                    <GetRolesByUserId roles={user.roles}/>
+
                                 </td>
                                 <td>
                                     <button

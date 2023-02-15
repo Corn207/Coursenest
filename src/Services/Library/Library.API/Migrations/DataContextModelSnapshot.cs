@@ -288,8 +288,8 @@ namespace Library.API.Migrations
                     b.Property<int>("OrderNumerator")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("RequiredTime")
-                        .HasColumnType("time");
+                    b.Property<int>("RequiredMinutes")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()

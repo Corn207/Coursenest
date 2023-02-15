@@ -6,7 +6,6 @@ using Library.API.DTOs.Lessons;
 using Library.API.DTOs.Ratings;
 using Library.API.DTOs.Units;
 using Library.API.Infrastructure.Entities;
-using static Library.API.DTOs.Units.CreateQuestion;
 
 namespace Library.API.MappingProfiles;
 
@@ -47,7 +46,8 @@ public class DefaultProfile : Profile
 				options.Condition((source, dsttination, member) => member != null);
 			});
 
-		CreateMap<Course, CourseResult>();
+		CreateMap<Course, CourseResult>()
+			.ForMember(dst => dst.TopicTitle, opt => opt.MapFrom(src => src.Topic == null ? null : src.Topic.Content));
 		CreateMap<Course, CourseDetailedResult>();
 		CreateMap<CourseCover, ImageResult>()
 			.ForMember(
@@ -76,32 +76,25 @@ public class DefaultProfile : Profile
 		#endregion
 
 
-		#region Unit
-		CreateMap<Unit, UnitResult>()
-			.Include<Material, UnitResult>()
-			.ForMember(
-				dst => dst.IsExam, opt => opt.MapFrom(
-				_ => true));
-
-		CreateMap<Material, UnitResult>()
-			.ForMember(
-				dst => dst.IsExam, opt => opt.MapFrom(
-				_ => false));
-		#endregion
-
-
 		#region Material
-		CreateMap<CreateMaterial, Material>()
-			.ForMember(
-				dst => dst.RequiredTime, opt => opt.MapFrom(
-				src => TimeSpan.FromMinutes(src.RequiredTimeMinutes)));
+		CreateMap<CreateMaterial, Material>();
 		CreateMap<UpdateMaterial, Material>()
 			.ForAllMembers(options =>
 			{
 				options.Condition((source, dsttination, member) => member != null);
 			});
 
-		CreateMap<Material, MaterialResult>()
+		CreateMap<Material, UnitResult>()
+			.ForMember(
+				dst => dst.IsExam, opt => opt.MapFrom(
+				_ => false))
+			.ForMember(
+				dst => dst.CourseId, opt => opt.MapFrom(
+				src => src.Lesson.CourseId));
+		CreateProjection<Material, MaterialResult>()
+			.ForMember(
+				dst => dst.IsExam, opt => opt.MapFrom(
+				_ => false))
 			.ForMember(
 				dst => dst.CourseId, opt => opt.MapFrom(
 				src => src.Lesson.CourseId));
@@ -109,22 +102,32 @@ public class DefaultProfile : Profile
 
 
 		#region Exam
-		CreateMap<CreateExam, Exam>()
-			.ForMember(
-				dst => dst.RequiredTime, opt => opt.MapFrom(
-				src => TimeSpan.FromMinutes(src.RequiredTimeMinutes)));
-		CreateMap<UpdateExam, Exam>()
+		CreateMap<CreateExam, Exam>();
+		CreateMap<UpdateUnit, Exam>()
 			.ForAllMembers(options =>
 			{
 				options.Condition((source, dsttination, member) => member != null);
 			});
 
-		CreateMap<Exam, ExamResult>()
+		CreateMap<Exam, UnitResult>()
+			.ForMember(
+				dst => dst.IsExam, opt => opt.MapFrom(
+				_ => true))
+			.ForMember(
+				dst => dst.CourseId, opt => opt.MapFrom(
+				src => src.Lesson.CourseId));
+		CreateProjection<Exam, ExamResult>()
+			.ForMember(
+				dst => dst.IsExam, opt => opt.MapFrom(
+				_ => true))
 			.ForMember(
 				dst => dst.CourseId, opt => opt.MapFrom(
 				src => src.Lesson.CourseId));
 
-		CreateMap<Exam, CommonLibrary.API.MessageBus.Responses.ExamResult>()
+		CreateProjection<Exam, CommonLibrary.API.MessageBus.Responses.ExamResult>()
+			.ForMember(
+				dst => dst.TimeLimitInMinutes, opt => opt.MapFrom(
+				src => src.RequiredMinutes))
 			.ForMember(
 				dst => dst.LessonTitle, opt => opt.MapFrom(
 				src => src.Lesson.Title))
@@ -132,17 +135,16 @@ public class DefaultProfile : Profile
 				dst => dst.CourseTitle, opt => opt.MapFrom(
 				src => src.Lesson.Course.Title))
 			.ForMember(
-				dst => dst.TimeLimit, opt => opt.MapFrom(
-				src => src.RequiredTime))
-			.ForMember(
 				dst => dst.TopicId, opt => opt.MapFrom(
 				src => src.Lesson.Course.TopicId));
+		CreateProjection<Question, CommonLibrary.API.MessageBus.Responses.ExamResult.Question>();
+		CreateProjection<Choice, CommonLibrary.API.MessageBus.Responses.ExamResult.Choice>();
 		#endregion
 
 
 		#region Question && Choice
 		CreateMap<CreateQuestion, Question>();
-		CreateMap<CreateChoice, Choice>();
+		CreateMap<CreateQuestion.CreateChoice, Choice>();
 
 		CreateMap<UpdateQuestion, Question>()
 			.ForAllMembers(options =>
@@ -150,8 +152,8 @@ public class DefaultProfile : Profile
 				options.Condition((source, dsttination, member) => member != null);
 			});
 
-		CreateMap<Question, QuestionResult>();
-		CreateMap<Choice, ChoiceResult>();
+		CreateProjection<Question, QuestionResult>();
+		CreateProjection<Choice, ChoiceResult>();
 		#endregion
 	}
 }

@@ -46,7 +46,7 @@ public class EnrollmentsController : ControllerBase
 
 		var results = await _context.Enrollments
 			.Where(x => x.StudentUserId == userId)
-			//.ProjectTo<EnrollmentResult>(_mapper.ConfigurationProvider)
+			.ProjectTo<EnrollmentResult>(_mapper.ConfigurationProvider)
 			.ToArrayAsync();
 
 		return Ok(results);
@@ -163,10 +163,11 @@ public class EnrollmentsController : ControllerBase
 			.AsNoTracking()
 			.Include(x => x.CompletedUnits)
 			.FirstOrDefaultAsync(x =>
+				x.StudentUserId == userId &&
 				x.EnrollmentId == body.EnrollmentId &&
-				x.StudentUserId == userId);
+				x.Completed != null);
 		if (enrollment == null)
-			return NotFound("EnrollmentId does not exist or you're not authorized.");
+			return NotFound("EnrollmentId does not exist or completed or you're not authorized.");
 		if (enrollment.CompletedUnits.Any(x => x.UnitId == body.UnitId))
 			return Conflict($"UnitId existed.");
 

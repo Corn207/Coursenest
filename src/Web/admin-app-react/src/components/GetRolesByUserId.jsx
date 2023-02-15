@@ -1,19 +1,21 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+// import { useEffect, useState } from "react";
 import Badge from 'react-bootstrap/Badge';
+// import instance from "../api/request";
 
 export default function GetRolesByUserId(props) {
 
-    const { userId } = props;
-    const [roles, setRoles] = useState([]);
+    // const { userId } = props;
+    // const [roles, setRoles] = useState([]);
 
-    useEffect(() => {
-        axios.get(`http://localhost:21001/roles?userId=${userId}`)
-            .then((res) => {
-                setRoles(res.data);
-            })
-            .catch((err) => console.log(err));
-    }, [])
+    // useEffect(() => {
+    //     instance.get(`roles/userId=${userId}`)
+    //         .then((res) => {
+    //             setRoles(res.data);
+    //         })
+    //         .catch((err) => console.log(err));
+    // }, [])
+
+    const { roles } = props;
 
     return (
         <div>
@@ -24,10 +26,10 @@ export default function GetRolesByUserId(props) {
                         key={i} pill bg="info"
                     >
                         {
-                            role?.type == 0 ? "Student" 
-                            : role?.type == 1 ? "Instructor" 
-                            : role?.type == 2 ? "Publisher" 
-                            : role?.type == 3 ? "Admin" 
+                            role == 0 ? "Student" 
+                            : role == 1 ? "Instructor" 
+                            : role == 2 ? "Publisher" 
+                            : role == 3 ? "Admin" 
                             : ""
                         }
                     </Badge>

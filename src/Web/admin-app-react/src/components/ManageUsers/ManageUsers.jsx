@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
 import "font-awesome/css/font-awesome.min.css";
 import "rsuite/dist/rsuite.min.css";
 import { Pagination } from "rsuite/";
@@ -9,6 +8,7 @@ import DisplayListUser from "../DisplayListUser/DisplayListUser";
 import ModalDeleteUser from "../ModalDeleteUser";
 import Search from "../Search";
 import ModalDetailUser from "../ModalUserDetail/ModalUserDetail";
+import instance from "../../api/request";
 
 export default function ManageUsers() {
     const [listUsers, setListUsers] = useState([]);
@@ -26,25 +26,12 @@ export default function ManageUsers() {
         fetchListUser();
     }, [page, pageSize]);
 
-    useEffect(() => {
-        handleCountUser();
-    }, []);
-
     const fetchListUser = () => {
-        axios
-            // .get("http://192.168.0.3:21002/users")
-            .get(`http://localhost:21002/users?Page=${page - 1}&PageSize=${pageSize}`)
+        instance
+            .get(`users/admin?PageNumber=${page}&PageSize=${pageSize}`)
             .then((res) => {
-                setListUsers(res.data);
-            })
-            .catch((err) => console.log(err));
-    };
-
-    const handleCountUser = () => {
-        axios
-            .get("http://localhost:21002/users/count")
-            .then((res) => {
-                setCountUser(res.data);
+                setListUsers(res.data.queried);
+                setCountUser(res.data.count)
             })
             .catch((err) => console.log(err));
     };
@@ -78,9 +65,16 @@ export default function ManageUsers() {
 
     };
 
-    const handleOnChangePageSize = (event) => {
-        setPageSize(parseInt(event));
-    }
+    const options = [
+        { value: '5', text: '5 users/page' },
+        { value: '50', text: '50 users/page' },
+        { value: '100', text: '100 users/page' }
+    ];
+
+    const handleOnChangePageSize = event => {
+        console.log(event.target.value);
+        setPageSize(parseInt(event.target.value));
+    };
 
     return (
         <div className={styles.container}>
@@ -91,32 +85,33 @@ export default function ManageUsers() {
                         <span>Total: {countUser} Users</span>
                     </div>
                     <div>
-                        <select onChange={handleOnChangePageSize}>
-                            <option>5</option>
-                            <option>50</option>
-                            <option>100</option>
-                            <option>500</option>
+                        <select value={pageSize} onChange={handleOnChangePageSize}>
+                            {options.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.text}
+                                </option>
+                            ))}
                         </select>
                     </div>
                 </div>
-                    <DisplayListUser
-                        listUsers={filteredListUser}
-                        // handleClickDelUser={handleClickDelUser}
-                        handleClickUpdateUser={handleClickUpdateUser}
-                    />
-                    <ModalDetailUser
-                        show={showModalUpdateUser}
-                        setShow={setShowModalUpdateUser}
-                        fetchListUser={fetchListUser}
-                        dataNeedUpdate={dataNeedUpdate}
-                        handleClickDelUser={handleClickDelUser}
-                    />
-                    <ModalDeleteUser
-                        show={showModalDeleteUser}
-                        setShow={setShowModalDeleteUser}
-                        deletedData={deletedData}
-                        fetchListUser={fetchListUser}
-                    />
+                <DisplayListUser
+                    listUsers={filteredListUser}
+                    // handleClickDelUser={handleClickDelUser}
+                    handleClickUpdateUser={handleClickUpdateUser}
+                />
+                <ModalDetailUser
+                    show={showModalUpdateUser}
+                    setShow={setShowModalUpdateUser}
+                    fetchListUser={fetchListUser}
+                    dataNeedUpdate={dataNeedUpdate}
+                    handleClickDelUser={handleClickDelUser}
+                />
+                <ModalDeleteUser
+                    show={showModalDeleteUser}
+                    setShow={setShowModalDeleteUser}
+                    deletedData={deletedData}
+                    fetchListUser={fetchListUser}
+                />
             </div>
 
             <div className={styles.pagination}>

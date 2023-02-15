@@ -38,7 +38,9 @@ namespace Library.API.Controllers
 
 		// GET: /units
 		[HttpGet]
-		public async Task<ActionResult<UnitResult[]>> GetAll(
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UnitResult>))]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> GetAll(
 			[BindRequired][FromQuery] int lessonId)
 		{
 			var userId = GetUserIdOrDefault();
@@ -56,7 +58,7 @@ namespace Library.API.Controllers
 				.Select(x => _mapper.Map<UnitResult>(x))
 				.ToArray();
 
-			return results;
+			return Ok(results);
 		}
 
 		// GET: /units/count
@@ -84,7 +86,9 @@ namespace Library.API.Controllers
 
 		// GET: /units/5
 		[HttpGet("{unitId}")]
-		public async Task<ActionResult<UnitResult>> Get(
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnitResult))]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> Get(
 			int unitId)
 		{
 			var userId = GetUserIdOrDefault();
@@ -99,7 +103,7 @@ namespace Library.API.Controllers
 			if (result == null)
 				return NotFound("UnitId does not exist or you're not authorized.");
 
-			return result;
+			return Ok(result);
 		}
 
 		// GET: /units/5/material
@@ -248,7 +252,7 @@ namespace Library.API.Controllers
 		[Authorize(Roles = nameof(RoleType.Publisher))]
 		public async Task<ActionResult> UpdateExam(
 			int unitId,
-			[FromBody] UpdateExam body)
+			[FromBody] UpdateUnit body)
 		{
 			var userId = GetUserId();
 

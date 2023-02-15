@@ -59,7 +59,7 @@ namespace Library.API.Controllers
 
 			var result = new CourseResults
 			{
-				Courses = await searchQuery
+				Queried = await searchQuery
 					.ProjectTo<CourseResult>(_mapper.ConfigurationProvider)
 					.ToArrayAsync(),
 				Total = await dbQuery

@@ -4,11 +4,11 @@
 
 public record ExamResult
 {
+	public int UnitId { get; set; }
 	public string Title { get; set; }
+	public int TimeLimitInMinutes { get; set; }
 	public string LessonTitle { get; set; }
 	public string CourseTitle { get; set; }
-	public TimeSpan TimeLimit { get; set; }
-	public int UnitId { get; set; }
 	public int? TopicId { get; set; }
 	public List<Question> Questions { get; set; }
 

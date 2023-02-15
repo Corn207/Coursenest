@@ -4,17 +4,26 @@ import Modal from 'react-bootstrap/Modal';
 import styles from './ModalUserDetail.module.css'
 import avatarDefault from '../../assets/avatar.png';
 import { useState } from 'react';
+import instance from "../../api/request";
 
 function ModalDetailUser(props) {
     const { show, setShow, fetchListUser, dataNeedUpdate, handleClickDelUser } = props;    
 
     const handleClose = () => setShow(false);
 
-    const [newPassword, setNewPassword] = useState();
+    const [newPassword, setNewPassword] = useState('');
 
     const handleResetPwd = () => {
-        // call api http://localhost:21001/authenticate/reset-password
-        setNewPassword("New Password");
+        console.log(dataNeedUpdate.userId);
+        instance
+            .put(`authenticate/reset-password`, dataNeedUpdate.userId)
+            .then((res) => {
+                console.log(res.data);
+                setNewPassword(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
     const handleUpdateUser = () => {
@@ -51,13 +60,14 @@ function ModalDetailUser(props) {
                             className={styles.resetPsw}
                             variant="info"
                             onClick={() => {
-                                handleResetPwd(dataNeedUpdate.id);
+                                handleResetPwd();
                             }}
                         >
                             Reset Password
                         </Button>
                         <br /><br />
-                        <input type='text' value={newPassword} onFocus={e => e.target.select()} />
+                        <p>New Password: {newPassword}</p>
+                        {/* <input type='text' value={newPassword} onFocus={e => e.target.select()} /> */}
                     </div> 
                     <div className={styles.roles}>
                         <h5>Roles</h5>
@@ -65,6 +75,7 @@ function ModalDetailUser(props) {
                             <span>Student</span>
                             <span>0 day</span>
                             <input type="date" className={styles.noOutline} />
+                            {/* install https://ant-design.antgroup.com/components/date-picker */}
                         </div>
                         <div className={styles.roundedCorner}>
                             <span>Instructor</span>

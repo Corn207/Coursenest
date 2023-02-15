@@ -10,6 +10,9 @@ public record CourseResult
 	public string Title { get; set; }
 	public string Description { get; set; }
 	public CourseTier Tier { get; set; }
+	public bool IsApproved { get; set; }
+	public int? TopicId { get; set; }
+	public string? TopicTitle { get; set; }
 	public ImageResult? Cover { get; set; }
 	public int PublisherUserId { get; set; }
 	public float RatingAverage { get; set; }

@@ -6,7 +6,7 @@ public abstract class Unit
 {
 	public int UnitId { get; set; }
 	public string Title { get; set; }
-	public TimeSpan RequiredTime { get; set; }
+	public int RequiredMinutes { get; set; }
 	public int OrderNumerator { get; set; }
 	public int OrderDenominator { get; set; }
 	public decimal Order { get; set; }

@@ -173,15 +173,18 @@ namespace UserData.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubmissionId"));
 
-                    b.Property<string>("CourseName")
+                    b.Property<string>("CourseTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("Elapsed")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Ended")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("EnrollmentId")
                         .HasColumnType("int");
@@ -195,19 +198,19 @@ namespace UserData.API.Migrations
                     b.Property<int?>("InstructorUserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("LessonName")
+                    b.Property<string>("LessonTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StudentUserId")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("TimeLimit")
-                        .HasColumnType("time");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TopicId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UnitId")
                         .HasColumnType("int");

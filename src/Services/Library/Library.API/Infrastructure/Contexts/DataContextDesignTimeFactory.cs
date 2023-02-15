@@ -7,13 +7,8 @@ public class DataContextDesignTimeFactory : IDesignTimeDbContextFactory<DataCont
 {
 	public DataContext CreateDbContext(string[] args)
 	{
-		if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
-		{
-			throw new ArgumentException("Missing SQL Server ConnectionString in arguments.");
-		}
-
 		var optionsBuilder = new DbContextOptionsBuilder<DataContext>();
-		optionsBuilder.UseSqlServer(args[0]);
+		optionsBuilder.UseSqlServer(args.Length != 0 ? args[0] : null);
 
 		return new DataContext(optionsBuilder.Options);
 	}

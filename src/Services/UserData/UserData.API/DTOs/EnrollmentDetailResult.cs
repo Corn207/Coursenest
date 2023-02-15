@@ -8,5 +8,5 @@ public record EnrollmentDetailResult
 	public DateTime? Completed { get; set; }
 	public int CourseId { get; set; }
 	public int StudentUserId { get; set; }
-	public int[] CompletedUnitIds { get; set; }
+	public IEnumerable<int> CompletedUnitIds { get; set; }
 }

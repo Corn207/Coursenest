@@ -1,14 +1,13 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import axios from "axios";
+import instance from "../api/request";
 
 function ModalDeleteUser(props) {
     const { show, setShow, deletedData, fetchListUser } = props;
     const handleClose = () => setShow(false);
     const handleSubmitDelUser = () => {
-        axios
-            // .delete(`http://192.168.0.3:21002/users/${deletedData.userId}`)
-            .delete(`http://localhost:21002/users/${deletedData.userId}`)
+        instance
+            .delete(`users/${deletedData.userId}`)
             .then((res) => {
                 console.log(res);
                 handleClose();

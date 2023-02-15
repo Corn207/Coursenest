@@ -6,7 +6,7 @@ namespace UserData.API.DTOs;
 
 public record SubmitSubmission
 {
-	public IEnumerable<Answer> Answers { get; set; }
+	public Answer[] Answers { get; set; }
 
 	public record Answer : IValidatableObject
 	{
