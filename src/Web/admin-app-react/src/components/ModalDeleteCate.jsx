@@ -26,7 +26,7 @@ function ModalDeleteCate(props) {
                 size="sm"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Delete this Cate ?</Modal.Title>
+                    <Modal.Title>Delete this Category ?</Modal.Title>
                 </Modal.Header>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>

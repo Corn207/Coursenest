@@ -52,12 +52,11 @@
     width: 100%;
     padding-left: 24px;
     padding-top: 21px;
-    
-    .jobTitleLabel {
-        color: rgba(255, 255, 255, 0.75);
-        margin-top: 16px;
-        margin-bottom: 8px;
-    }
+}
+.jobTitleLabel {
+    color: rgba(255, 255, 255, 0.75);
+    margin-top: 16px;
+    margin-bottom: 8px;
 }
 .body {
     padding-left: 175px;
@@ -119,4 +118,13 @@
 .newAvatar img {
     width: 200px;
     height: 200px;
+}
+.displayFlex {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.formEditInfo {
+    padding-left: 50px;
+    padding-right: 50px;
 }

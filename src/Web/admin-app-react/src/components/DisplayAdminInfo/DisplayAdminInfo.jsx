@@ -12,7 +12,14 @@ export default function DisplayAdminInfo() {
     const userId = localStorage.getItem("userId")
 
     const [userInfo, setUserInfo] = useState({});
-    // const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({});
+    const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({
+        "email": "",
+        "phonenumber": "",
+        "fullName": "",
+        "title": "",
+        "aboutMe": "",
+        "location": ""
+    });
 
     const [showModalAchievement, setShowModalAchievement] = useState(false);
     const [showModalChangeAvatar, setShowModalChangeAvatar] = useState(false);
@@ -29,12 +36,21 @@ export default function DisplayAdminInfo() {
 
     const fetchInfoUser = () => {
         instance
-        .get(`users/${userId}`)
-        .then((res) => {
-            setUserInfo(res.data);
-            if (res.data.avatar != null) setAvatar(res.data.avatar.uri);
-        })
-        .catch((err) => console.log(err));
+            .get(`users/${userId}`)
+            .then((res) => {
+                setUserInfo(res.data);
+                if (res.data.avatar != null) setAvatar(res.data.avatar.uri);
+                console.log(res.data);
+                setUserInfoNeedUpdate({                
+                    "email": res.data.email,
+                    "phonenumber": res.data.phonenumber,
+                    "fullName": res.data.fullName,
+                    "title": res.data.title,
+                    "aboutMe": res.data.aboutMe,
+                    "location": res.data.location    
+                })
+            })
+            .catch((err) => console.log(err));
     }
 
     const handleNewImage = (e) => {
@@ -42,7 +58,7 @@ export default function DisplayAdminInfo() {
         const objectUrl = URL.createObjectURL(e.target.files[0]);
         setPreview(objectUrl);
     }
-    
+
     const handleClickSaveChangeAvatar = () => {
         const formData = new FormData();
         formData.append("formFile", file);
@@ -62,24 +78,34 @@ export default function DisplayAdminInfo() {
     }
 
     const handleClickEditInfo = () => {
+        console.log(userInfoNeedUpdate);
         setShowModalEditInfo(true);
-        console.log(userInfo);
     }
 
-    const handleConfirmUpdateInfo = () => {
-        // setUserInfoNeedUpdate({"dateOfBirth": "2023-02-13T13:30:20-05:00"})
-        // console.log(userInfoNeedUpdate)
-        const userInfoNeedUpdate = { "dateOfBirth": "2023-02-13T13:30:20-05:00" }
+    const handleConfirmUpdateInfo = (event) => {
+        // test
+        // const userInfoNeedUpdate = { "dateOfBirth": "2023-02-13T13:30:20-05:00" }
+        event.preventDefault();
+        console.log(userInfoNeedUpdate);
         instance
             .put(`users/me`, userInfoNeedUpdate)
             .then((res) => {
                 console.log(res.data);
                 setShowModalEditInfo(false);
+                fetchInfoUser();
             })
             .catch((err) => {
                 console.log(err);
             })
 
+    }
+
+    const handleChangeInfo = (event) => {
+        const value = event.target.value;
+        setUserInfoNeedUpdate({
+            ...userInfoNeedUpdate,
+            [event.target.name]: value
+        });
     }
 
     return (
@@ -213,54 +239,87 @@ export default function DisplayAdminInfo() {
                 onHide={() => setShowModalEditInfo(false)}
                 backdrop="static"
                 keyboard={false}
-                size="lg"
+                size="md"
                 centered
                 scrollable={true}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        <h2>Edit Infomations</h2>
+                        <h3>Edit Infomations</h3>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div>
-                        <label>Email</label>
-                        <textarea>{userInfo.email}</textarea>
-                    </div>
-                    <div>
-                        <label>Phone Number</label>
-                        <textarea>{userInfo.phonenumber}</textarea>
-                    </div>
-                    <div>
-                        <label>Full Name</label>
-                        <textarea>{userInfo.fullName}</textarea>
-                    </div>
-                    <div>
-                        <label>Title</label>
-                        <textarea>{userInfo.title}</textarea>
-                    </div>
-                    <div>
-                        <label>About Me</label>
-                        <textarea>{userInfo.aboutMe}</textarea>
-                    </div>
-                    <div>
-                        <label>Gender</label>
-                        <textarea>{userInfo.gender}</textarea>
-                    </div>
-                    <div>
-                        <label>Date of birth</label>
-                        <textarea>{userInfo.dateOfBirth}</textarea>
-                    </div>
-                    <div>
-                        <label>Location</label>
-                        <textarea>{userInfo.location}</textarea>
-                    </div>
+                    <form onSubmit={handleConfirmUpdateInfo} className={styles.formEditInfo}>
+                        <div className={styles.displayFlex}>
+                            <label>Email:</label>
+                            <input
+                                type="text"
+                                name="email"
+                                value={userInfoNeedUpdate.email}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div className={styles.displayFlex}>
+                            <label>Phone Number:</label>
+                            <input
+                                type="text"
+                                name="phonenumber"
+                                value={userInfoNeedUpdate.phonenumber}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div className={styles.displayFlex}>
+                            <label>Full Name:</label>
+                            <input
+                                type="text"
+                                name="fullName"
+                                value={userInfoNeedUpdate.fullName}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div className={styles.displayFlex}>
+                            <label>Title:</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={userInfoNeedUpdate.title}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div className={styles.displayFlex}>
+                            <label>About me:</label>
+                            <input
+                                type="text"
+                                name="aboutMe"
+                                value={userInfoNeedUpdate.aboutMe}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div className={styles.displayFlex}>
+                            <label>Gender: </label>
+                            <select onChange={handleChangeInfo}>
+                                <option value="grapefruit">Male</option>
+                                <option value="lime">Female</option>
+                            </select>
+                        </div>
+                        <div className={styles.displayFlex}>
+                            <label>Date of birth:</label>
+                            <input type="date"/>
+                        </div>
+                        <div className={styles.displayFlex}>
+                            <label>Location:</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={userInfoNeedUpdate.location}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div>
+                            <input type='submit' style={{ color: "white", padding: 5, backgroundColor: "blue", borderRadius: 5 }} />
+                        </div>
+                    </form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={handleConfirmUpdateInfo}>
-                        Save Changes
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             <Modal
