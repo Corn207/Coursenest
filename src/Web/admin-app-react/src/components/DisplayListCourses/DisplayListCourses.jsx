@@ -1,6 +1,6 @@
 import styles from "./DisplayListCourses.module.css";
 import "font-awesome/css/font-awesome.min.css";
-import avatarDefault from '../../assets/avatar.png';
+import courseAvatar from "../../assets/courseAvatarDefault.png"
 
 function DisplayListCourses(props) {
 
@@ -24,7 +24,7 @@ function DisplayListCourses(props) {
                         return (
                             <tr className={styles.tableRow} key={course.courseId}>
                                 <td className={styles.avatarWrapper}>
-                                    <img src={course.cover?.uri ?? avatarDefault} className={styles.avatar} alt=""/>
+                                    <img src={course.cover?.uri ?? courseAvatar} className={styles.avatar} alt=""/>
                                     <div>
                                         <p>{course.title}</p>
                                     </div>
