@@ -2,6 +2,14 @@ version: '3.4'
 name: coursenest-dev
 
 services:
+  web.user:
+    ports:
+      - "21001:5000"
+      
+  web.admin:
+    ports:
+      - "21002:5000"
+
   gatewayapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -71,8 +79,8 @@ services:
     volumes:
       - coursenest-dev-mb:/var/lib/rabbitmq
     ports:
-    #  - "5672:5672"
       - "15672:15672"
+    #  - "5672:5672"
 
 volumes:
   coursenest-dev-db:

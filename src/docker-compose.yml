@@ -1,6 +1,24 @@
 version: '3.4'
 
 services:
+  web.user:
+    image: coursenest-webuser
+    container_name: WEB-User
+    build:
+      context: .
+      dockerfile: Web/user-app-react/Dockerfile
+    networks:
+      - frontend
+      
+  web.admin:
+    image: coursenest-webadmin
+    container_name: WEB-Admin
+    build:
+      context: .
+      dockerfile: Web/admin-app-react/Dockerfile
+    networks:
+      - frontend
+
   gatewayapi:
     image: coursenest-gatewayapi
     container_name: GatewayAPI
