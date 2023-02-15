@@ -1,15 +1,12 @@
 
 import { useState } from "react";
 import React from 'react';
-import { Typography } from 'antd';
 import instance from "../../api/request";
 import styles from './Login.module.css';
 
 export default function Login(props) {
 
     const { setAccessToken } = props;
-
-    const { Title } = Typography;
 
     const [info, setInfo] = useState({
         username: "",
@@ -56,7 +53,7 @@ export default function Login(props) {
     return (
         <div className={styles.container}>
             <div className={styles.loginForm}>
-                <Title>Login</Title>
+                <h2>Login</h2>
 
                 <form onSubmit={handleSubmit}>
 
