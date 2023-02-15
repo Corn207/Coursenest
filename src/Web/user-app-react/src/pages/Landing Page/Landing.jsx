@@ -7,14 +7,13 @@ import tickicon from '~/assets/images/shield-tick.png';
 import styles from './Landing.module.css';
 import UserActions from '~/components/UserAction/UserActions';
 
-
 export default function Landing() {
     return (
         <div className={styles.landingpg}>
             <div className={styles.nav}>
                 <div className={styles.navleft}>
-                    <img src={logowhite} className={styles.logowhite} alt=""/>
-                    <Link to="/home" className='textlink'>
+                    <img src={logowhite} className={styles.logowhite} alt="" />
+                    <Link to="/home" className="textlink">
                         <p>Home</p>
                     </Link>
                 </div>
@@ -24,16 +23,14 @@ export default function Landing() {
             </div>
             <div className={styles.content}>
                 <h1 className={styles.title}>IT - courses</h1>
-                <h2 className={styles.slogan}>Online studying has never been {' '}
-                <Typical
-                    strings={[' easier.', ' faster.']}
-                    typeSpeed={150}
-                    backSpeed={120}
-                    loop
-                />
+                <h2 className={styles.slogan}>
+                    Online studying has never been{' '}
+                    <Typical strings={[' easier.', ' faster.']} typeSpeed={150} backSpeed={120} loop />
                 </h2>
                 <p className={styles.intro}>Python, C++, C# or Java?</p>
-                <p className={styles.intro}>Which programming language do you want <br /> to start your journey as a <br /> programmer?</p>
+                <p className={styles.intro}>
+                    Which programming language do you want <br /> to start your journey as a <br /> programmer?
+                </p>
                 <Link to="#">
                     <button className={styles.bstudy}>Study now</button>
                 </Link>
@@ -43,7 +40,7 @@ export default function Landing() {
                 <div className={styles.advantages}>
                     <img src={tickicon} alt="" />
                     <span>Free register</span>
-                    <img src={tickicon} alt=""/>
+                    <img src={tickicon} alt="" />
                     <span>Great service</span>
                 </div>
             </div>

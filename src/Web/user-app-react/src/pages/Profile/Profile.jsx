@@ -110,7 +110,9 @@ function Profile() {
                             </tr>
                             <tr>
                                 <td>Phone number</td>
-                                <td className={styles.tableRightContent}>{userInfo.phonenumber == null ? 'N/A' : userInfo.phonenumber}</td>
+                                <td className={styles.tableRightContent}>
+                                    {userInfo.phonenumber == null ? 'N/A' : userInfo.phonenumber}
+                                </td>
                             </tr>
                             <tr>
                                 <td>Email</td>
@@ -118,7 +120,9 @@ function Profile() {
                             </tr>
                             <tr>
                                 <td>Location</td>
-                                <td className={styles.tableRightContent}>{userInfo.location == null ? 'N/A' : userInfo.location}</td>
+                                <td className={styles.tableRightContent}>
+                                    {userInfo.location == null ? 'N/A' : userInfo.location}
+                                </td>
                             </tr>
                         </tbody>
                     </table>

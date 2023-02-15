@@ -26,16 +26,16 @@ export default function GuestActions() {
     //                 </Link>
     //             </div>
     //         )}
-            
+
     //     </div>
     // );
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div>
             <div onClick={() => setIsOpen(!isOpen)} className={styles.bdropdown}>
-                <img src={guesticon} alt=""/>
+                <img src={guesticon} alt="" />
                 <p>Guest</p>
-                <img src={dropdownicon} alt=""/>
+                <img src={dropdownicon} alt="" />
             </div>
             <style>{`
                 .hidden {

@@ -1,10 +1,11 @@
 .container {
     justify-content: space-between;
-    margin: 30px 30px 40px 30px;
+    // margin: 30px 30px 40px 30px;
+    padding: 30px 30px 40px 30px;
     height: 30px;
     display: flex;
 
-    .leftHeader  {
+    .leftHeader {
         align-items: center;
         gap: 30px;
         display: flex;
@@ -23,26 +24,26 @@
                     width: 230px;
                     padding: 24px;
                     overflow-y: scroll;
-                    border: 1px solid rgb(221,204,233);
-    
+                    border: 1px solid rgb(221, 204, 233);
+
                     .dropdownItemCate {
                         display: flex;
                         gap: 10px;
                         align-items: center;
                         justify-content: space-between;
                     }
-    
+
                     .dropdownItemCate:hover {
-                        color: #C677FC;
+                        color: #c677fc;
                         cursor: pointer;
                     }
                 }
-    
-                .dropdownListItemSub { 
+
+                .dropdownListItemSub {
                     width: 230px;
                     padding: 24px;
                     overflow-y: scroll;
-                    border: 1px solid rgb(221,204,233);
+                    border: 1px solid rgb(221, 204, 233);
 
                     .dropdownItemSubCate {
                         display: flex;
@@ -52,7 +53,7 @@
                     }
 
                     .dropdownItemSubCate:hover {
-                        color: #C677FC;
+                        color: #c677fc;
                         cursor: pointer;
                     }
                 }
@@ -61,7 +62,7 @@
                     width: 230px;
                     padding: 24px;
                     overflow-y: scroll;
-                    border: 1px solid rgb(221,204,233);
+                    border: 1px solid rgb(221, 204, 233);
 
                     .topic {
                         display: flex;
@@ -71,7 +72,7 @@
                     }
 
                     .topic:hover {
-                        color: #C677FC;
+                        color: #c677fc;
                         cursor: pointer;
                     }
                 }
@@ -93,7 +94,7 @@
             transition: color 0.8s ease;
         }
         .textDecoration:hover {
-            color: #C677FC;
+            color: #c677fc;
             cursor: pointer;
         }
     }
@@ -102,6 +103,3 @@
         display: flex;
     }
 }
-
-
-
