@@ -15,8 +15,7 @@ import {
     TableRow,
 } from '@material-ui/core';
 
-import styles from './Courses.module.scss';
-import coursesApi from '~/api/coursesApi';
+import styles from './PublisherCourses.module.scss';
 import axios from 'axios';
 
 const useStyles = makeStyles({
@@ -32,29 +31,9 @@ const useStyles = makeStyles({
     nextBtn: {},
 });
 
-function createData(id, title, description, status, topic, courseTier, action) {
-    return { id, title, description, status, topic, courseTier, action };
-}
-const data = [
-    createData(1, 'Title 1', 'Description 1', 'Status 1', 'Topic 1', 'Course Tier 1', 'Action 1'),
-    createData(2, 'Title 2', 'Description 2', 'Status 2', 'Topic 2', 'Course Tier 2', 'Action 2'),
-    createData(3, 'Title 3', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(4, 'Title 4', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(5, 'Title 5', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(6, 'Title 6', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(7, 'Title 7', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(8, 'Title 8', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(9, 'Title 9', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(10, 'Title 10', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(11, 'Title 11', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(12, 'Title 12', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(13, 'Title 13', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-    createData(14, 'Title 14', 'Description 3', 'Status 3', 'Topic 3', 'Course Tier 3', 'Action 3'),
-];
-
 const cx = classNames.bind(styles);
 
-function Courses() {
+function PublisherCourses() {
     const [data, setData] = useState([]);
     const [selected, setSelected] = useState([]);
     const [page, setPage] = useState(0);
@@ -176,4 +155,4 @@ function Courses() {
     );
 }
 
-export default Courses;
+export default PublisherCourses;
