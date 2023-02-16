@@ -4,8 +4,6 @@ import './App.css';
 import SignIn from '~/pages/SignIn';
 import SignUp from '~/pages/SignUp';
 import Forgot from '~/pages/Forgot';
-import ResetPassword from '~/pages/ResetPassword';
-
 import Landing from './pages/Landing Page/Landing';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
@@ -28,7 +26,9 @@ function App() {
                 <>
                     <Routes>
                         <Route index element={<SignIn />} />
-                        <Route path="login" element={<SignIn />} />
+                        <Route path="sign-in" element={<SignIn />} />
+                        <Route path="sign-up" element={<SignUp />} />
+                        <Route path="forgot-password" element={<Forgot />} />
                     </Routes>
                 </>
             )}
@@ -38,10 +38,7 @@ function App() {
                         <Route index element={<Home />} />
                         <Route path="profile" element={<Profile />} />
                     </Route>
-                    <Route path="sign-up" element={<SignUp />} />
 
-                    <Route path="forgot-password" element={<Forgot />} />
-                    <Route path="reset-password" element={<ResetPassword />} />
                     <Route path="/landing-page" element={<Landing />} />
                     <Route path="instructor" element={<Instructor />}>
                         <Route index element={<Following />}></Route>
