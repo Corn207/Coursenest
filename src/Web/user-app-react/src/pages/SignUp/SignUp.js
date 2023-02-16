@@ -9,6 +9,7 @@ import ReviewList from '~/components/ReviewList';
 import styles from './SignUp.module.scss';
 import TopicsSearch from '~/components/TopicsSearch';
 import axios from 'axios';
+import config from '~/config';
 
 const cx = classNames.bind(styles);
 
@@ -71,7 +72,7 @@ function SignUp() {
 
             setError(false);
             try {
-                const res = await axios.post('https://coursenest.corn207.loseyourip.com/authenticate/register', {
+                const res = await axios.post(`${config.baseUrl}/api/authenticate/register`, {
                     username: username,
                     password: password,
                     email: email,

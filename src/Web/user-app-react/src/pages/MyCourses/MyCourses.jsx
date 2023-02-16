@@ -4,6 +4,7 @@ import styles from './MyCourses.module.scss';
 import StarRatings from 'react-star-ratings';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import ReviewModal from '~/components/ReviewModal/ReviewModal';
+import config from '~/config';
 
 export default function MyCourses() {
     // userId : 19
@@ -17,7 +18,7 @@ export default function MyCourses() {
 
     useEffect(() => {
         axios
-            .get(`https://coursenest.corn207.loseyourip.com/enrollments`, {
+            .get(`${config.baseUrl}/api/enrollments`, {
                 headers: { Authorization: `Bearer ${tokenStr}` },
             })
             .then((res) => {
@@ -28,10 +29,9 @@ export default function MyCourses() {
                 const allCoursesEnrollments = [];
                 await Promise.all(
                     enrollments.map(async (enrollment) => {
-                        const response = await axios.get(
-                            `https://coursenest.corn207.loseyourip.com/enrollments/${enrollment.courseId}`,
-                            { headers: { Authorization: `Bearer ${tokenStr}` } },
-                        );
+                        const response = await axios.get(`${config.baseUrl}/api/enrollments/${enrollment.courseId}`, {
+                            headers: { Authorization: `Bearer ${tokenStr}` },
+                        });
                         const course = response.data;
                         const coursesEnrollment = { ...enrollment, ...course };
                         allCoursesEnrollments.push(coursesEnrollment);

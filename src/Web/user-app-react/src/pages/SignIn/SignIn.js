@@ -11,6 +11,7 @@ import Image from '~/components/Image';
 import ImageSliders from '~/components/ImageSliders';
 import { adImages } from '~/mockupData/AdsData/AdsData';
 import commonImages from '~/assets/images';
+import config from '~/config';
 
 const cx = classNames.bind(styles);
 
@@ -38,7 +39,7 @@ function SignIn(props) {
     const onSubmit = async () => {
         // e.preventDefault();
         try {
-            const res = await axios.post('https://coursenest.corn207.loseyourip.com/authenticate/login', {
+            const res = await axios.post(`${config.baseUrl}/api/authenticate/login`, {
                 username: userName,
                 password: password,
             });

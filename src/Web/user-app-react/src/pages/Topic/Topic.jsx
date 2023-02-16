@@ -6,6 +6,7 @@ import { Pagination } from 'rsuite/';
 import styles from './Topic.module.scss';
 import { useParams, useNavigate } from 'react-router';
 import images from '~/assets/images';
+import config from '~/config';
 
 export default function Topic() {
     const { id } = useParams();
@@ -25,14 +26,14 @@ export default function Topic() {
 
     useEffect(() => {
         axios
-            .get(`http://corn207.loseyourip.com/topics/${id}`)
+            .get(`${config.baseUrl}/api/topics/${id}`)
             .then((res) => {
                 setTopic(res.data);
                 return res.data;
             })
             .then((res) => {
                 setSubcate(res.subcategoryContent);
-                return axios.get(`http://corn207.loseyourip.com/topics?subcategoryId=${res.subcategoryId}`);
+                return axios.get(`${config.baseUrl}/api/topics?subcategoryId=${res.subcategoryId}`);
             })
             .then((res) => {
                 const index = res.data.findIndex((object) => {
@@ -52,7 +53,7 @@ export default function Topic() {
     const fetchListCourses = () => {
         axios
             .get(
-                `https://coursenest.corn207.loseyourip.com/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
+                `${config.baseUrl}/api/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
             )
             .then((res) => {
                 setCountCourse(res.data.total);

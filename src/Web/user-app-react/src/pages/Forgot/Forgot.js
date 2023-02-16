@@ -9,6 +9,7 @@ import { adImages } from '~/mockupData/AdsData/AdsData';
 import ImageSliders from '~/components/ImageSliders';
 import styles from './Forgot.module.scss';
 import axios from 'axios';
+import config from '~/config';
 
 const cx = classNames.bind(styles);
 
@@ -32,7 +33,7 @@ function Forgot() {
         setNewPassword('');
         setError('');
         await axios
-            .put('https://coursenest.corn207.loseyourip.com/authenticate/forgot-password', {
+            .put(`${config.baseUrl}/api/authenticate/forgot-password`, {
                 username: userName,
                 email: email,
             })
