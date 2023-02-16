@@ -13,6 +13,7 @@ import { useDebounce } from '~/hooks';
 import ChosenTopicsList from '../ChosenTopicsList';
 import axios from 'axios';
 import topicsApi from '~/api/topicsApi';
+import config from '~/config';
 
 const cx = classNames.bind(styles);
 
@@ -56,9 +57,7 @@ function TopicsSearch({ handleTopicsId }) {
         // );
 
         const fetchTopics = async () => {
-            const response = await axios.get(
-                `https://coursenest.corn207.loseyourip.com/topics?Content=${debouncedValue}`,
-            );
+            const response = await axios.get(`${config.baseUrl}/api/topics?Content=${debouncedValue}`);
             // if (chosenTopicsId.length !== 0 || chosenTopicsId !== undefined) {
             if (chosenTopicsId !== undefined) {
                 await setSearchResultFiltered(response.data.filter((item) => !chosenTopicsId.includes(item.topicId)));

@@ -5,6 +5,7 @@ import styles from './Layout.module.scss';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import config from '~/config';
 
 export default function Layout() {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Layout() {
 
     useEffect(() => {
         axios
-            .get('http://coursenest.corn207.loseyourip.com/categories/hierarchy')
+            .get(`${config.baseUrl}/api/categories/hierarchy`)
             // .get('http://localhost:3000/categories')
             // .get('http://localhost:21003/categories/hierarchy')
             .then((res) => {

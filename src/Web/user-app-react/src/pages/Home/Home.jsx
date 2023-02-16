@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import AllCoursesByTopic from '~/components/AllCoursesByTopic/AllCoursesByTopic';
+import config from '~/config';
 import styles from './Home.module.scss';
 
 export default function Home() {
@@ -12,7 +13,7 @@ export default function Home() {
 
     useEffect(() => {
         axios
-            .get(`http://coursenest.corn207.loseyourip.com/users/${userId}`)
+            .get(`${config.baseUrl}/api/users/${userId}`)
             .then((res) => {
                 console.log(res.data);
                 setTopics(res.data.interestedTopics);
@@ -22,7 +23,7 @@ export default function Home() {
                 const allInterestedTopics = [];
                 await Promise.all(
                     res.map(async (id) => {
-                        const response = await axios.get(`http://coursenest.corn207.loseyourip.com/topics/${id}`);
+                        const response = await axios.get(`${config.baseUrl}/api/topics/${id}`);
                         const topic = response.data;
                         allInterestedTopics.push(topic);
                     }),
@@ -39,7 +40,7 @@ export default function Home() {
     useEffect(() => {
         axios
             .get(
-                `http://coursenest.corn207.loseyourip.com/courses?TopicId=${
+                `${config.baseUrl}/api/courses?TopicId=${
                     activeTopic.topicId
                 }&IsApproved=true&SortBy=0&PageNumber=${1}&PageSize=${5}`,
             )

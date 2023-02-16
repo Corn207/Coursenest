@@ -18,6 +18,7 @@ import {
 import styles from './PublisherCourses.module.scss';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import config from '~/config';
 
 const useStyles = makeStyles({
     table: {
@@ -45,7 +46,7 @@ function PublisherCourses() {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios.get('https://coursenest.corn207.loseyourip.com/courses', {
+                const response = await axios.get(`${config.baseUrl}/api/courses`, {
                     params: {
                         PublisherUserId: params.PublisherUserId,
                     },
