@@ -19,7 +19,7 @@ using static Identity.API.DTOs.UserAdminResults;
 
 namespace Identity.API.Controllers
 {
-	[Route("[controller]")]
+	[Route("api/[controller]")]
 	[ApiController]
 	public class UsersController : ControllerBase
 	{

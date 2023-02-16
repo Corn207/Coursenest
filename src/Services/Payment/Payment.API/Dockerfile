@@ -9,7 +9,8 @@ WORKDIR /src
 COPY ["Services/Payment/Payment.API/Payment.API.csproj", "Services/Payment/Payment.API/"]
 COPY ["Services/CommonLibrary/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary/CommonLibrary.API/"]
 RUN dotnet restore "Services/Payment/Payment.API/Payment.API.csproj"
-COPY . .
+COPY ["Services/Payment/Payment.API/", "Services/Payment/Payment.API/"]
+COPY ["Services/CommonLibrary/CommonLibrary.API/", "Services/CommonLibrary/CommonLibrary.API/"]
 WORKDIR "/src/Services/Payment/Payment.API"
 RUN dotnet build "Payment.API.csproj" -c Release -o /app/build
 

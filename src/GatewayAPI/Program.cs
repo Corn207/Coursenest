@@ -5,13 +5,15 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddCors(options =>
 {
-	options.AddDefaultPolicy(configure =>
+	options.AddPolicy("allowAll", builder =>
 	{
-		configure.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+		builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
 	});
 });
 
 var app = builder.Build();
+
+app.UseRouting();
 
 app.UseCors();
 
