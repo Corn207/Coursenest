@@ -9,7 +9,8 @@ WORKDIR /src
 COPY ["Services/Library/Library.API/Library.API.csproj", "Services/Library/Library.API/"]
 COPY ["Services/CommonLibrary/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary/CommonLibrary.API/"]
 RUN dotnet restore "Services/Library/Library.API/Library.API.csproj"
-COPY . .
+COPY ["Services/Library/Library.API/", "Services/Library/Library.API/"]
+COPY ["Services/CommonLibrary/CommonLibrary.API/", "Services/CommonLibrary/CommonLibrary.API/"]
 WORKDIR "/src/Services/Library/Library.API"
 RUN dotnet build "Library.API.csproj" -c Release -o /app/build
 

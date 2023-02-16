@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace Payment.API.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class PaymentController : ControllerBase
 {
