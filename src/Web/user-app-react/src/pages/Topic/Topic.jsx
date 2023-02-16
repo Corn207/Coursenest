@@ -52,7 +52,7 @@ export default function Topic() {
     const fetchListCourses = () => {
         axios
             .get(
-                `http://coursenest.corn207.loseyourip.com/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
+                `https://coursenest.corn207.loseyourip.com/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
             )
             .then((res) => {
                 setCountCourse(res.data.total);

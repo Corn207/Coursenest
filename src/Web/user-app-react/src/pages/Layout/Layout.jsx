@@ -23,7 +23,7 @@ export default function Layout() {
 
     useEffect(() => {
         axios
-            .get('http://coursenest.corn207.loseyourip.com/categories/hierarchy')
+            .get('https://coursenest.corn207.loseyourip.com/categories/hierarchy')
             // .get('http://localhost:3000/categories')
             // .get('http://localhost:21003/categories/hierarchy')
             .then((res) => {

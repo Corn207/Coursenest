@@ -17,7 +17,7 @@ export default function MyCourses() {
 
     useEffect(() => {
         axios
-            .get(`http://coursenest.corn207.loseyourip.com/enrollments`, {
+            .get(`https://coursenest.corn207.loseyourip.com/enrollments`, {
                 headers: { Authorization: `Bearer ${tokenStr}` },
             })
             .then((res) => {
@@ -29,7 +29,7 @@ export default function MyCourses() {
                 await Promise.all(
                     enrollments.map(async (enrollment) => {
                         const response = await axios.get(
-                            `http://coursenest.corn207.loseyourip.com/enrollments/${enrollment.courseId}`,
+                            `https://coursenest.corn207.loseyourip.com/enrollments/${enrollment.courseId}`,
                             { headers: { Authorization: `Bearer ${tokenStr}` } },
                         );
                         const course = response.data;
