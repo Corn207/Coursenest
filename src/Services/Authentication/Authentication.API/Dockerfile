@@ -9,7 +9,8 @@ WORKDIR /src
 COPY ["Services/Authentication/Authentication.API/Authentication.API.csproj", "Services/Authentication/Authentication.API/"]
 COPY ["Services/CommonLibrary/CommonLibrary.API/CommonLibrary.API.csproj", "Services/CommonLibrary/CommonLibrary.API/"]
 RUN dotnet restore "Services/Authentication/Authentication.API/Authentication.API.csproj"
-COPY . .
+COPY ["Services/Authentication/Authentication.API/", "Services/Authentication/Authentication.API/"]
+COPY ["Services/CommonLibrary/CommonLibrary.API/", "Services/CommonLibrary/CommonLibrary.API/"]
 WORKDIR "/src/Services/Authentication/Authentication.API"
 RUN dotnet build "Authentication.API.csproj" -c Release -o /app/build
 

@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.API.Controllers
 {
-	[Route("[controller]")]
+	[Route("api/[controller]")]
 	[ApiController]
 	public class LessonsController : ControllerBase
 	{

@@ -14,7 +14,7 @@ using UserData.API.Infrastructure.Entities;
 
 namespace UserData.API.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize]
 public class EnrollmentsController : ControllerBase

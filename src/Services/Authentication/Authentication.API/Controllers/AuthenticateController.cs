@@ -18,7 +18,7 @@ using System.Security.Claims;
 
 namespace Authentication.API.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class AuthenticateController : ControllerBase
 {

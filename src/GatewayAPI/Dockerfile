@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["GatewayAPI/GatewayAPI.csproj", "GatewayAPI/"]
 RUN dotnet restore "GatewayAPI/GatewayAPI.csproj"
-COPY GatewayAPI/ GatewayAPI/
+COPY ["GatewayAPI/", "GatewayAPI/"]
 WORKDIR "/src/GatewayAPI"
 RUN dotnet build "GatewayAPI.csproj" -c Release -o /app/build
 

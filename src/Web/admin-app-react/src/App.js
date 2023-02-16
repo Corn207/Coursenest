@@ -6,7 +6,7 @@ import Header from "./components/Header/Header";
 import ManageUsers from "./components/ManageUsers/ManageUsers";
 import DisplayAdminInfo from "./components/DisplayAdminInfo/DisplayAdminInfo";
 import ListCategories from "./components/ListCategories/ListCategories";
-import ListCourses from "./components/ListCourses/ListCourses";
+import ManageCourses from "./components/ManageCourses/ManageCourses";
 
 const setToken = (adminToken) => {
     localStorage.setItem('accessToken', adminToken);
@@ -33,7 +33,7 @@ function App() {
                     <Route exact path="/" element={<ManageUsers />} />
                     <Route exact path="/profile" element={<DisplayAdminInfo/>} />
                     <Route exact path="/categories" element={<ListCategories />} />
-                    <Route exact path="/courses" element={<ListCourses />} />
+                    <Route exact path="/courses" element={<ManageCourses />} />
                     <Route path="*" element={<p>Path not resolved</p>} />
                 </Routes>
             </>}
