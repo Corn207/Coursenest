@@ -132,11 +132,7 @@ function SignIn(props) {
                         </div>
                     </div>
                     {error && <p className={cx('loginError')}>{error}</p>}
-                    <button className={cx('loginButton')}>
-                        {/* <Link className={cx('link')} to="/home"> */}
-                        Log in
-                        {/* </Link> */}
-                    </button>
+                    <button className={cx('loginButton')}>Log in</button>
                 </form>
                 <div className={cx('sponsor-info-container')}>
                     <div></div>
