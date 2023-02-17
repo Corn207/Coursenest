@@ -29,6 +29,10 @@ function AddCourses() {
         setIsSlected(id);
     };
 
+    const handleAddLessonClick = () => {
+        window.location.href = '/publisher/add-lesson';
+    };
+
     const handleTitleChange = (event) => {
         setTitleValue(event.target.value);
         setError('');
@@ -91,7 +95,9 @@ function AddCourses() {
                 <div className={cx('lessonsContainer')}>
                     <div className={cx('topContainer')}>
                         <p className={cx('topTitle')}>Lessons</p>
-                        <button className={cx('topTitleBtn')}>Add Lessons</button>
+                        <button className={cx('topTitleBtn')} onClick={handleAddLessonClick}>
+                            Add Lessons
+                        </button>
                     </div>
                     <LessonsMaterialLists lessonsList={lessonsList} />
                 </div>

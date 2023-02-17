@@ -15,6 +15,7 @@ import History from '~/pages/Instructor/History';
 import Publisher from '~/pages/Publisher/Publisher';
 import PublisherCourses from './pages/Publisher/PublisherCourses';
 import AddCourses from './pages/Publisher/AddCourses';
+import EditLesson from './pages/Publisher/AddCourses/EditLesson';
 
 function App() {
     let logged = false;
@@ -51,6 +52,7 @@ function App() {
                         <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
                         <Route path="courses" element={<PublisherCourses />}></Route>
                         <Route path="add-course" element={<AddCourses />}></Route>
+                        <Route path="add-lesson" element={<EditLesson />}></Route>
                     </Route>
                     <Route path="*" element={<p>Path not resolved</p>} />
                 </Routes>

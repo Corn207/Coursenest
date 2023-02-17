@@ -2,7 +2,7 @@ import axios from 'axios';
 import config from '~/config';
 
 const axiosClient = axios.create({
-    baseURL: `${config.baseUrl}/api`,
+    baseURL: `https://coursenest.corn207.loseyourip.com/api`,
     // headers: {
     //     'Content-Type': 'application/json',
     // }

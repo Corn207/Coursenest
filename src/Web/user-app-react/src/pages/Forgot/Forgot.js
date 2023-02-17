@@ -10,6 +10,7 @@ import ImageSliders from '~/components/ImageSliders';
 import styles from './Forgot.module.scss';
 import axios from 'axios';
 import config from '~/config';
+import axiosClient from '~/api/axiosClient';
 
 const cx = classNames.bind(styles);
 
@@ -32,8 +33,8 @@ function Forgot() {
     const onSubmit = async () => {
         setNewPassword('');
         setError('');
-        await axios
-            .put(`${config.baseUrl}/api/authenticate/forgot-password`, {
+        await axiosClient
+            .put(`/authenticate/forgot-password`, {
                 username: userName,
                 email: email,
             })
