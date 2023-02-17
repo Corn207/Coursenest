@@ -1,4 +1,4 @@
-version: '3.4'
+version: "3.4"
 
 services:
   web.user:
@@ -9,7 +9,7 @@ services:
       dockerfile: Web/user-app-react/Dockerfile
     networks:
       - frontend
-      
+
   web.admin:
     image: coursenest-webadmin
     container_name: WEB-Admin
@@ -102,6 +102,15 @@ services:
     container_name: MessageBus
     networks:
       - backend
+
+  reverseproxy:
+    image: caddy:2.6.2-alpine
+    container_name: ReverseProxy
+    networks:
+      - frontend
+      - backend
+    profiles:
+      - reverseproxy
 
 networks:
   frontend:
