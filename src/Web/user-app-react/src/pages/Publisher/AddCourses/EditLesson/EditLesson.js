@@ -22,6 +22,7 @@ function EditLesson() {
                 <div className={cx('unitsBody')}>
                     <div>
                         <p>Units</p>
+                        <button>Add</button>
                     </div>
                 </div>
             </div>
