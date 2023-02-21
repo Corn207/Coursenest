@@ -1,5 +1,6 @@
 import classNames from 'classnames/bind';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import LessonsMaterialLists from '~/components/PublisherPage/LessonsMaterialLists';
 
 import styles from './AddCourses.module.scss';
@@ -29,9 +30,9 @@ function AddCourses() {
         setIsSlected(id);
     };
 
-    const handleAddLessonClick = () => {
-        window.location.href = '/publisher/add-lesson';
-    };
+    // const handleAddLessonClick = () => {
+    //     window.location.href = '/publisher/add-lesson';
+    // };
 
     const handleTitleChange = (event) => {
         setTitleValue(event.target.value);
@@ -95,8 +96,10 @@ function AddCourses() {
                 <div className={cx('lessonsContainer')}>
                     <div className={cx('topContainer')}>
                         <p className={cx('topTitle')}>Lessons</p>
-                        <button className={cx('topTitleBtn')} onClick={handleAddLessonClick}>
-                            Add Lessons
+                        <button className={cx('topTitleBtn')}>
+                            <Link className={cx('addLessonLink')} to="/publisher/add-lesson">
+                                Add Lesson
+                            </Link>
                         </button>
                     </div>
                     <LessonsMaterialLists lessonsList={lessonsList} />

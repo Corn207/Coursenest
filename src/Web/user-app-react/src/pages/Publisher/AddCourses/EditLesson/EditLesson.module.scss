@@ -1,14 +1,46 @@
 .wrapper {
+    width: 100%;
+    height: 100%;
     background-color: rgba(255, 255, 255, 0.5);
+    margin-left: 16px;
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+    padding-left: 40px;
+
     .topTitle {
         display: flex;
+        margin-top: 10px;
 
         .courseTitle {
             margin-right: 16px;
+            font-size: 24px;
         }
 
         .lessonTitle {
             margin-left: 16px;
+            font-size: 24px;
+        }
+
+        .icon {
+            font-size: 20px;
+            margin-top: 8px;
+        }
+    }
+
+    .lessonBody {
+        background-color: rgba(255, 255, 255, 0.5);
+        margin-left: -10px;
+        padding-left: 8px;
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+
+        .lessonTitleDetail {
+            font-size: 20px;
+            color: rgba(38, 38, 38, 1);
+        }
+
+        .unitsBody {
+            background-color: rgba(255, 255, 255, 0.5);
         }
     }
 }

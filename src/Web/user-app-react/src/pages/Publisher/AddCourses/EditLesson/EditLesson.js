@@ -12,9 +12,18 @@ function EditLesson() {
             <div className={cx('topTitle')}>
                 <p className={cx('courseTitle')}>Title Course </p>
                 <div>
-                    <FontAwesomeIcon icon={faChevronRight} />
+                    <FontAwesomeIcon className={cx('icon')} icon={faChevronRight} />
                 </div>
                 <p className={cx('lessonTitle')}>Lesson 1</p>
+            </div>
+            <div className={cx('lessonBody')}>
+                <p className={cx('lessonTitleDetail')}>{'Lesson 1: How to...'} </p>
+                <p className={cx('lessonDesc')}>{'This will teach you...'} </p>
+                <div className={cx('unitsBody')}>
+                    <div>
+                        <p>Units</p>
+                    </div>
+                </div>
             </div>
         </div>
     );
