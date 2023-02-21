@@ -1,11 +1,11 @@
-version: '3.4'
+version: "3.4"
 name: coursenest-dev
 
 services:
   web.user:
     ports:
       - "21001:5000"
-      
+
   web.admin:
     ports:
       - "21002:5000"
@@ -81,6 +81,13 @@ services:
     ports:
       - "15672:15672"
     #  - "5672:5672"
+
+  reverseproxy:
+    volumes:
+      - ./ReverseProxy/Caddyfile-Dev:/etc/caddy/Caddyfile
+    ports:
+      - "20000:20000"
+      - "20001:20001"
 
 volumes:
   coursenest-dev-db:

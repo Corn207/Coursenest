@@ -1,11 +1,11 @@
-version: '3.4'
+version: "3.4"
 name: coursenest
 
 services:
   web.user:
     ports:
       - "21001:5000"
-      
+
   web.admin:
     ports:
       - "21002:5000"
@@ -59,6 +59,13 @@ services:
   messagebus:
     volumes:
       - coursenest-prod-mb:/var/lib/rabbitmq
+
+  reverseproxy:
+    volumes:
+      - ./ReverseProxy/Caddyfile-Prod:/etc/caddy/Caddyfile
+    ports:
+      - "20000:20000"
+      - "20001:20001"
 
 volumes:
   coursenest-prod-db:
