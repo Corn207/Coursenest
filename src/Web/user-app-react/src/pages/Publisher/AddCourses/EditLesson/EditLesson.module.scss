@@ -3,6 +3,7 @@
     height: 100%;
     background-color: rgba(255, 255, 255, 0.5);
     margin-left: 16px;
+    padding-right: 24px;
     border-top-left-radius: 40px;
     border-bottom-left-radius: 40px;
     padding-left: 40px;
@@ -14,11 +15,13 @@
         .courseTitle {
             margin-right: 16px;
             font-size: 24px;
+            font-weight: 700;
         }
 
         .lessonTitle {
             margin-left: 16px;
             font-size: 24px;
+            font-weight: 700;
         }
 
         .icon {
@@ -31,16 +34,86 @@
         background-color: rgba(255, 255, 255, 0.5);
         margin-left: -10px;
         padding-left: 8px;
-        border-top-left-radius: 8px;
-        border-bottom-left-radius: 8px;
+        // border-top-left-radius: 8px;
+        // border-bottom-left-radius: 8px;
+        border-radius: 8px;
 
         .lessonTitleDetail {
             font-size: 20px;
             color: rgba(38, 38, 38, 1);
+            font-weight: 700;
+        }
+
+        .lessonDesc {
+            font-weight: 500;
+            font-size: 16px;
         }
 
         .unitsBody {
             background-color: rgba(255, 255, 255, 0.5);
+            padding-top: 12px;
+            border-radius: 8px;
+
+            .unitsTopBody {
+                display: flex;
+                justify-content: space-between;
+                margin-left: 8px;
+                margin-bottom: 24px;
+
+                .unitsTitle {
+                    font-size: 20px;
+                    font-weight: 600;
+                }
+
+                .unitsBtns {
+                    margin-top: 3px;
+                    .unitsBtns {
+                        border: transparent;
+
+                        .unitsAddBtns {
+                            text-decoration: none;
+                            border-radius: 4px;
+                            background-color: rgba(198, 119, 252, 1);
+                            color: rgba(255, 255, 255, 1);
+                            padding: 8px 12px;
+
+                            &:hover {
+                                opacity: 0.7;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .confirmBtnsDiv {
+        float: right;
+
+        .cancelBtn {
+            margin-right: 8px;
+            padding: 4px 12px;
+            color: rgba(255, 37, 40, 1);
+            background-color: white;
+            border: 1px solid rgba(255, 37, 40, 1);
+            border-radius: 4px;
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
+
+        .confirmBtn {
+            margin-right: 8px;
+            padding: 4px 12px;
+            color: rgba(255, 255, 255, 1);
+            background-color: rgba(198, 119, 252, 1);
+            border: transparent;
+            border-radius: 4px;
+
+            &:hover {
+                opacity: 0.7;
+            }
         }
     }
 }
