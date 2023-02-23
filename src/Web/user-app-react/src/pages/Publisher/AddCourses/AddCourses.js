@@ -73,7 +73,7 @@ function AddCourses() {
                                 Free
                             </p>
                             <p
-                                className={cx('courseTier')}
+                                className={cx('courseTierPremium')}
                                 style={{ opacity: isSelected === 2 ? 1 : 0.3 }}
                                 onClick={() => handleClick(2)}
                             >
@@ -91,7 +91,7 @@ function AddCourses() {
                     </div>
                 </div>
 
-                <LessonsMaterialLists />
+                <LessonsMaterialLists lessonsList={[]} />
             </div>
             <CancelConfirmBtns />
         </div>

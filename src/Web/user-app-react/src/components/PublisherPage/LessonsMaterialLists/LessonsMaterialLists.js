@@ -7,9 +7,9 @@ import styles from './LessonsMaterialLists.module.scss';
 
 const cx = classNames.bind(styles);
 
-function LessonsMaterialLists() {
+function LessonsMaterialLists({ lessonsList }) {
     // const [lessons, setLessons] = useState(lessonsList);
-    const [lessons, setLessons] = useState([]);
+    const [lessons, setLessons] = useState(lessonsList);
 
     // const [lessonsList, setLessonsList] = useState([]);
 
@@ -23,15 +23,31 @@ function LessonsMaterialLists() {
     };
 
     const handleAddLessonClick = () => {
-        const defaultNewLesson = {
-            LessonId: lessons.length + 1,
-            Title: 'New Lesson',
-            Description: 'Description of lesson ',
-        };
-        const addedLessonsList = [...lessons, defaultNewLesson];
-
-        setLessons(addedLessonsList);
+        if (lessons.length === 0) {
+            const defaultNewLesson = {
+                LessonId: 1,
+                Title: `New item 1`,
+                Description: 'Description of item ',
+            };
+            const addedLessonsList = [defaultNewLesson];
+            setLessons(addedLessonsList);
+        } else {
+            const defaultNewLesson = {
+                LessonId: lessons[lessons.length - 1].LessonId + 1,
+                Title: `New item ${lessons[lessons.length - 1].LessonId + 1}`,
+                Description: 'Description of item ',
+            };
+            const addedLessonsList = [...lessons, defaultNewLesson];
+            setLessons(addedLessonsList);
+        }
+        // setLessons(addedLessonsList);
         console.log(lessons);
+    };
+
+    const handleDeleteLesson = (id) => {
+        const newArrLesson = [...lessons.filter((item) => item.LessonId !== id)];
+        setLessons(newArrLesson);
+        console.log(newArrLesson);
     };
 
     let activeBtn = {
@@ -60,7 +76,9 @@ function LessonsMaterialLists() {
                         <p className={cx('itemTitle')}>{item.Title}</p>
                         <div className={cx('itemAction')}>
                             <p className={cx('btnAction')}>Edit</p>
-                            <p className={cx('btnAction')}>Delete</p>
+                            <p className={cx('btnAction')} onClick={() => handleDeleteLesson(item.LessonId)}>
+                                Delete
+                            </p>
                             <p className={cx('itemOrder')}>{index + 1}</p>
                             <div className={cx('moveBtnContainer')}>
                                 {/* {lessons[lessons.indexOf(item) + 1] && (

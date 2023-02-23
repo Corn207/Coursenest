@@ -14,18 +14,10 @@ const cx = classNames.bind(styles);
 function EditLesson() {
     // const [lessonsList, setLessonsList] = useState([]);
 
-    const lessonsList = [
-        { LessonId: 1, Title: 'Lesson 1', Description: 'Description of lesson 1', Order: 1.5 },
-        { LessonId: 2, Title: 'Lesson 2', Description: 'Description of lesson 2', Order: 2.5 },
-        { LessonId: 3, Title: 'Lesson 3', Description: 'Description of lesson 3', Order: 3.5 },
-        { LessonId: 4, Title: 'Lesson 4', Description: 'Description of lesson 4', Order: 4.5 },
-        { LessonId: 5, Title: 'Lesson 5', Description: 'Description of lesson 5', Order: 5.5 },
-    ];
-
     return (
         <div className={cx('wrapper')}>
             <div className={cx('topTitle')}>
-                <p className={cx('courseTitle')}>Title Course </p>
+                <p className={cx('courseTitle')}>{'Title Course'}</p>
                 <div>
                     <FontAwesomeIcon className={cx('icon')} icon={faChevronRight} />
                 </div>
@@ -48,7 +40,7 @@ function EditLesson() {
                             </button>
                         </div>
                     </div>
-                    <LessonsMaterialLists lessonsList={lessonsList} />
+                    <LessonsMaterialLists lessonsList={[]} />
                 </div>
             </div>
             <CancelConfirmBtns />
