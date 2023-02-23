@@ -11,7 +11,6 @@ const cx = classNames.bind(styles);
 function AddCourses() {
     const [image, setImage] = useState(null);
     const [isSelected, setIsSlected] = useState(1);
-    const [lessonsList, setLessonsList] = useState([]);
     const [titleValue, setTitleValue] = useState('');
     const [error, setError] = useState('');
 
@@ -32,10 +31,6 @@ function AddCourses() {
     const handleClick = (id) => {
         setIsSlected(id);
     };
-
-    // const handleAddLessonClick = () => {
-    //     window.location.href = '/publisher/edit-lesson';
-    // };
 
     const handleTitleChange = (event) => {
         setTitleValue(event.target.value);
@@ -96,17 +91,7 @@ function AddCourses() {
                     </div>
                 </div>
 
-                <div className={cx('lessonsContainer')}>
-                    <div className={cx('topContainer')}>
-                        <p className={cx('topTitle')}>Lessons</p>
-                        <button className={cx('topTitleBtn')}>
-                            <Link className={cx('addLessonLink')} to="add-lesson">
-                                Add Lesson
-                            </Link>
-                        </button>
-                    </div>
-                    <LessonsMaterialLists lessonsList={lessonsList} />
-                </div>
+                <LessonsMaterialLists />
             </div>
             <CancelConfirmBtns />
         </div>

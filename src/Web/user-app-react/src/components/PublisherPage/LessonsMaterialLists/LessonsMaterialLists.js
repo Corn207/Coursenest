@@ -7,8 +7,11 @@ import styles from './LessonsMaterialLists.module.scss';
 
 const cx = classNames.bind(styles);
 
-function LessonsMaterialLists({ lessonsList }) {
-    const [lessons, setLessons] = useState(lessonsList);
+function LessonsMaterialLists() {
+    // const [lessons, setLessons] = useState(lessonsList);
+    const [lessons, setLessons] = useState([]);
+
+    // const [lessonsList, setLessonsList] = useState([]);
 
     const moveItem = (LessonId, direction) => {
         const newItems = [...lessons];
@@ -17,6 +20,18 @@ function LessonsMaterialLists({ lessonsList }) {
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
         setLessons(newItems);
+    };
+
+    const handleAddLessonClick = () => {
+        const defaultNewLesson = {
+            LessonId: lessons.length + 1,
+            Title: 'New Lesson',
+            Description: 'Description of lesson ',
+        };
+        const addedLessonsList = [...lessons, defaultNewLesson];
+
+        setLessons(addedLessonsList);
+        console.log(lessons);
     };
 
     let activeBtn = {
@@ -30,53 +45,63 @@ function LessonsMaterialLists({ lessonsList }) {
     };
 
     return (
-        <ul className={cx('wrapper')}>
-            {lessons.map((item, index) => (
-                <li className={cx('itemDiv')} key={item.LessonId}>
-                    <p className={cx('itemTitle')}>{item.Title}</p>
-                    <div className={cx('itemAction')}>
-                        <p className={cx('btnAction')}>Edit</p>
-                        <p className={cx('btnAction')}>Delete</p>
-                        <p className={cx('itemOrder')}>{index + 1}</p>
-                        <div className={cx('moveBtnContainer')}>
-                            {/* {lessons[lessons.indexOf(item) + 1] && (
+        <div className={cx('lessonsContainer')}>
+            <div className={cx('topContainer')}>
+                <p className={cx('topTitle')}>Lessons</p>
+                <button className={cx('topTitleBtn')} onClick={handleAddLessonClick}>
+                    {/* <Link className={cx('addLessonLink')} to="add-lesson"> */}
+                    Add Lesson
+                    {/* </Link> */}
+                </button>
+            </div>
+            <ul className={cx('wrapper')}>
+                {lessons.map((item, index) => (
+                    <li className={cx('itemDiv')} key={index}>
+                        <p className={cx('itemTitle')}>{item.Title}</p>
+                        <div className={cx('itemAction')}>
+                            <p className={cx('btnAction')}>Edit</p>
+                            <p className={cx('btnAction')}>Delete</p>
+                            <p className={cx('itemOrder')}>{index + 1}</p>
+                            <div className={cx('moveBtnContainer')}>
+                                {/* {lessons[lessons.indexOf(item) + 1] && (
                                 <button onClick={() => moveItem(item.LessonId, 1)}>
                                     <FontAwesomeIcon icon={faChevronUp} />
                                 </button>
                             )} */}
-                            <button
-                                className={cx('moveBtn')}
-                                style={lessons[lessons.indexOf(item) - 1] ? activeBtn : disableBtn}
-                                onClick={() =>
-                                    lessons[lessons.indexOf(item) - 1]
-                                        ? moveItem(item.LessonId, -1)
-                                        : console.log('not allowed to click')
-                                }
-                            >
-                                <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronUp} />
-                            </button>
-                            <button
-                                className={cx('moveBtn')}
-                                style={lessons[lessons.indexOf(item) + 1] ? activeBtn : disableBtn}
-                                onClick={() =>
-                                    lessons[lessons.indexOf(item) + 1]
-                                        ? moveItem(item.LessonId, 1)
-                                        : console.log('not allowed to click')
-                                }
-                            >
-                                <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronDown} />
-                            </button>
+                                <button
+                                    className={cx('moveBtn')}
+                                    style={lessons[lessons.indexOf(item) - 1] ? activeBtn : disableBtn}
+                                    onClick={() =>
+                                        lessons[lessons.indexOf(item) - 1]
+                                            ? moveItem(item.LessonId, -1)
+                                            : console.log('not allowed to click')
+                                    }
+                                >
+                                    <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronUp} />
+                                </button>
+                                <button
+                                    className={cx('moveBtn')}
+                                    style={lessons[lessons.indexOf(item) + 1] ? activeBtn : disableBtn}
+                                    onClick={() =>
+                                        lessons[lessons.indexOf(item) + 1]
+                                            ? moveItem(item.LessonId, 1)
+                                            : console.log('not allowed to click')
+                                    }
+                                >
+                                    <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronDown} />
+                                </button>
 
-                            {/* {lessons[lessons.indexOf(item) - 1] && (
+                                {/* {lessons[lessons.indexOf(item) - 1] && (
                                 <button onClick={() => moveItem(item.LessonId, -1)}>
                                     <FontAwesomeIcon icon={faChevronDown} />
                                 </button>
                             )} */}
+                            </div>
                         </div>
-                    </div>
-                </li>
-            ))}
-        </ul>
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 }
 
