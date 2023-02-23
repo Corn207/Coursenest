@@ -53,7 +53,7 @@ function LessonsMaterialLists({ lessonsList }) {
                                         : console.log('not allowed to click')
                                 }
                             >
-                                <FontAwesomeIcon icon={faChevronUp} />
+                                <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronUp} />
                             </button>
                             <button
                                 className={cx('moveBtn')}
@@ -64,7 +64,7 @@ function LessonsMaterialLists({ lessonsList }) {
                                         : console.log('not allowed to click')
                                 }
                             >
-                                <FontAwesomeIcon icon={faChevronDown} />
+                                <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronDown} />
                             </button>
 
                             {/* {lessons[lessons.indexOf(item) - 1] && (

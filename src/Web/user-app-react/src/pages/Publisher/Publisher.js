@@ -10,7 +10,9 @@ const cx = classNames.bind(styles);
 function Publisher() {
     return (
         <div className={cx('wrapper')}>
-            <Header />
+            <div className={cx('headerContainer')}>
+                <Header />
+            </div>
             <div className={cx('bodyContainer')}>
                 <PublisherSideBar />
                 <Outlet />

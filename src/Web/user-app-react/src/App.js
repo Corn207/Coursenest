@@ -16,6 +16,7 @@ import Publisher from '~/pages/Publisher/Publisher';
 import PublisherCourses from './pages/Publisher/PublisherCourses';
 import AddCourses from './pages/Publisher/AddCourses';
 import EditLesson from './pages/Publisher/AddCourses/EditLesson';
+import EditMaterial from './pages/Publisher/AddCourses/EditLesson/EditMaterial';
 
 function App() {
     let logged = false;
@@ -47,12 +48,16 @@ function App() {
                         <Route path="pending" element={<Pending />}></Route>
                         <Route path="history" element={<History />}></Route>
                     </Route>
-                    <Route path="publisher" element={<Publisher />}>
+                    <Route path="/publisher" element={<Publisher />}>
                         {/* <Route index element={<PublisherCourses />}></Route> */}
                         <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
-                        <Route path="courses" element={<PublisherCourses />}></Route>
-                        <Route path="add-course" element={<AddCourses />}></Route>
-                        <Route path="add-lesson" element={<EditLesson />}></Route>
+                        {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
+                        <Route path=":PublisherUserId/add-course" element={<AddCourses />}></Route>
+                        <Route path=":PublisherUserId/add-course/add-lesson" element={<EditLesson />}></Route>
+                        <Route
+                            path=":PublisherUserId/add-course/add-lesson/edit-material"
+                            element={<EditMaterial />}
+                        ></Route>
                     </Route>
                     <Route path="*" element={<p>Path not resolved</p>} />
                 </Routes>

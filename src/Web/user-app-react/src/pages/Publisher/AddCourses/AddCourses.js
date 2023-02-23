@@ -1,6 +1,7 @@
 import classNames from 'classnames/bind';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 import LessonsMaterialLists from '~/components/PublisherPage/LessonsMaterialLists';
 
 import styles from './AddCourses.module.scss';
@@ -13,6 +14,8 @@ function AddCourses() {
     const [lessonsList, setLessonsList] = useState([]);
     const [titleValue, setTitleValue] = useState('');
     const [error, setError] = useState('');
+
+    let params = useParams();
 
     // const lessonsList = [
     //     { LessonId: 1, Title: 'Lesson 1', Description: 'Description of lesson 1', Order: 1.5 },
@@ -31,7 +34,7 @@ function AddCourses() {
     };
 
     // const handleAddLessonClick = () => {
-    //     window.location.href = '/publisher/add-lesson';
+    //     window.location.href = '/publisher/edit-lesson';
     // };
 
     const handleTitleChange = (event) => {
@@ -97,7 +100,7 @@ function AddCourses() {
                     <div className={cx('topContainer')}>
                         <p className={cx('topTitle')}>Lessons</p>
                         <button className={cx('topTitleBtn')}>
-                            <Link className={cx('addLessonLink')} to="/publisher/add-lesson">
+                            <Link className={cx('addLessonLink')} to="add-lesson">
                                 Add Lesson
                             </Link>
                         </button>
@@ -105,10 +108,7 @@ function AddCourses() {
                     <LessonsMaterialLists lessonsList={lessonsList} />
                 </div>
             </div>
-            <div className={cx('bottomBtnContainer')}>
-                <button className={cx('cancelBtn')}>Cancel</button>
-                <button className={cx('confirmBtn')}>Confirm</button>
-            </div>
+            <CancelConfirmBtns />
         </div>
     );
 }

@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 
 import LessonsMaterialLists from '~/components/PublisherPage/LessonsMaterialLists';
 
@@ -38,7 +39,9 @@ function EditLesson() {
                         <p className={cx('unitsTitle')}>Units</p>
                         <div className={cx('unitsBtns')}>
                             <button className={cx('unitsBtns')}>
-                                <Link className={cx('unitsAddBtns')}>Add Material</Link>
+                                <Link className={cx('unitsAddBtns')} to={'edit-material'}>
+                                    Add Material
+                                </Link>
                             </button>
                             <button className={cx('unitsBtns')}>
                                 <Link className={cx('unitsAddBtns')}>Add Exam</Link>
@@ -48,10 +51,7 @@ function EditLesson() {
                     <LessonsMaterialLists lessonsList={lessonsList} />
                 </div>
             </div>
-            <div className={cx('confirmBtnsDiv')}>
-                <button className={cx('cancelBtn')}>Cancel</button>
-                <button className={cx('confirmBtn')}>Confirm</button>
-            </div>
+            <CancelConfirmBtns />
         </div>
     );
 }
