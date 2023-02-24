@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 import LessonsMaterialLists from '~/components/PublisherPage/LessonsMaterialLists';
 
@@ -15,6 +15,7 @@ function AddCourses() {
     const [error, setError] = useState('');
 
     let params = useParams();
+    const navigate = useNavigate();
 
     // const lessonsList = [
     //     { LessonId: 1, Title: 'Lesson 1', Description: 'Description of lesson 1', Order: 1.5 },
@@ -35,6 +36,10 @@ function AddCourses() {
     const handleTitleChange = (event) => {
         setTitleValue(event.target.value);
         setError('');
+    };
+
+    const handleCancel = () => {
+        navigate(`/publisher/${params.PublisherUserId}`);
     };
 
     return (
@@ -93,7 +98,7 @@ function AddCourses() {
 
                 <LessonsMaterialLists lessonsList={[]} />
             </div>
-            <CancelConfirmBtns />
+            <CancelConfirmBtns onCancel={handleCancel} />
         </div>
     );
 }

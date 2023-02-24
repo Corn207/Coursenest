@@ -1,4 +1,6 @@
 import classNames from 'classnames/bind';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 
 import styles from './EditMaterial.module.scss';
@@ -6,6 +8,13 @@ import styles from './EditMaterial.module.scss';
 const cx = classNames.bind(styles);
 
 function EditMaterial() {
+    const navigate = useNavigate();
+    let params = useParams();
+
+    const handleCancel = () => {
+        navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
+    };
+
     return (
         <div className={cx('wrapper')}>
             <p className={cx('title')}>Title</p>
@@ -17,7 +26,7 @@ function EditMaterial() {
                     placeholder="“Give any additional context on what happened.”"
                 ></textarea>
             </div>
-            <CancelConfirmBtns />
+            <CancelConfirmBtns onCancel={handleCancel} />
         </div>
     );
 }

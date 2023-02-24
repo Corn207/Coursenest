@@ -2,6 +2,7 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
 import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import styles from './LessonsMaterialLists.module.scss';
 
@@ -10,6 +11,9 @@ const cx = classNames.bind(styles);
 function LessonsMaterialLists({ lessonsList }) {
     // const [lessons, setLessons] = useState(lessonsList);
     const [lessons, setLessons] = useState(lessonsList);
+
+    const navigate = useNavigate();
+    let params = useParams();
 
     // const [lessonsList, setLessonsList] = useState([]);
 
@@ -50,6 +54,10 @@ function LessonsMaterialLists({ lessonsList }) {
         console.log(newArrLesson);
     };
 
+    const handleEditLesson = (id) => {
+        navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
+    };
+
     let activeBtn = {
         opacity: '1',
         cursor: 'pointer',
@@ -75,7 +83,9 @@ function LessonsMaterialLists({ lessonsList }) {
                     <li className={cx('itemDiv')} key={index}>
                         <p className={cx('itemTitle')}>{item.Title}</p>
                         <div className={cx('itemAction')}>
-                            <p className={cx('btnAction')}>Edit</p>
+                            <p className={cx('btnAction')} onClick={handleEditLesson}>
+                                Edit
+                            </p>
                             <p className={cx('btnAction')} onClick={() => handleDeleteLesson(item.LessonId)}>
                                 Delete
                             </p>
