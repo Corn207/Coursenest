@@ -36,6 +36,7 @@ const useStyles = makeStyles({
 const cx = classNames.bind(styles);
 
 function PublisherCourses() {
+    const [isChecked, setIsChecked] = useState(false);
     const [data, setData] = useState([]);
     const [selected, setSelected] = useState([]);
     const [page, setPage] = useState(0);
@@ -100,6 +101,10 @@ function PublisherCourses() {
         console.log(courseId);
     };
 
+    const handleChange = (event) => {
+        setIsChecked(event.target.checked);
+    };
+
     const classes = useStyles();
     const currentData = data.slice(page * pageSize, (page + 1) * pageSize);
 
@@ -132,6 +137,7 @@ function PublisherCourses() {
                                     <input
                                         type="checkbox"
                                         checked={selected.includes(row.courseId)}
+                                        onChange={handleChange}
                                         onClick={() => handleSelect(row.courseId)}
                                     />
                                 </TableCell>
