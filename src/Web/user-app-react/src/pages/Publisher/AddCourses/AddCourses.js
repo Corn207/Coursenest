@@ -10,7 +10,7 @@ const cx = classNames.bind(styles);
 
 function AddCourses() {
     const [image, setImage] = useState(null);
-    const [isSelected, setIsSlected] = useState(1);
+    const [isSelected, setIsSlected] = useState(0);
     const [titleValue, setTitleValue] = useState('');
     const [error, setError] = useState('');
 
@@ -42,64 +42,71 @@ function AddCourses() {
         navigate(`/publisher/${params.PublisherUserId}`);
     };
 
+    function handleSubmit(event) {
+        event.preventDefault();
+        navigate('/publisher/add-course/add-lesson');
+    }
+
     return (
-        <div className={cx('wrapper')}>
-            <p className={cx('title')}>Web Design Course</p>
-            <div className={cx('contentContainer')}>
-                <div className={cx('imageDiv')}>
-                    <div className={cx('imageActionDiv')}>
-                        <p className={cx('fileTitle')}>Course Image</p>
-                        <input type="file" onChange={handleChange} />
+        <form className={cx('formWrapper')} onSubmit={handleSubmit}>
+            <div className={cx('wrapper')}>
+                <p className={cx('title')}>Web Design Course</p>
+                <div className={cx('contentContainer')}>
+                    <div className={cx('imageDiv')}>
+                        <div className={cx('imageActionDiv')}>
+                            <p className={cx('fileTitle')}>Course Image</p>
+                            <input type="file" onChange={handleChange} />
+                        </div>
+                        {image && <img className={cx('imageContainer')} src={image} alt={'course'}></img>}
                     </div>
-                    {image && <img className={cx('imageContainer')} src={image} alt={'course'}></img>}
-                </div>
-                <div className={cx('courseInfoDiv')}>
-                    <div className={cx('courseInputInfo')}>
-                        <p className={cx('inputTitle')}>Course Title</p>
-                        <textarea
-                            className={cx('input')}
-                            value={titleValue}
-                            placeholder={'Title name...'}
-                            onChange={handleTitleChange}
-                        ></textarea>
-                    </div>
-                    <div className={cx('courseInputInfo')}>
-                        <p className={cx('inputTitle')}>Description</p>
-                        <textarea className={cx('input')} type={'text'} placeholder={'Description...'}></textarea>
-                    </div>
-                    <div className={cx('courseInputInfo')}>
-                        <p className={cx('inputTitle')}>Course Tier</p>
-                        <div className={cx('courseTierDiv')}>
-                            <p
-                                className={cx('courseTier')}
-                                style={{ opacity: isSelected === 1 ? 1 : 0.3 }}
-                                onClick={() => handleClick(1)}
-                            >
-                                Free
-                            </p>
-                            <p
-                                className={cx('courseTierPremium')}
-                                style={{ opacity: isSelected === 2 ? 1 : 0.3 }}
-                                onClick={() => handleClick(2)}
-                            >
-                                Premium
-                            </p>
+                    <div className={cx('courseInfoDiv')}>
+                        <div className={cx('courseInputInfo')}>
+                            <p className={cx('inputTitle')}>Course Title</p>
+                            <textarea
+                                className={cx('input')}
+                                value={titleValue}
+                                placeholder={'Title name...'}
+                                onChange={handleTitleChange}
+                            ></textarea>
+                        </div>
+                        <div className={cx('courseInputInfo')}>
+                            <p className={cx('inputTitle')}>Description</p>
+                            <textarea className={cx('input')} type={'text'} placeholder={'Description...'}></textarea>
+                        </div>
+                        <div className={cx('courseInputInfo')}>
+                            <p className={cx('inputTitle')}>Course Tier</p>
+                            <div className={cx('courseTierDiv')}>
+                                <p
+                                    className={cx('courseTier')}
+                                    style={{ opacity: isSelected === 0 ? 1 : 0.3 }}
+                                    onClick={() => handleClick(0)}
+                                >
+                                    Free
+                                </p>
+                                <p
+                                    className={cx('courseTierPremium')}
+                                    style={{ opacity: isSelected === 1 ? 1 : 0.3 }}
+                                    onClick={() => handleClick(1)}
+                                >
+                                    Premium
+                                </p>
+                            </div>
+                        </div>
+                        <div className={cx('courseInputInfo')}>
+                            <p className={cx('inputTitle')}>About</p>
+                            <textarea
+                                className={cx('inputAbout')}
+                                type={'text'}
+                                placeholder={'Write something...'}
+                            ></textarea>
                         </div>
                     </div>
-                    <div className={cx('courseInputInfo')}>
-                        <p className={cx('inputTitle')}>About</p>
-                        <textarea
-                            className={cx('inputAbout')}
-                            type={'text'}
-                            placeholder={'Write something...'}
-                        ></textarea>
-                    </div>
-                </div>
 
-                <LessonsMaterialLists lessonsList={[]} />
+                    <LessonsMaterialLists lessonsList={[]} />
+                </div>
+                <CancelConfirmBtns onCancel={handleCancel} />
             </div>
-            <CancelConfirmBtns onCancel={handleCancel} />
-        </div>
+        </form>
     );
 }
 

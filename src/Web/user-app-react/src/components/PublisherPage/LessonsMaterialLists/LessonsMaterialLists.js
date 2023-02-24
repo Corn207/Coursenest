@@ -17,7 +17,8 @@ function LessonsMaterialLists({ lessonsList }) {
 
     // const [lessonsList, setLessonsList] = useState([]);
 
-    const moveItem = (LessonId, direction) => {
+    const moveItem = (LessonId, direction, event) => {
+        event.preventDefault();
         const newItems = [...lessons];
         const index = newItems.findIndex((item) => item.LessonId === LessonId);
         const temp = newItems[index];
@@ -26,7 +27,8 @@ function LessonsMaterialLists({ lessonsList }) {
         setLessons(newItems);
     };
 
-    const handleAddLessonClick = () => {
+    const handleAddLessonClick = (event) => {
+        event.preventDefault();
         if (lessons.length === 0) {
             const defaultNewLesson = {
                 LessonId: 1,
@@ -91,17 +93,12 @@ function LessonsMaterialLists({ lessonsList }) {
                             </p>
                             <p className={cx('itemOrder')}>{index + 1}</p>
                             <div className={cx('moveBtnContainer')}>
-                                {/* {lessons[lessons.indexOf(item) + 1] && (
-                                <button onClick={() => moveItem(item.LessonId, 1)}>
-                                    <FontAwesomeIcon icon={faChevronUp} />
-                                </button>
-                            )} */}
                                 <button
                                     className={cx('moveBtn')}
                                     style={lessons[lessons.indexOf(item) - 1] ? activeBtn : disableBtn}
-                                    onClick={() =>
+                                    onClick={(event) =>
                                         lessons[lessons.indexOf(item) - 1]
-                                            ? moveItem(item.LessonId, -1)
+                                            ? moveItem(item.LessonId, -1, event)
                                             : console.log('not allowed to click')
                                     }
                                 >
@@ -110,20 +107,14 @@ function LessonsMaterialLists({ lessonsList }) {
                                 <button
                                     className={cx('moveBtn')}
                                     style={lessons[lessons.indexOf(item) + 1] ? activeBtn : disableBtn}
-                                    onClick={() =>
+                                    onClick={(event) =>
                                         lessons[lessons.indexOf(item) + 1]
-                                            ? moveItem(item.LessonId, 1)
+                                            ? moveItem(item.LessonId, 1, event)
                                             : console.log('not allowed to click')
                                     }
                                 >
                                     <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronDown} />
                                 </button>
-
-                                {/* {lessons[lessons.indexOf(item) - 1] && (
-                                <button onClick={() => moveItem(item.LessonId, -1)}>
-                                    <FontAwesomeIcon icon={faChevronDown} />
-                                </button>
-                            )} */}
                             </div>
                         </div>
                     </li>
