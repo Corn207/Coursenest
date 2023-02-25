@@ -2,13 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import UserActions from '../UserAction/UserActions';
 import styles from './Header.module.scss';
-// import { useEffect, useState } from 'react';
-// import axios from 'axios';
-import images from '~/assets/images';
-// import { useNavigate } from "react-router-dom";
+import images from '../../assets/images';
+import GuestActions from '../UserAction/GuestActions';
 
 export default function Header(props) {
     const {
+        logged,
         categories,
         subcategories,
         topics,
@@ -21,53 +20,6 @@ export default function Header(props) {
         isShownSubCategory,
         isShownTopic,
     } = props;
-    // const navigate = useNavigate();
-
-    // const [categories, setCategories] = useState([]);
-    // const [subcategories, setSubcategories] = useState([]);
-    // const [topics, setTopics] = useState([]);
-    // const [isShownCategory, setIsShownCategory] = useState(false);
-    // const [isShownSubCategory, setIsShownSubCategory] = useState(false);
-    // const [isShownTopic, setIsShownTopic] = useState(false);
-
-    // useEffect(() => {
-    //     axios
-    //         // .get("http://192.168.0.3:21002/categories/hierarchy")
-    //         .get('http://localhost:3000/categories')
-    //         // .get('http://localhost:21003/categories/hierarchy')
-    //         .then((res) => {
-    //             setCategories(res.data);
-    //         })
-    //         .catch((err) => console.log(err));
-    // }, []);
-
-    // useEffect(() => {
-    //     setIsShownTopic(false);
-    // }, [subcategories]);
-
-    // const handleShowCategory = () => {
-    //     setIsShownCategory(true);
-    // };
-
-    // const handleCloseCategory = () => {
-    //     setIsShownCategory(false);
-    //     setIsShownSubCategory(false);
-    //     setIsShownTopic(false);
-    // };
-
-    // const handleMouseOverCate = (data) => {
-    //     setIsShownSubCategory(true);
-    //     setSubcategories(data);
-    // };
-
-    // const handleMouseOverSubCate = (data) => {
-    //     setIsShownTopic(true);
-    //     setTopics(data);
-    // };
-
-    // const handleClickTopic = (dataTopic) => {
-    //     navigate(`/topics/${dataTopic.id}`);
-    // }
 
     return (
         <div className={styles.container}>
@@ -138,15 +90,22 @@ export default function Header(props) {
                         )}
                     </div>
                 </div>
-                <Link to="my-courses" className={styles.textDecoration}>
-                    <p>My Courses</p>
-                </Link>
+                {logged && (
+                    <Link to="my-courses" className={styles.textDecoration}>
+                        <p>My Courses</p>
+                    </Link>
+                )}
             </div>
             <div className={styles.rightHeader}>
-                <img src={images.searchIcon} alt="" />
-                <img src={images.publisherAction} alt="" />
-                <img src={images.instructorAction} alt="" />
-                <UserActions />
+                { logged && (
+                <>
+                    <img className={styles.searchIcon} src={images.searchIcon} alt="" />
+                    <img className={styles.publisherEditIcon} src={images.publisherEditIcon} alt="" />
+                    <img className={styles.instructorAction} src={images.instructorAction} alt="" />
+                    <UserActions />
+                </>
+                )}
+                { !logged && (<GuestActions />)}
             </div>
         </div>
     );

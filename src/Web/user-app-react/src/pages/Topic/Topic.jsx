@@ -18,8 +18,22 @@ export default function Topic() {
     const [listCourses, setListCourses] = useState([]);
     const [countCourse, setCountCourse] = useState();
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(6);
+    const [pageSize, setPageSize] = useState(3);
 
+    const fetchListCourses = () => {
+        axios
+            .get(
+                `${config.baseUrl}/api/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
+            )
+            .then((res) => {
+                setCountCourse(res.data.total);
+                setListCourses(res.data.queried);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+    
     useEffect(() => {
         fetchListCourses();
     }, [page, pageSize]);
@@ -37,32 +51,18 @@ export default function Topic() {
             })
             .then((res) => {
                 const index = res.data.findIndex((object) => {
-                    return object.topicId == id;
+                    return object.topicId === id;
                 });
                 const firstArray = [...res.data.slice(0, index)];
                 const secondArray = [...res.data.slice(index)];
                 const newArray = [...secondArray, ...firstArray];
                 setAllTopicsBySub(newArray);
-                setTopicSiblings(res.data.filter((t) => t.topicId != id));
+                setTopicSiblings(res.data.filter((t) => t.topicId !== id));
             })
             .catch((err) => {
                 console.log(err);
             });
     }, [id]);
-
-    const fetchListCourses = () => {
-        axios
-            .get(
-                `${config.baseUrl}/api/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
-            )
-            .then((res) => {
-                setCountCourse(res.data.total);
-                setListCourses(res.data.courses);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
 
     const handleOnChangePage = (event) => {
         console.log(parseInt(event));
@@ -91,7 +91,7 @@ export default function Topic() {
                         allTopicsBySub.map((topic) => {
                             return (
                                 <div
-                                    className={`${styles.navigationItem} ${topic.topicId == id ? styles.active : ''}`}
+                                    className={`${styles.navigationItem} ${topic.topicId === id ? styles.active : ''}`}
                                     key={topic.topicId}
                                     onClick={() => {
                                         handleClickTopic(topic.topicId);
