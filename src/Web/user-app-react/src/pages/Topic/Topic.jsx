@@ -36,7 +36,7 @@ export default function Topic() {
     
     useEffect(() => {
         fetchListCourses();
-    }, [page, pageSize]);
+    }, [page, pageSize, id]);
 
     useEffect(() => {
         axios
@@ -51,7 +51,7 @@ export default function Topic() {
             })
             .then((res) => {
                 const index = res.data.findIndex((object) => {
-                    return object.topicId === id;
+                    return object.topicId == id;
                 });
                 const firstArray = [...res.data.slice(0, index)];
                 const secondArray = [...res.data.slice(index)];
@@ -91,7 +91,7 @@ export default function Topic() {
                         allTopicsBySub.map((topic) => {
                             return (
                                 <div
-                                    className={`${styles.navigationItem} ${topic.topicId === id ? styles.active : ''}`}
+                                    className={`${styles.navigationItem} ${topic.topicId == id ? styles.active : ''}`}
                                     key={topic.topicId}
                                     onClick={() => {
                                         handleClickTopic(topic.topicId);

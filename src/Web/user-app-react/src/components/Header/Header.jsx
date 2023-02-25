@@ -8,6 +8,8 @@ import GuestActions from '../UserAction/GuestActions';
 export default function Header(props) {
     const {
         logged,
+        isPublisher,
+        isInstructor,
         categories,
         subcategories,
         topics,
@@ -100,8 +102,8 @@ export default function Header(props) {
                 { logged && (
                 <>
                     <img className={styles.searchIcon} src={images.searchIcon} alt="" />
-                    <img className={styles.publisherEditIcon} src={images.publisherEditIcon} alt="" />
-                    <img className={styles.instructorAction} src={images.instructorAction} alt="" />
+                    {isPublisher && <img className={styles.publisherEditIcon} src={images.publisherEditIcon} alt="" />}
+                    {isInstructor && <img className={styles.instructorAction} src={images.instructorAction} alt="" />}
                     <UserActions />
                 </>
                 )}

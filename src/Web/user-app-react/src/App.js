@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import { useState } from 'react';
 
 import SignIn from '~/pages/SignIn';
 import SignUp from '~/pages/SignUp';
@@ -17,11 +18,42 @@ import PublisherCourses from './pages/Publisher/PublisherCourses';
 import AddCourses from './pages/Publisher/AddCourses';
 import Topic from './pages/Topic/Topic';
 import Course from './pages/Course/Course';
+import axios from 'axios';
+import config from './config';
 
 function App() {
     let logged = false;
+    // localStorage.getItem('accessToken') ? (logged = true) : (logged = false);
+    const accessToken = localStorage.getItem('accessToken');
+    const userId = localStorage.getItem('userId');
 
-    localStorage.getItem('accessToken') ? (logged = true) : (logged = false);
+    const [isInstructor, setIsInstructor] = useState(false);
+    const [isPublisher, setIsPublisher] = useState(false);
+
+    const getRoleMe = () => {
+        axios.get(`${config.baseUrl}/api/roles/me`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .then((res) => {
+            console.log(res.data);
+            const roles = res.data;
+            if(roles.find(role => role.type === 1)) {
+                setIsInstructor(true);
+            }
+            else if(roles.find(role => role.type === 2)) {
+                setIsPublisher(true);
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
+    if (accessToken && userId) {
+        logged = true;
+        getRoleMe();
+    }
+
     return (
         <div className="App">
             <Routes>
@@ -29,7 +61,7 @@ function App() {
                 <Route path="sign-in" element={<SignIn />} />
                 <Route path="sign-up" element={<SignUp />} />
                 <Route path="forgot-password" element={<Forgot />} />
-                <Route path="/" element={<Layout logged={logged}/>}>
+                <Route path="/" element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher}/>}>
                     <Route index element={<Home logged={logged}/>} />
                     {logged && (
                         <>

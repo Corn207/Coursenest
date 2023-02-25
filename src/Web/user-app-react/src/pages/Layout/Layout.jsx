@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import config from '~/config';
 
 export default function Layout(props) {
-    const {logged} = props;
+    const {logged, isInstructor, isPublisher} = props;
     const navigate = useNavigate();
 
     // dung de change background image
@@ -64,7 +64,10 @@ export default function Layout(props) {
         <div className={styles.container}>
             <div className={styles[`${location}`]}>
                 <Header
+                    className={styles.header}
                     logged={logged}
+                    isInstructor={isInstructor} 
+                    isPublisher={isPublisher}
                     categories={categories}
                     subcategories={subcategories}
                     topics={topics}
