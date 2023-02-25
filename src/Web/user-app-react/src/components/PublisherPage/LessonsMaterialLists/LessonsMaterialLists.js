@@ -1,8 +1,9 @@
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import CourseContext from '~/contexts/courseContext';
 
 import styles from './LessonsMaterialLists.module.scss';
 
@@ -11,6 +12,7 @@ const cx = classNames.bind(styles);
 function LessonsMaterialLists({ lessonsList }) {
     // const [lessons, setLessons] = useState(lessonsList);
     const [lessons, setLessons] = useState(lessonsList);
+    const { courseData, setCourseData } = useContext(CourseContext);
 
     const navigate = useNavigate();
     let params = useParams();

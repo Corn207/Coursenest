@@ -1,9 +1,10 @@
 import { faChevronDown, faChevronRight, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
+import CourseContext from '~/contexts/courseContext';
 
 import styles from './EditLesson.module.scss';
 
@@ -11,6 +12,7 @@ const cx = classNames.bind(styles);
 
 function EditLesson() {
     const [lessons, setLessons] = useState([]);
+    const { courseData, setCourseData } = useContext(CourseContext);
 
     const navigate = useNavigate();
     let params = useParams();
