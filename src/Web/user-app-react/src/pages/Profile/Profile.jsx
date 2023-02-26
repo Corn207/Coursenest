@@ -7,6 +7,7 @@ import avatarImg from '../../assets/images/user-avatar.png';
 import experienceImg from '../../assets/images/experience.png';
 import config from '~/config';
 import axios from 'axios';
+import { isEqual, uniq } from "lodash";
 
 export default function Profile() {
 
@@ -14,15 +15,11 @@ export default function Profile() {
     const token = localStorage.getItem("accessToken");
 
     const [userInfo, setUserInfo] = useState({});
-    const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({
-        "email": "",
-        "phonenumber": "",
-        "fullName": "",
-        "title": "",
-        "aboutMe": "",
-        "location": ""
-    });
-    const [aboutMe, setAboutMe] = useState({"aboutMe": ""})
+    const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({});
+    const [currentInfo, setCurrentInfo] = useState({});
+    const [changedInfo, setChangedInfo] = useState({});
+    const [aboutMe, setAboutMe] = useState({"aboutMe": ""});
+    const [gender, setGender] = useState({});
 
     const [showModalAchievement, setShowModalAchievement] = useState(false);
     const [showModalChangeAvatar, setShowModalChangeAvatar] = useState(false);
@@ -44,14 +41,14 @@ export default function Profile() {
             .then((res) => {
                 setUserInfo(res.data);
                 if (res.data.avatar != null) setAvatar(res.data.avatar.uri);
-                console.log(res.data);
                 setUserInfoNeedUpdate({                
                     "email": res.data.email,
                     "phonenumber": res.data.phonenumber,
                     "fullName": res.data.fullName,
                     "title": res.data.title,
-                    "aboutMe": res.data.aboutMe,
-                    "location": res.data.location    
+                    "location": res.data.location,
+                    // "gender": res.data.gender,
+                    "dateOfBirth": res.data.dateOfBirth    
                 })
                 setAboutMe({"aboutMe": res.data.aboutMe});
             })
@@ -85,46 +82,9 @@ export default function Profile() {
             })
     }
 
-    // update basic info
-    const handleClickEditInfo = () => {
-        console.log(userInfoNeedUpdate);
-        setShowModalEditInfo(true);
-    }
-
-    const handleChangeInfo = (event) => {
-        const value = event.target.value;
-        setUserInfoNeedUpdate({
-            ...userInfoNeedUpdate,
-            [event.target.name]: value
-        });
-    }
-
-    const handleConfirmUpdateInfo = (event) => {
-        // test
-        // const userInfoNeedUpdate = { "dateOfBirth": "2023-02-13T13:30:20-05:00" }
-        event.preventDefault();
-        console.log(userInfoNeedUpdate);
-        axios
-            .put(`${config.baseUrl}/api/users/me`, userInfoNeedUpdate, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then((res) => {
-                console.log(res.data);
-                setShowModalEditInfo(false);
-                fetchInfoUser();
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-
-    }
-
     // update about me info
     const handleConfirmUpdateAboutMe = (event) => {
         event.preventDefault();
-        console.log(aboutMe);
         axios
             .put(`${config.baseUrl}/api/users/me`, aboutMe, {
                 headers: {
@@ -143,15 +103,78 @@ export default function Profile() {
 
     const handleChangeAboutMe = (event) => {
         const value = event.target.value;
-        console.log(aboutMe);
         setAboutMe({"aboutMe": value});
     }
 
-    const handleClickEditAboutMe = (data) => {
-        console.log(data);
+    const handleClickEditAboutMe = () => {
         setShowModalEditAboutMe(true);
     }
 
+
+// update basic info
+const handleClickEditInfo = () => {
+    setShowModalEditInfo(true);
+    setCurrentInfo(userInfoNeedUpdate);
+}
+
+const handleChangeInfo = (event) => {
+    let value = event.target.value;
+    let name = event.target.name;
+
+    if(name == "dateOfBirth"){
+        value = new Date(event.target.value).toISOString();
+        console.log(value);
+    }
+    setUserInfoNeedUpdate({
+        ...userInfoNeedUpdate,
+        [name]: value,
+    });
+}
+
+const getUpdatedKeys = (newData, oldData) => {
+    const data = uniq([...Object.keys(newData), ...Object.keys(oldData)]);
+    const keys = [];
+    for(const key of data){
+      if(!isEqual(oldData[key], newData[key])){
+        keys.push(key);
+        setChangedInfo({
+          ...changedInfo,
+          [key]: newData[key]  
+        })
+      }
+    }
+    return keys;
+}
+
+const handleConfirmUpdateInfo = (event) => {
+    // chưa handle đc gender 
+    event.preventDefault();
+    
+    const update = getUpdatedKeys(userInfoNeedUpdate, currentInfo);
+
+    if(update.length === 0) {
+        console.log("length = 0");
+        setShowModalEditInfo(false);
+    }
+    else {
+        console.log(changedInfo);
+        // console.log(gender);
+        axios.put(`${config.baseUrl}/api/users/me`, changedInfo, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((res) => {
+            console.log(res.data);
+            setShowModalEditInfo(false);
+            fetchInfoUser();
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+}
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -189,7 +212,7 @@ export default function Profile() {
                 <div>
                     <div className={styles.heading}>
                         <h2>About Me</h2>
-                        <p className={styles.editBtn} onClick={() => handleClickEditAboutMe(userInfo.aboutMe)}>Edit</p>
+                        <p className={styles.editBtn} onClick={() => handleClickEditAboutMe()}>Edit</p>
                     </div>
                     <p>{userInfo.aboutMe}</p>
                 </div>
@@ -197,7 +220,7 @@ export default function Profile() {
                 <div>
                     <div className={styles.heading}>
                         <h2>Basic Information</h2>
-                        <p className={styles.editBtn} onClick={handleClickEditInfo}>Edit</p>
+                        <p className={styles.editBtn} onClick={() => handleClickEditInfo()}>Edit</p>
                     </div>
                     <table className={styles.tableInfo}>
                         <tbody>
@@ -268,7 +291,7 @@ export default function Profile() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 30}} >
-                    <img style={{width: 200, height: 200}} src={preview} />
+                    <img style={{width: 200, height: 200}} src={preview} alt=""/>
                     <input name="newImage" type="file" onChange={handleNewImage} />
                 </Modal.Body>
                 <Modal.Footer>
@@ -339,7 +362,7 @@ export default function Profile() {
                         <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
                             <label>Phone Number:</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="phonenumber"
                                 value={userInfoNeedUpdate.phonenumber}
                                 onChange={handleChangeInfo}
@@ -364,24 +387,16 @@ export default function Profile() {
                             />
                         </div>
                         <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
-                            <label>About me:</label>
-                            <input
-                                type="text"
-                                name="aboutMe"
-                                value={userInfoNeedUpdate.aboutMe}
-                                onChange={handleChangeInfo}
-                            />
-                        </div>
-                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
                             <label>Gender: </label>
-                            <select onChange={handleChangeInfo}>
-                                <option value="grapefruit">Male</option>
-                                <option value="lime">Female</option>
+                            {/* <select name='gender' value={userInfoNeedUpdate.gender} onChange={handleChangeInfo}> */}
+                            <select name='gender' onChange={(event) => setGender({"gender": event.target.value})}>
+                                <option value={0}>Male</option>
+                                <option value={1}>Female</option>
                             </select>
                         </div>
                         <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
                             <label>Date of birth:</label>
-                            <input type="date"/>
+                            <input type="date" name='dateOfBirth' onChange={handleChangeInfo}/>
                         </div>
                         <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
                             <label>Location:</label>
