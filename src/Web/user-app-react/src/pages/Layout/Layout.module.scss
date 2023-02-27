@@ -20,7 +20,14 @@
         background-size: cover;
         aspect-ratio: 7/5;
     }
+
+    .courses,
+    .my-courses {
+        background-image: url('../../assets/images/courses-bg.png');
+    }
+
     .outlet {
         margin: 0px 30px 50px 30px;
+        min-height: 100vh;
     }
 }

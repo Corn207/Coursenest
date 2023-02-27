@@ -4,8 +4,10 @@ import UserActions from '../UserAction/UserActions';
 import styles from './Header.module.scss';
 import images from '../../assets/images';
 import GuestActions from '../UserAction/GuestActions';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header(props) {
+    const navigate = useNavigate();
     const {
         logged,
         isPublisher,
@@ -99,15 +101,27 @@ export default function Header(props) {
                 )}
             </div>
             <div className={styles.rightHeader}>
-                { logged && (
-                <>
-                    <img className={styles.searchIcon} src={images.searchIcon} alt="" />
-                    {isPublisher && <img className={styles.publisherEditIcon} src={images.publisherEditIcon} alt="" />}
-                    {isInstructor && <img className={styles.instructorAction} src={images.instructorAction} alt="" />}
-                    <UserActions />
-                </>
+                {logged && (
+                    <>
+                       <div className={styles.searchInput}>
+                            <div className="input-group">
+                                 <input className="form-control border-end-0 border rounded-pill" type="search" placeholder='search' id="example-search-input" />
+                            </div>
+                       </div>
+                        {isPublisher && (
+                            <div onClick={() => navigate(`/publisher`)}>
+                                <img className={styles.publisherEditIcon} src={images.publisherEditIcon} alt="" />
+                            </div>
+                        )}
+                        {isInstructor && (
+                            <div onClick={() => navigate(`/instructor`)}>
+                                <img className={styles.instructorAction} src={images.instructorAction} alt="" />
+                            </div>
+                        )}
+                        <UserActions />
+                    </>
                 )}
-                { !logged && (<GuestActions />)}
+                {!logged && (<GuestActions />)}
             </div>
         </div>
     );

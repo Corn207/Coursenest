@@ -23,12 +23,10 @@ export default function UserActions() {
 
     const getInfoUser = () => {
         let userId = localStorage.getItem('userId');
-        console.log(userId);
         axios
             .get(`${config.baseUrl}/api/users/${userId}`)
             .then((res) => {
                 setUserInfo(res.data);
-                console.log(res.data);
             })
             .catch((err) => {
                 console.log(err);

@@ -8,7 +8,8 @@ import { useParams, useNavigate } from 'react-router';
 import images from '~/assets/images';
 import config from '~/config';
 
-export default function Topic() {
+export default function Topic(props) {
+    const { logged } = props;
     const { id } = useParams();
     const [topic, setTopic] = useState({});
     const [allTopicsBySub, setAllTopicsBySub] = useState([]);
@@ -135,7 +136,7 @@ export default function Topic() {
             <div>
                 <h4>All Courses</h4>
                 <span>{countCourse} results</span>
-                <AllCoursesByTopic listCourses={listCourses} />
+                <AllCoursesByTopic listCourses={listCourses} logged={logged}/>
             </div>
 
             <div>

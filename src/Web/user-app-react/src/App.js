@@ -5,7 +5,7 @@ import { useState } from 'react';
 import SignIn from '~/pages/SignIn';
 import SignUp from '~/pages/SignUp';
 import Forgot from '~/pages/Forgot';
-// import Landing from './pages/Landing Page/Landing';
+import Landing from './pages/Landing Page/Landing';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
 import Layout from './pages/Layout/Layout';
@@ -20,6 +20,7 @@ import Topic from './pages/Topic/Topic';
 import Course from './pages/Course/Course';
 import axios from 'axios';
 import config from './config';
+import MyCourses from './pages/MyCourses/MyCourses';
 
 function App() {
     let logged = false;
@@ -35,12 +36,11 @@ function App() {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
         .then((res) => {
-            console.log(res.data);
             const roles = res.data;
             if(roles.find(role => role.type === 1)) {
                 setIsInstructor(true);
             }
-            else if(roles.find(role => role.type === 2)) {
+            if(roles.find(role => role.type === 2)) {
                 setIsPublisher(true);
             }
         })
@@ -57,22 +57,25 @@ function App() {
     return (
         <div className="App">
             <Routes>
-                {/* <Route index element={<Landing />} /> */}
+                <Route path="landing" element={<Landing />} />
                 <Route path="sign-in" element={<SignIn />} />
                 <Route path="sign-up" element={<SignUp />} />
                 <Route path="forgot-password" element={<Forgot />} />
+                {console.log(isInstructor, isPublisher)}
                 <Route path="/" element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher}/>}>
                     <Route index element={<Home logged={logged}/>} />
                     {logged && (
                         <>
                             <Route path="profile" element={<Profile />} />
+                            <Route path="courses/:id" element={<Course />} />
+                            <Route path="my-courses" element={<MyCourses />} />
                         </>
                     )}
-                    <Route path="topics/:id" element={<Topic/>} />
-                    <Route path="courses/:id" element={<Course />} />
+                    <Route path="topics/:id" element={<Topic logged={logged}/>} />
                 </Route>
             </Routes>
             {logged && (
+                // ngoài check đã login phải check thêm role của user xem có quyền truy cập hay ko
                 <Routes>
                     <Route path="instructor" element={<Instructor />}>
                         <Route index element={<Following />}></Route>

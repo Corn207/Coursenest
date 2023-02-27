@@ -103,11 +103,13 @@
 
     .rightHeader {
         display: flex;
-        align-items: baseline;
         gap: 15px;
-        .searchIcon,
+        .searchInput {
+            margin-top: 13px;
+        }
         .instructorAction,
         .publisherEditIcon {
+            margin-top: 13px;
             width: 30px;
             height: 30px;
             cursor: pointer;

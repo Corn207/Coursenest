@@ -4,7 +4,8 @@ import AllCoursesByTopic from '~/components/AllCoursesByTopic/AllCoursesByTopic'
 import config from '~/config';
 import styles from "./InterestedTopics.module.scss"
 
-export default function InterestedTopics() {
+export default function InterestedTopics(props) {
+    const {logged} = props;
 
     const userId = localStorage.getItem('userId');
     const [topics, setTopics] = useState([]);
@@ -82,7 +83,7 @@ export default function InterestedTopics() {
                         </div>
                         <div>
                             <h3 className={styles.heading}>Top Courses</h3>
-                            <AllCoursesByTopic listCourses={listCourses.queried} />
+                            <AllCoursesByTopic listCourses={listCourses.queried} logged={logged}/>
                         </div>
         </div>
     );
