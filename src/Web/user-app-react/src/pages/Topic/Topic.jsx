@@ -8,7 +8,8 @@ import { useParams, useNavigate } from 'react-router';
 import images from '~/assets/images';
 import config from '~/config';
 
-export default function Topic() {
+export default function Topic(props) {
+    const { logged } = props;
     const { id } = useParams();
     const [topic, setTopic] = useState({});
     const [allTopicsBySub, setAllTopicsBySub] = useState([]);
@@ -18,11 +19,25 @@ export default function Topic() {
     const [listCourses, setListCourses] = useState([]);
     const [countCourse, setCountCourse] = useState();
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(6);
+    const [pageSize, setPageSize] = useState(3);
 
+    const fetchListCourses = () => {
+        axios
+            .get(
+                `${config.baseUrl}/api/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
+            )
+            .then((res) => {
+                setCountCourse(res.data.total);
+                setListCourses(res.data.queried);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+    
     useEffect(() => {
         fetchListCourses();
-    }, [page, pageSize]);
+    }, [page, pageSize, id]);
 
     useEffect(() => {
         axios
@@ -43,26 +58,12 @@ export default function Topic() {
                 const secondArray = [...res.data.slice(index)];
                 const newArray = [...secondArray, ...firstArray];
                 setAllTopicsBySub(newArray);
-                setTopicSiblings(res.data.filter((t) => t.topicId != id));
+                setTopicSiblings(res.data.filter((t) => t.topicId !== id));
             })
             .catch((err) => {
                 console.log(err);
             });
     }, [id]);
-
-    const fetchListCourses = () => {
-        axios
-            .get(
-                `${config.baseUrl}/api/courses?TopicId=${id}&IsApproved=true&SortBy=0&PageNumber=${page}&PageSize=${pageSize}`,
-            )
-            .then((res) => {
-                setCountCourse(res.data.total);
-                setListCourses(res.data.courses);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
 
     const handleOnChangePage = (event) => {
         console.log(parseInt(event));
@@ -135,7 +136,7 @@ export default function Topic() {
             <div>
                 <h4>All Courses</h4>
                 <span>{countCourse} results</span>
-                <AllCoursesByTopic listCourses={listCourses} />
+                <AllCoursesByTopic listCourses={listCourses} logged={logged}/>
             </div>
 
             <div>

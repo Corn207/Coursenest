@@ -5,7 +5,7 @@ import Typical from 'react-typed';
 import logowhite from '~/assets/images/logo-white.png';
 import tickicon from '~/assets/images/shield-tick.png';
 import styles from './Landing.module.css';
-import UserActions from '~/components/UserAction/UserActions';
+import GuestActions from '~/components/UserAction/GuestActions';
 
 export default function Landing() {
     return (
@@ -13,12 +13,12 @@ export default function Landing() {
             <div className={styles.nav}>
                 <div className={styles.navleft}>
                     <img src={logowhite} className={styles.logowhite} alt="" />
-                    <Link to="/home" className="textlink">
+                    <Link to="/home" className={`textlink ${styles.home}`}>
                         <p>Home</p>
                     </Link>
                 </div>
                 <div className={styles.navright}>
-                    <UserActions />
+                    <GuestActions />
                 </div>
             </div>
             <div className={styles.content}>
@@ -31,10 +31,10 @@ export default function Landing() {
                 <p className={styles.intro}>
                     Which programming language do you want <br /> to start your journey as a <br /> programmer?
                 </p>
-                <Link to="#">
+                <Link to="/sign-in">
                     <button className={styles.bstudy}>Study now</button>
                 </Link>
-                <Link to="#">
+                <Link to="/sign-up">
                     <button className={styles.bregister}>Register</button>
                 </Link>
                 <div className={styles.advantages}>

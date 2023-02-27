@@ -7,7 +7,8 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import config from '~/config';
 
-export default function Layout() {
+export default function Layout(props) {
+    const {logged, isInstructor, isPublisher} = props;
     const navigate = useNavigate();
 
     // dung de change background image
@@ -25,8 +26,6 @@ export default function Layout() {
     useEffect(() => {
         axios
             .get(`${config.baseUrl}/api/categories/hierarchy`)
-            // .get('http://localhost:3000/categories')
-            // .get('http://localhost:21003/categories/hierarchy')
             .then((res) => {
                 setCategories(res.data);
             })
@@ -65,6 +64,10 @@ export default function Layout() {
         <div className={styles.container}>
             <div className={styles[`${location}`]}>
                 <Header
+                    className={styles.header}
+                    logged={logged}
+                    isInstructor={isInstructor} 
+                    isPublisher={isPublisher}
                     categories={categories}
                     subcategories={subcategories}
                     topics={topics}

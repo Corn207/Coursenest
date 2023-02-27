@@ -12,14 +12,54 @@
         text-align: end;
         width: 45vw;
         font-weight: 700;
+        letter-spacing: 12px;
 
         .title {
-            font-size: 120px;
-            line-height: 130px;
+            font-size: 100px;
+            line-height: 100px;
         }
 
         .subTitle {
-            font-size: 20px;
+            font-size: 30px;
+        }
+    }
+
+    .content {
+        margin-top: 50px;
+        padding-left: 100px;
+        width: 40vw;
+
+        .links {
+            margin-top: 20px;
+            .bstudy {
+                background-color: #4e6fb8;
+                border: none;
+                margin-right: 24px;
+                margin-bottom: 20px;
+                padding: 10px;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+                border-radius: 4px;
+                width: 100px;
+                transition: color 0.5s ease;
+                color: #ffff;
+            }
+            
+            .bregister {
+                background: #2e2847;
+                border: none;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+                border-radius: 4px;
+                padding: 10px;
+                width: 90px;
+                transition: color 0.5s ease;
+                color: #ffff;
+            }
+            
+            .bstudy:hover,
+            .bregister:hover {
+                color: #c1a781;
+                cursor: pointer;
+            }
         }
     }
 

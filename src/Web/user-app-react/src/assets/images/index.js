@@ -13,7 +13,8 @@ const images = {
     experience: require('~/assets/images/experience.png'),
     achievementIcon: require('~/assets/images/achievementIcon.png'),
     userAvatar: require('~/assets/images/user-avatar.png'),
-    arrowRight: require('~/assets/images/arrow-right.png')
+    arrowRight: require('~/assets/images/arrow-right.png'),
+    instructorAction: require('~/assets/images/instructor-action.png'),
 };
 
 export default images;

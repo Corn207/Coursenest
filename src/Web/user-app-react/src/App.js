@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import { useState } from 'react';
 
 import SignIn from '~/pages/SignIn';
 import SignUp from '~/pages/SignUp';
@@ -15,31 +16,67 @@ import History from '~/pages/Instructor/History';
 import Publisher from '~/pages/Publisher/Publisher';
 import PublisherCourses from './pages/Publisher/PublisherCourses';
 import AddCourses from './pages/Publisher/AddCourses';
+import Topic from './pages/Topic/Topic';
+import Course from './pages/Course/Course';
+import axios from 'axios';
+import config from './config';
+import MyCourses from './pages/MyCourses/MyCourses';
 
 function App() {
     let logged = false;
+    // localStorage.getItem('accessToken') ? (logged = true) : (logged = false);
+    const accessToken = localStorage.getItem('accessToken');
+    const userId = localStorage.getItem('userId');
 
-    localStorage.getItem('accessToken') ? (logged = true) : (logged = false);
+    const [isInstructor, setIsInstructor] = useState(false);
+    const [isPublisher, setIsPublisher] = useState(false);
+
+    const getRoleMe = () => {
+        axios.get(`${config.baseUrl}/api/roles/me`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .then((res) => {
+            const roles = res.data;
+            if(roles.find(role => role.type === 1)) {
+                setIsInstructor(true);
+            }
+            if(roles.find(role => role.type === 2)) {
+                setIsPublisher(true);
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
+    if (accessToken && userId) {
+        logged = true;
+        getRoleMe();
+    }
+
     return (
         <div className="App">
-            {!logged && (
-                <>
-                    <Routes>
-                        <Route index element={<SignIn />} />
-                        <Route path="sign-in" element={<SignIn />} />
-                        <Route path="sign-up" element={<SignUp />} />
-                        <Route path="forgot-password" element={<Forgot />} />
-                    </Routes>
-                </>
-            )}
+            <Routes>
+                <Route path="landing" element={<Landing />} />
+                <Route path="sign-in" element={<SignIn />} />
+                <Route path="sign-up" element={<SignUp />} />
+                <Route path="forgot-password" element={<Forgot />} />
+                {console.log(isInstructor, isPublisher)}
+                <Route path="/" element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher}/>}>
+                    <Route index element={<Home logged={logged}/>} />
+                    {logged && (
+                        <>
+                            <Route path="profile" element={<Profile />} />
+                            <Route path="courses/:id" element={<Course />} />
+                            <Route path="my-courses" element={<MyCourses />} />
+                        </>
+                    )}
+                    <Route path="topics/:id" element={<Topic logged={logged}/>} />
+                </Route>
+            </Routes>
             {logged && (
+                // ngoài check đã login phải check thêm role của user xem có quyền truy cập hay ko
                 <Routes>
-                    <Route path="/" element={<Layout />}>
-                        <Route index element={<Home />} />
-                        <Route path="profile" element={<Profile />} />
-                    </Route>
-
-                    <Route path="/landing-page" element={<Landing />} />
                     <Route path="instructor" element={<Instructor />}>
                         <Route index element={<Following />}></Route>
                         <Route path="following" element={<Following />}></Route>
@@ -47,12 +84,10 @@ function App() {
                         <Route path="history" element={<History />}></Route>
                     </Route>
                     <Route path="publisher" element={<Publisher />}>
-                        {/* <Route index element={<PublisherCourses />}></Route> */}
                         <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
                         <Route path="courses" element={<PublisherCourses />}></Route>
                         <Route path="add-course" element={<AddCourses />}></Route>
                     </Route>
-                    <Route path="*" element={<p>Path not resolved</p>} />
                 </Routes>
             )}
         </div>

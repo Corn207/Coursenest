@@ -1,55 +1,184 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import styles from './Profile.module.scss';
-import './Profile.module.scss';
-import images from '~/assets/images';
 import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 import Achievement from '~/components/Achievement/Achievement';
+import avatarImg from '../../assets/images/user-avatar.png';
+import experienceImg from '../../assets/images/experience.png';
+import config from '~/config';
+import axios from 'axios';
+import { isEqual, uniq } from "lodash";
 
-function Profile() {
+export default function Profile() {
+
+    const userId = localStorage.getItem("userId")
+    const token = localStorage.getItem("accessToken");
+
     const [userInfo, setUserInfo] = useState({});
+    const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({});
+    const [currentInfo, setCurrentInfo] = useState({});
+    const [changedInfo, setChangedInfo] = useState({});
+    const [aboutMe, setAboutMe] = useState({"aboutMe": ""});
+    const [gender, setGender] = useState({});
+
     const [showModalAchievement, setShowModalAchievement] = useState(false);
-    const [avatar, setAvatar] = useState(images.userAvatar);
-    // const [image, setImage] = useState();
+    const [showModalChangeAvatar, setShowModalChangeAvatar] = useState(false);
+    const [showModalEditInfo, setShowModalEditInfo] = useState(false);
+    const [showModalEditAboutMe, setShowModalEditAboutMe] = useState(false);
+
+    const [avatar, setAvatar] = useState(avatarImg);
+    const [file, setFile] = useState(null);
+    const [preview, setPreview] = useState();
+
 
     useEffect(() => {
-        axios
-            // .get("http://192.168.0.3:21002/users/1/profile")
-            // .get('http://localhost:3000/profile')
-            .get('http://localhost:21002/users/1/profile')
-            .then((res) => {
-                setUserInfo(res.data);
-                if (res.data.avatar.uri !== null) setAvatar(res.data.avatar.uri);
-            })
-            .catch((err) => console.log(err));
+        fetchInfoUser();
     }, []);
 
-    // const handleSubmit = async (event) => {
-    //     event.preventDefault();
-    //     const formData = new FormData();
-    //     formData.append('image', image);
+    const fetchInfoUser = () => {
+        axios
+            .get(`${config.baseUrl}/api/users/${userId}`)
+            .then((res) => {
+                setUserInfo(res.data);
+                if (res.data.avatar != null) setAvatar(res.data.avatar.uri);
+                setUserInfoNeedUpdate({                
+                    "email": res.data.email,
+                    "phonenumber": res.data.phonenumber,
+                    "fullName": res.data.fullName,
+                    "title": res.data.title,
+                    "location": res.data.location,
+                    // "gender": res.data.gender,
+                    "dateOfBirth": res.data.dateOfBirth    
+                })
+                setAboutMe({"aboutMe": res.data.aboutMe});
+            })
+            .catch((err) => console.log(err));
+    }
 
-    //     const headers = {
-    //         userId: 1
-    //     };
+    // change avatar
+    const handleNewImage = (e) => {
+        setFile(e.target.files[0]);
+        const objectUrl = URL.createObjectURL(e.target.files[0]);
+        setPreview(objectUrl);
+    }
 
-    //     axios
-    //         .put('http://localhost:21002/users/me/cover', formData, { headers })
-    //         .then((res) => {
-    //             console.log(res);
-    //         })
-    //         .catch((err) => console.log(err));
-    // };
+    const handleClickSaveChangeAvatar = () => {
+        const formData = new FormData();
+        formData.append("formFile", file);
+        axios
+            .put(`${config.baseUrl}/api/users/me/cover`, formData, {
+                headers: {
+                    'Content-Type': "multipart/form-data",
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+            )
+            .then(() => {
+                fetchInfoUser();
+                setShowModalChangeAvatar(false);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
 
+    // update about me info
+    const handleConfirmUpdateAboutMe = (event) => {
+        event.preventDefault();
+        axios
+            .put(`${config.baseUrl}/api/users/me`, aboutMe, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(() => {
+                setShowModalEditAboutMe(false);
+                fetchInfoUser();
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
+
+    const handleChangeAboutMe = (event) => {
+        const value = event.target.value;
+        setAboutMe({"aboutMe": value});
+    }
+
+    const handleClickEditAboutMe = () => {
+        setShowModalEditAboutMe(true);
+    }
+
+
+// update basic info
+const handleClickEditInfo = () => {
+    setShowModalEditInfo(true);
+    setCurrentInfo(userInfoNeedUpdate);
+}
+
+const handleChangeInfo = (event) => {
+    let value = event.target.value;
+    let name = event.target.name;
+
+    if(name == "dateOfBirth"){
+        value = new Date(event.target.value).toISOString();
+        console.log(value);
+    }
+    setUserInfoNeedUpdate({
+        ...userInfoNeedUpdate,
+        [name]: value,
+    });
+}
+
+const getUpdatedKeys = (newData, oldData) => {
+    const data = uniq([...Object.keys(newData), ...Object.keys(oldData)]);
+    const keys = [];
+    for(const key of data){
+      if(!isEqual(oldData[key], newData[key])){
+        keys.push(key);
+        setChangedInfo({
+          ...changedInfo,
+          [key]: newData[key]  
+        })
+      }
+    }
+    return keys;
+}
+
+const handleConfirmUpdateInfo = (event) => {
+    // chưa handle đc gender 
+    event.preventDefault();
+    
+    const update = getUpdatedKeys(userInfoNeedUpdate, currentInfo);
+
+    if(update.length === 0) {
+        console.log("length = 0");
+        setShowModalEditInfo(false);
+    }
+    else {
+        console.log(changedInfo);
+        // console.log(gender);
+        axios.put(`${config.baseUrl}/api/users/me`, changedInfo, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((res) => {
+            console.log(res.data);
+            setShowModalEditInfo(false);
+            fetchInfoUser();
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+}
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                {/* test change avatar */}
-                {/* <form onSubmit={handleSubmit}>
-                    <input type="file" onChange={(e) => setImage(e.target.files[0])} />
-                    <button type="submit">Upload</button>
-                </form> */}
-                <div className={styles.avatarContainer}>
+                <div className={styles.avatarContainer} onClick={() => setShowModalChangeAvatar(true)}>
                     <img className={styles.roundAvatar} src={avatar} alt="" />
                     <div>
                         <div className={styles.middle}></div>
@@ -65,6 +194,7 @@ function Profile() {
 
             <div className={styles.body}>
                 <div>
+                    {/* Achievements la enrollment completed */}
                     <div className={styles.heading}>
                         <h2>Achievements</h2>
                         <p className={styles.seeAllBtn} onClick={() => setShowModalAchievement(true)}>
@@ -82,7 +212,7 @@ function Profile() {
                 <div>
                     <div className={styles.heading}>
                         <h2>About Me</h2>
-                        <p className={styles.editBtn}>Edit</p>
+                        <p className={styles.editBtn} onClick={() => handleClickEditAboutMe()}>Edit</p>
                     </div>
                     <p>{userInfo.aboutMe}</p>
                 </div>
@@ -90,7 +220,7 @@ function Profile() {
                 <div>
                     <div className={styles.heading}>
                         <h2>Basic Information</h2>
-                        <p className={styles.editBtn}>Edit</p>
+                        <p className={styles.editBtn} onClick={() => handleClickEditInfo()}>Edit</p>
                     </div>
                     <table className={styles.tableInfo}>
                         <tbody>
@@ -110,9 +240,7 @@ function Profile() {
                             </tr>
                             <tr>
                                 <td>Phone number</td>
-                                <td className={styles.tableRightContent}>
-                                    {userInfo.phonenumber == null ? 'N/A' : userInfo.phonenumber}
-                                </td>
+                                <td className={styles.tableRightContent}>{userInfo.phonenumber == null ? 'N/A' : userInfo.phonenumber}</td>
                             </tr>
                             <tr>
                                 <td>Email</td>
@@ -120,9 +248,7 @@ function Profile() {
                             </tr>
                             <tr>
                                 <td>Location</td>
-                                <td className={styles.tableRightContent}>
-                                    {userInfo.location == null ? 'N/A' : userInfo.location}
-                                </td>
+                                <td className={styles.tableRightContent}>{userInfo.location == null ? 'N/A' : userInfo.location}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -138,7 +264,7 @@ function Profile() {
                             userInfo.experiences.map((experience) => {
                                 return (
                                     <div key={experience.experienceId} className={styles.experience}>
-                                        <img src={images.experience} alt="" className={styles.experienceImage} />
+                                        <img src={experienceImg} alt="" className={styles.experienceImage} />
                                         <div className={styles.experienceContent}>
                                             <h5>{experience.name}</h5>
                                             <p>{experience.title}</p>
@@ -151,12 +277,149 @@ function Profile() {
             </div>
 
             <Modal
+                show={showModalChangeAvatar}
+                onHide={() => setShowModalChangeAvatar(false)}
+                backdrop="static"
+                keyboard={false}
+                size="lg"
+                centered
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h3>Change Avatar</h3>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 30}} >
+                    <img style={{width: 200, height: 200}} src={preview} alt=""/>
+                    <input name="newImage" type="file" onChange={handleNewImage} />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleClickSaveChangeAvatar}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal
+                show={showModalEditAboutMe}
+                onHide={() => setShowModalEditAboutMe(false)}
+                backdrop="static"
+                keyboard={false}
+                size="lg"
+                centered
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h3>About Me</h3>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={handleConfirmUpdateAboutMe} style={{paddingLeft: 50, paddingRight: 50}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>About me:</label>
+                            <textarea 
+                                cols="70" 
+                                rows="10"  
+                                type="text"
+                                name="aboutMe"
+                                value={aboutMe?.aboutMe}
+                                onChange={handleChangeAboutMe}>
+                            </textarea>
+                        </div>
+                        <div>
+                            <input type='submit' style={{ color: "white", padding: 5, backgroundColor: "blue", borderRadius: 5 }} />
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal>
+
+            <Modal
+                show={showModalEditInfo}
+                onHide={() => setShowModalEditInfo(false)}
+                backdrop="static"
+                keyboard={false}
+                size="md"
+                centered
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h3>Edit Infomations</h3>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={handleConfirmUpdateInfo} style={{paddingLeft: 50, paddingRight: 50}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>Email:</label>
+                            <input
+                                type="text"
+                                name="email"
+                                value={userInfoNeedUpdate.email}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>Phone Number:</label>
+                            <input
+                                type="number"
+                                name="phonenumber"
+                                value={userInfoNeedUpdate.phonenumber}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>Full Name:</label>
+                            <input
+                                type="text"
+                                name="fullName"
+                                value={userInfoNeedUpdate.fullName}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>Title:</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={userInfoNeedUpdate.title}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>Gender: </label>
+                            {/* <select name='gender' value={userInfoNeedUpdate.gender} onChange={handleChangeInfo}> */}
+                            <select name='gender' onChange={(event) => setGender({"gender": event.target.value})}>
+                                <option value={0}>Male</option>
+                                <option value={1}>Female</option>
+                            </select>
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>Date of birth:</label>
+                            <input type="date" name='dateOfBirth' onChange={handleChangeInfo}/>
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 20}}>
+                            <label>Location:</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={userInfoNeedUpdate.location}
+                                onChange={handleChangeInfo}
+                            />
+                        </div>
+                        <div>
+                            <input type='submit' style={{ color: "white", padding: 5, backgroundColor: "blue", borderRadius: 5 }} />
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal>
+
+            <Modal
                 show={showModalAchievement}
                 onHide={() => setShowModalAchievement(false)}
                 backdrop="static"
                 keyboard={false}
                 size="lg"
-                centered
                 scrollable={true}
             >
                 <Modal.Header closeButton>
@@ -174,4 +437,3 @@ function Profile() {
         </div>
     );
 }
-export default Profile;

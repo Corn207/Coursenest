@@ -5,14 +5,18 @@
     color: #ffff;
 }
 .nav {
+    display: flex;
     justify-content: space-between;
     padding-top: 10px;
 }
 
-.nav,
 .navleft,
 .navright {
     display: flex;
+}
+
+.home {
+    margin-top: 15px;
 }
 
 .logowhite {
@@ -41,6 +45,7 @@
 
 .intro {
     font-size: 20px;
+    margin-bottom: 20px;
 }
 
 .bstudy {

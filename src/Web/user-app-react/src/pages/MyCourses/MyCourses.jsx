@@ -1,20 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './MyCourses.module.scss';
-import StarRatings from 'react-star-ratings';
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import ReviewModal from '~/components/ReviewModal/ReviewModal';
 import config from '~/config';
+import AllEnrolledCourses from '~/components/AllEnrolledCourses/AllEnrolledCourses';
 
 export default function MyCourses() {
-    // userId : 19
-
-    const tokenStr = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjE5IiwiZXhwIjoxNjc1ODgwODkzfQ.02g_GZMLww2i3y-pjbWRhqnmCXqJrVPGNexPv6fFDMg`;
-
-    const [coursesEnrollments, setCoursesEnrollments] = useState([]);
+    const tokenStr = localStorage.getItem('accessToken');
     const [inProgressCourses, setInProgressCourses] = useState([]);
     const [completedCourses, setCompletedCourses] = useState([]);
-    const [showModalReview, setShowModalReview] = useState(false);
 
     useEffect(() => {
         axios
@@ -22,102 +15,101 @@ export default function MyCourses() {
                 headers: { Authorization: `Bearer ${tokenStr}` },
             })
             .then((res) => {
-                console.log(res.data);
                 return res.data;
             })
             .then(async (enrollments) => {
                 const allCoursesEnrollments = [];
                 await Promise.all(
                     enrollments.map(async (enrollment) => {
-                        const response = await axios.get(`${config.baseUrl}/api/enrollments/${enrollment.courseId}`, {
+                        const response = await axios.get(`${config.baseUrl}/api/enrollments/${enrollment.enrollmentId}`, {
                             headers: { Authorization: `Bearer ${tokenStr}` },
                         });
-                        const course = response.data;
-                        const coursesEnrollment = { ...enrollment, ...course };
-                        allCoursesEnrollments.push(coursesEnrollment);
+                        const enrollmentDetail = response.data;
+                        allCoursesEnrollments.push(enrollmentDetail);
                     }),
                 );
-                setCoursesEnrollments(allCoursesEnrollments);
+                return allCoursesEnrollments;
+            })
+            .then(async (allCoursesEnrollments) => {
+                const allCoursesEnrollmentsDetail = [];
+                await Promise.all(
+                    allCoursesEnrollments.map(async (coursesEnrollment) => {
+                        const response = await axios.get(`${config.baseUrl}/api/courses/${coursesEnrollment.courseId}`, {
+                            headers: { Authorization: `Bearer ${tokenStr}` },
+                        });
+                        const courseInfo = response.data;
+                        const detail = {...coursesEnrollment, ...courseInfo}
+                        allCoursesEnrollmentsDetail.push(detail);
+                    }),
+                );
+                return allCoursesEnrollmentsDetail;
+                // từng enroll -> call api get course info -> sau đó mới chia 2 [] complete course và inprogress
+                // nếu complete != null -> 100% 
+                // nếu complete = null thì call api get count unit by course (display progress bar)
+            })
+            .then((allCoursesEnrollmentsDetail) => {
+                const inprogress = [];
+                const complete = [];
+                allCoursesEnrollmentsDetail &&
+                    allCoursesEnrollmentsDetail.map((coursesEnrollment) => {
+                        if (coursesEnrollment.completed != null) {
+                            complete.push(coursesEnrollment);
+                        }
+                        else {
+                            inprogress.push(coursesEnrollment);
+                        }
+                    });
+                setInProgressCourses(inprogress);
+                setCompletedCourses(complete);
+                return inprogress;
+            })
+            .then(async(res) => {
+                const inprogress = [];
+                await Promise.all(
+                    res.map(async (item) => {
+                        const completeUnits = (item.completedUnitIds).length;
+                        const response = await axios.get(`${config.baseUrl}/api/units/count?courseId=${item.courseId}`, {
+                            headers: { Authorization: `Bearer ${tokenStr}` },
+                        })
+                        const countUnits = response.data;
+                        const percent = (completeUnits/countUnits)*100;
+                        const newItem = {...item, "progress": percent}
+                        inprogress.push(newItem);
+                    }),
+                );
+                setInProgressCourses(inprogress);
             })
             .catch((err) => console.log(err));
     }, []);
-
-    const handleClickReviewCourse = () => {
-        setShowModalReview(true);
-    };
-
-    const handleClickGoToCourse = () => {};
 
     return (
         <div className={styles.container}>
             <div>
                 <h3>My courses</h3>
             </div>
-            <div>
-                {/* course chưa complete thì đẩy lên trên, complete đẩy xuống dưới */}
+            <div className={styles.inProgress}>
                 <h4>In-Progress Courses</h4>
+                <div>
+                    {console.log(inProgressCourses)}
+                    {(inProgressCourses.length == 0) ? <p>0 result</p> : (
+                        <>
+                            <p>{inProgressCourses.length} results</p>
+                            <AllEnrolledCourses coursesEnrollments={inProgressCourses}/>
+                        </>
+                    )}
+                </div>
+            </div>
+            <div className={styles.completed}>
                 <h4>Completed Courses</h4>
+                <div>
+                    {(completedCourses.length == 0) ? <p>0 result</p> : (
+                        <>
+                            <p>{completedCourses.length} results</p>
+                            <AllEnrolledCourses coursesEnrollments={completedCourses}/>
+                        </>
+                    )}
+                </div>
             </div>
-
-            <div className={styles.listCourse}>
-                {coursesEnrollments &&
-                    coursesEnrollments.map((coursesEnrollment) => {
-                        let button;
-                        const progress = coursesEnrollment.completed == null ? 60 : 100; // test
-                        if (coursesEnrollment.completed != null) {
-                            button = (
-                                <button
-                                    className={styles.button}
-                                    onClick={() => handleClickReviewCourse(coursesEnrollment)}
-                                >
-                                    Review
-                                </button>
-                            );
-                        } else
-                            button = (
-                                <button
-                                    className={styles.button}
-                                    onClick={() => handleClickGoToCourse(coursesEnrollment)}
-                                >
-                                    Go
-                                </button>
-                            );
-
-                        return (
-                            <div className={styles.course} key={coursesEnrollment.enrollmentId}>
-                                <div>
-                                    <img
-                                        className={styles.imageCourse}
-                                        src={coursesEnrollment?.cover?.uri == null ? '' : coursesEnrollment.cover.uri}
-                                        alt=""
-                                    />
-                                </div>
-                                <div className={`styles.child ${styles.childThree}`}>
-                                    <h4>{coursesEnrollment.title}</h4>
-                                    <p>{coursesEnrollment.description}</p>
-                                    {/* voi moi course cua user check progress (unitsdone/totalunits) */}
-                                    <ProgressBar className={styles.progressBar} now={progress} label={`${progress}%`} />
-
-                                    <div className={styles.rating}>
-                                        <span style={{ color: '#FFC069' }}>{coursesEnrollment.ratingAverage}</span>
-                                        <span>
-                                            <StarRatings
-                                                starRatedColor="#FFC069"
-                                                rating={coursesEnrollment.ratingAverage}
-                                                starDimension="20px"
-                                                starSpacing="4px"
-                                                numberOfStars={5}
-                                            />
-                                        </span>
-                                        <span>({coursesEnrollment.ratingTotal})</span>
-                                    </div>
-                                </div>
-                                {button}
-                            </div>
-                        );
-                    })}
-            </div>
-            <ReviewModal show={showModalReview} setShow={setShowModalReview} />
         </div>
     );
 }
