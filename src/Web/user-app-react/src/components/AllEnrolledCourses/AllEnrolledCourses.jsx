@@ -4,9 +4,12 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import ReviewModal from '~/components/ReviewModal/ReviewModal';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
 import axios from 'axios';
 import config from '~/config';
 import _ from "lodash";
+=======
+>>>>>>> fa5343410f40e5944c158f5939516757e8564f50
 
 export default function AllEnrolledCourses(props) {
 
@@ -14,6 +17,7 @@ export default function AllEnrolledCourses(props) {
     const navigate = useNavigate();
 
     const [showModalReview, setShowModalReview] = useState(false);
+<<<<<<< HEAD
     const [courseNeedRate, setCourseNeedRate] = useState({});
     const [rate, setRate] = useState()
     const [isReviewed, setIsReviewed] = useState(false);
@@ -32,6 +36,9 @@ export default function AllEnrolledCourses(props) {
                 }
             })
             .catch(err => console.log(err))
+=======
+    const handleClickReviewCourse = () => {
+>>>>>>> fa5343410f40e5944c158f5939516757e8564f50
         setShowModalReview(true);
     };
 
@@ -39,13 +46,18 @@ export default function AllEnrolledCourses(props) {
     const handleClickGoToCourse = (coursesEnrollment) => {
         const courseId = coursesEnrollment.courseId;
         navigate(`/courses/${courseId}`);
+<<<<<<< HEAD
     };
 
     // học xong mới đc review nhưng api thì rv đc miễn là đã enroll nên sửa UI theo api
+=======
+     };
+>>>>>>> fa5343410f40e5944c158f5939516757e8564f50
 
     return (
         <>
             <div className={styles.listCourse}>
+<<<<<<< HEAD
                 {coursesEnrollments &&
                     coursesEnrollments.map((coursesEnrollment) => {
                         // let button;
@@ -72,6 +84,35 @@ export default function AllEnrolledCourses(props) {
                         //         </button>
                         //     );
                         // }
+=======
+                {console.log(coursesEnrollments)}
+                {coursesEnrollments &&
+                    coursesEnrollments.map((coursesEnrollment) => {                        
+                        let button;
+                        let progress = 100;
+                        if (coursesEnrollment.completed != null) {
+                            button = (
+                                <button
+                                    className={styles.button}
+                                    onClick={() => handleClickReviewCourse(coursesEnrollment)}
+                                >
+                                    Review
+                                </button>
+                            );
+                        } 
+                        else {
+                            progress = coursesEnrollment.progress;
+                            button = (
+                                <button
+                                    className={styles.button}
+                                    onClick={() => handleClickGoToCourse(coursesEnrollment)}
+                                >
+                                    Go
+                                </button>
+                            );
+                        }
+
+>>>>>>> fa5343410f40e5944c158f5939516757e8564f50
                         return (
                             <div className={styles.course} key={coursesEnrollment.enrollmentId}>
                                 <div>
@@ -100,15 +141,23 @@ export default function AllEnrolledCourses(props) {
                                     </div>
                                 </div>
                                 <div>
+<<<<<<< HEAD
                                     {/* {button} */}
                                     <button className={styles.button} onClick={() => handleClickGoToCourse(coursesEnrollment)}>Go</button><br />
                                     <button className={styles.button} onClick={() => handleClickReviewCourse(coursesEnrollment)}>Review</button>
+=======
+                                    {button}
+>>>>>>> fa5343410f40e5944c158f5939516757e8564f50
                                 </div>
                             </div>
                         );
                     })}
             </div>
+<<<<<<< HEAD
             <ReviewModal show={showModalReview} setShow={setShowModalReview} coursesEnrollment={courseNeedRate} isReviewed={isReviewed} rate={rate} />
+=======
+            <ReviewModal show={showModalReview} setShow={setShowModalReview} />
+>>>>>>> fa5343410f40e5944c158f5939516757e8564f50
         </>
     )
 }
