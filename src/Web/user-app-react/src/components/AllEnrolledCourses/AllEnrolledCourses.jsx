@@ -4,6 +4,9 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import ReviewModal from '~/components/ReviewModal/ReviewModal';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import config from '~/config';
+import _ from "lodash";
 
 export default function AllEnrolledCourses(props) {
 
@@ -11,7 +14,24 @@ export default function AllEnrolledCourses(props) {
     const navigate = useNavigate();
 
     const [showModalReview, setShowModalReview] = useState(false);
-    const handleClickReviewCourse = () => {
+    const [courseNeedRate, setCourseNeedRate] = useState({});
+    const [rate, setRate] = useState()
+    const [isReviewed, setIsReviewed] = useState(false);
+    const userId = localStorage.getItem("userId");
+
+    const handleClickReviewCourse = async (coursesEnrollment) => {
+        setCourseNeedRate(coursesEnrollment);
+        await axios.get(`${config.baseUrl}/api/ratings?CourseId=${coursesEnrollment.courseId}&UserId=${userId}`)
+            .then((res) => {
+                if (_.isEmpty(res.data)) {
+                    setIsReviewed(false);
+                }
+                else {
+                    setIsReviewed(true);
+                    setRate(res.data)
+                }
+            })
+            .catch(err => console.log(err))
         setShowModalReview(true);
     };
 
@@ -19,38 +39,39 @@ export default function AllEnrolledCourses(props) {
     const handleClickGoToCourse = (coursesEnrollment) => {
         const courseId = coursesEnrollment.courseId;
         navigate(`/courses/${courseId}`);
-     };
+    };
+
+    // học xong mới đc review nhưng api thì rv đc miễn là đã enroll nên sửa UI theo api
 
     return (
         <>
             <div className={styles.listCourse}>
-                {console.log(coursesEnrollments)}
                 {coursesEnrollments &&
-                    coursesEnrollments.map((coursesEnrollment) => {                        
-                        let button;
+                    coursesEnrollments.map((coursesEnrollment) => {
+                        // let button;
                         let progress = 100;
-                        if (coursesEnrollment.completed != null) {
-                            button = (
-                                <button
-                                    className={styles.button}
-                                    onClick={() => handleClickReviewCourse(coursesEnrollment)}
-                                >
-                                    Review
-                                </button>
-                            );
-                        } 
-                        else {
-                            progress = coursesEnrollment.progress;
-                            button = (
-                                <button
-                                    className={styles.button}
-                                    onClick={() => handleClickGoToCourse(coursesEnrollment)}
-                                >
-                                    Go
-                                </button>
-                            );
-                        }
-
+                        if (coursesEnrollment.completed == null) progress = coursesEnrollment.progress;
+                        // if (coursesEnrollment.completed != null) {
+                        //     button = (
+                        //         <button
+                        //             className={styles.button}
+                        //             onClick={() => handleClickReviewCourse(coursesEnrollment)}
+                        //         >
+                        //             Review
+                        //         </button>
+                        //     );
+                        // }
+                        // else {
+                        //     progress = coursesEnrollment.progress;
+                        //     button = (
+                        //         <button
+                        //             className={styles.button}
+                        //             onClick={() => handleClickGoToCourse(coursesEnrollment)}
+                        //         >
+                        //             Go
+                        //         </button>
+                        //     );
+                        // }
                         return (
                             <div className={styles.course} key={coursesEnrollment.enrollmentId}>
                                 <div>
@@ -79,13 +100,15 @@ export default function AllEnrolledCourses(props) {
                                     </div>
                                 </div>
                                 <div>
-                                    {button}
+                                    {/* {button} */}
+                                    <button className={styles.button} onClick={() => handleClickGoToCourse(coursesEnrollment)}>Go</button><br />
+                                    <button className={styles.button} onClick={() => handleClickReviewCourse(coursesEnrollment)}>Review</button>
                                 </div>
                             </div>
                         );
                     })}
             </div>
-            <ReviewModal show={showModalReview} setShow={setShowModalReview} />
+            <ReviewModal show={showModalReview} setShow={setShowModalReview} coursesEnrollment={courseNeedRate} isReviewed={isReviewed} rate={rate} />
         </>
     )
 }
