@@ -1,16 +1,28 @@
 import Badge from 'react-bootstrap/Badge';
 import styles from './AllCoursesByTopic.module.scss';
 import StarRatings from 'react-star-ratings';
+import { useNavigate } from 'react-router-dom';
 
 export default function AllCoursesByTopic(props) {
-    const { listCourses } = props;
+    const { listCourses, logged } = props;
+
+    const navigate = useNavigate();
+    const handleShowCourseDetail = (courseId) => {
+        if(logged) {
+            navigate(`/courses/${courseId}`);
+        }
+        else {
+            alert("You need to login to see this course");
+            navigate(`/sign-in`);
+        }
+    }
 
     return (
         <div className={styles.container}>
             {listCourses &&
                 listCourses.map((course) => {
                     return (
-                        <div className={styles.courseCard} key={course.courseId}>
+                        <div className={styles.courseCard} key={course.courseId} onClick={() => handleShowCourseDetail(course.courseId)}>
                             <div>
                                 <img
                                     className={styles.imageCourse}

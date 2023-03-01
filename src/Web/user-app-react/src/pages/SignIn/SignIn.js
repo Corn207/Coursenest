@@ -15,7 +15,7 @@ import config from '~/config';
 
 const cx = classNames.bind(styles);
 
-function SignIn(props) {
+function SignIn() {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -45,8 +45,8 @@ function SignIn(props) {
             });
             axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
             localStorage.setItem('accessToken', res.data.accessToken);
+            localStorage.setItem('userId', res.data.userId);
             window.location.href = '/';
-            console.log(res.data.accessToken);
         } catch (err) {
             // setError(err.response.data.message);
             setError('Username or password incorrect');
