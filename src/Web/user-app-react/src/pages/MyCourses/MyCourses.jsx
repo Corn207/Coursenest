@@ -90,10 +90,6 @@ export default function MyCourses() {
             <div className={styles.inProgress}>
                 <h4>In-Progress Courses</h4>
                 <div>
-<<<<<<< HEAD
-=======
-                    {console.log(inProgressCourses)}
->>>>>>> fa5343410f40e5944c158f5939516757e8564f50
                     {(inProgressCourses.length == 0) ? <p>0 result</p> : (
                         <>
                             <p>{inProgressCourses.length} results</p>
