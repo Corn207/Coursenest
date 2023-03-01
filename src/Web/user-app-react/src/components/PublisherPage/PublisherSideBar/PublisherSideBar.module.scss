@@ -17,8 +17,9 @@
         }
 
         .tabsDiv {
-            padding: 0px 16px 16px 16px;
             width: fit-content;
+            margin-top: 12px;
+            padding: 0px 16px 16px 16px;
 
             .activeTab {
                 text-decoration: none;
@@ -44,6 +45,8 @@
 
                 .subTab {
                     font-family: 'Inter';
+                    font-size: 16px;
+                    margin-top: 4px;
                 }
             }
         }
@@ -97,7 +100,6 @@
             font-family: 'Inter';
             font-size: 16px;
             font-weight: 400;
-            margin-top: -16px;
             color: rgba(140, 140, 140, 1);
             padding-left: 16px;
         }
