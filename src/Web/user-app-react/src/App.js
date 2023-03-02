@@ -25,7 +25,7 @@ import EditLesson from './pages/Publisher/AddCourses/EditLesson';
 import EditMaterial from './pages/Publisher/AddCourses/EditLesson/EditMaterial';
 
 function App() {
-    let logged = false;
+    let logged = true;
     // localStorage.getItem('accessToken') ? (logged = true) : (logged = false);
     const accessToken = localStorage.getItem('accessToken');
     // const userId = localStorage.getItem('userId');

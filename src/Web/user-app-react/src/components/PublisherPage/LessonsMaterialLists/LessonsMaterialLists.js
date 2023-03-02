@@ -9,10 +9,9 @@ import styles from './LessonsMaterialLists.module.scss';
 
 const cx = classNames.bind(styles);
 
-function LessonsMaterialLists({ lessonsList }) {
+function LessonsMaterialLists({ lessonsList, handleNextStep }) {
     // const [lessons, setLessons] = useState(lessonsList);
-    const [lessons, setLessons] = useState(lessonsList);
-    const { courseData, setCourseData } = useContext(CourseContext);
+    const { lessons, setLessons } = useContext(CourseContext);
 
     const navigate = useNavigate();
     let params = useParams();
@@ -59,7 +58,8 @@ function LessonsMaterialLists({ lessonsList }) {
     };
 
     const handleEditLesson = (id) => {
-        navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
+        handleNextStep();
+        // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 
     let activeBtn = {

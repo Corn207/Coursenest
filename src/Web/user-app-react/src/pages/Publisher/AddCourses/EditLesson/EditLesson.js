@@ -10,7 +10,7 @@ import styles from './EditLesson.module.scss';
 
 const cx = classNames.bind(styles);
 
-function EditLesson() {
+function EditLesson({ handleBackStep }) {
     const [lessons, setLessons] = useState([]);
     const { courseData, setCourseData } = useContext(CourseContext);
 
@@ -61,7 +61,8 @@ function EditLesson() {
     };
 
     const handleCancel = () => {
-        navigate(`/publisher/${params.PublisherUserId}/add-course`);
+        handleBackStep();
+        // navigate(`/publisher/${params.PublisherUserId}/add-course`);
     };
 
     let activeBtn = {
