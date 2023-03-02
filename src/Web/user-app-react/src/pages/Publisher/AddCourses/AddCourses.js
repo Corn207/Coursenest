@@ -8,6 +8,7 @@ import CourseContext from '~/contexts/courseContext';
 import EditLesson from './EditLesson';
 
 import styles from './AddCourses.module.scss';
+import EditMaterial from './EditLesson/EditMaterial';
 
 const cx = classNames.bind(styles);
 
@@ -15,6 +16,8 @@ function AddCourses() {
     const [image, setImage] = useState(null);
     const [isSelected, setIsSlected] = useState(0);
     const [titleValue, setTitleValue] = useState('');
+    const [descriptionValue, setDescriptionValue] = useState('');
+    const [aboutValue, setAboutValue] = useState('');
     const [error, setError] = useState('');
     const [courseData, setCourseData] = useState({});
     const [lessons, setLessons] = useState([]);
@@ -30,6 +33,7 @@ function AddCourses() {
     //     { LessonId: 4, Title: 'Lesson 4', Description: 'Description of lesson 4', Order: 4.5 },
     //     { LessonId: 5, Title: 'Lesson 5', Description: 'Description of lesson 5', Order: 5.5 },
     // ];
+
     const handleNextStep = () => {
         setStep(step + 1);
     };
@@ -48,6 +52,16 @@ function AddCourses() {
 
     const handleTitleChange = (event) => {
         setTitleValue(event.target.value);
+        setError('');
+    };
+
+    const handleDescChange = (event) => {
+        setDescriptionValue(event.target.value);
+        setError('');
+    };
+
+    const handleAboutChange = (event) => {
+        setAboutValue(event.target.value);
         setError('');
     };
 
@@ -88,8 +102,10 @@ function AddCourses() {
                                     <p className={cx('inputTitle')}>Description</p>
                                     <textarea
                                         className={cx('input')}
+                                        value={descriptionValue}
                                         type={'text'}
                                         placeholder={'Description...'}
+                                        onChange={handleDescChange}
                                     ></textarea>
                                 </div>
                                 <div className={cx('courseInputInfo')}>
@@ -115,8 +131,10 @@ function AddCourses() {
                                     <p className={cx('inputTitle')}>About</p>
                                     <textarea
                                         className={cx('inputAbout')}
+                                        value={aboutValue}
                                         type={'text'}
                                         placeholder={'Write something...'}
+                                        onChange={handleAboutChange}
                                     ></textarea>
                                 </div>
                             </div>
@@ -127,7 +145,7 @@ function AddCourses() {
                     </div>
                 </form>
             )}
-            {step === 1 && <EditLesson handleBackStep={handleBackStep} />}
+            {step === 1 && <EditLesson handleNextStep={handleNextStep} handleBackStep={handleBackStep} />}
         </CourseContext.Provider>
     );
 }

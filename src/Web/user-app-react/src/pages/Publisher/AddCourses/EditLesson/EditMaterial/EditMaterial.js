@@ -7,12 +7,13 @@ import styles from './EditMaterial.module.scss';
 
 const cx = classNames.bind(styles);
 
-function EditMaterial() {
+function EditMaterial({ handleBackStep }) {
     const navigate = useNavigate();
     let params = useParams();
 
     const handleCancel = () => {
-        navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
+        handleBackStep();
+        // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 
     return (
