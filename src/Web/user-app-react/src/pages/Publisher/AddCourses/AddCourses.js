@@ -22,6 +22,9 @@ function AddCourses() {
     const [courseData, setCourseData] = useState({});
     const [lessons, setLessons] = useState([]);
     const [step, setStep] = useState(0);
+    const [lessonTitle, setLessonTitle] = useState('');
+    const [lessonEditedTitle, setLessonEditedTitle] = useState('');
+    const [chosenLesson, setChosenLesson] = useState(null);
 
     let params = useParams();
     const navigate = useNavigate();
@@ -33,6 +36,17 @@ function AddCourses() {
     //     { LessonId: 4, Title: 'Lesson 4', Description: 'Description of lesson 4', Order: 4.5 },
     //     { LessonId: 5, Title: 'Lesson 5', Description: 'Description of lesson 5', Order: 5.5 },
     // ];
+    const handleTitleValue = (value) => {
+        setLessonTitle(value);
+    };
+
+    const handleTitleEditedValue = (value) => {
+        setLessonEditedTitle(value);
+    };
+
+    const handleEditLesson = (lessonObj) => {
+        setChosenLesson(lessonObj);
+    };
 
     const handleNextStep = () => {
         setStep(step + 1);
@@ -139,13 +153,28 @@ function AddCourses() {
                                 </div>
                             </div>
 
-                            <LessonsMaterialLists lessonsList={lessons} handleNextStep={handleNextStep} />
+                            <LessonsMaterialLists
+                                lessonsList={lessons}
+                                editedTitleValue={lessonEditedTitle}
+                                onEdit={handleEditLesson}
+                                handleNextStep={handleNextStep}
+                                handleTitleValue={handleTitleValue}
+                            />
                         </div>
                         <CancelConfirmBtns onCancel={handleCancel} />
                     </div>
                 </form>
             )}
-            {step === 1 && <EditLesson handleNextStep={handleNextStep} handleBackStep={handleBackStep} />}
+            {step === 1 && (
+                <EditLesson
+                    titleValue={titleValue}
+                    lessonTitle={lessonTitle}
+                    chosingLesson={chosenLesson}
+                    handleNextStep={handleNextStep}
+                    handleBackStep={handleBackStep}
+                    onConfirmClick={handleTitleEditedValue}
+                />
+            )}
         </CourseContext.Provider>
     );
 }

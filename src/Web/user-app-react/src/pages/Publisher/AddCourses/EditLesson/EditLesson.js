@@ -11,13 +11,28 @@ import EditMaterial from './EditMaterial';
 
 const cx = classNames.bind(styles);
 
-function EditLesson({ handleNextStep, handleBackStep }) {
-    const [lessons, setLessons] = useState([]);
+function EditLesson({ titleValue, lessonTitle, chosingLesson, handleNextStep, handleBackStep, onConfirmClick }) {
     const { courseData, setCourseData } = useContext(CourseContext);
+
+    const [lessons, setLessons] = useState([]);
+    const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [stepLesson, setStepLesson] = useState(0);
 
     const handleEditMaterialClick = () => {
         setStepLesson(stepLesson + 1);
+    };
+
+    const handleTitleClick = () => {
+        setIsEditingTitle(true);
+    };
+
+    const handleTitleChange = (event) => {
+        setLessonEditTitle(event.target.value);
+    };
+
+    const handleTitleBlur = () => {
+        setIsEditingTitle(false);
     };
 
     const handleCancelMaterialClick = () => {
@@ -76,6 +91,14 @@ function EditLesson({ handleNextStep, handleBackStep }) {
         // navigate(`/publisher/${params.PublisherUserId}/add-course`);
     };
 
+    const handleConfirm = () => {
+        handleBackStep();
+        // chosingLesson.Title = { lessonEditTitle };
+        // const newLesson = {Title: lessonEditTitle,...chosingLesson}
+        onConfirmClick(lessonEditTitle);
+        // navigate(`/publisher/${params.PublisherUserId}/add-course`);
+    };
+
     let activeBtn = {
         opacity: '1',
         cursor: 'pointer',
@@ -91,15 +114,28 @@ function EditLesson({ handleNextStep, handleBackStep }) {
             {stepLesson === 0 && (
                 <div className={cx('wrapper')}>
                     <div className={cx('topTitle')}>
-                        <p className={cx('courseTitle')}>{'Title Course'}</p>
+                        <p className={cx('courseTitle')}>{titleValue}</p>
                         <div>
                             <FontAwesomeIcon className={cx('icon')} icon={faChevronRight} />
                         </div>
-                        <p className={cx('lessonTitle')}>Lesson 1</p>
+                        <p className={cx('lessonTitle')}>{lessonEditTitle}</p>
                     </div>
                     <div className={cx('lessonBody')}>
-                        <p className={cx('lessonTitleDetail')}>{'Lesson 1: How to...'} </p>
-                        <p className={cx('lessonDesc')}>{'This will teach you...'} </p>
+                        {isEditingTitle ? (
+                            <input
+                                type="text"
+                                className={cx('titleInput')}
+                                value={lessonEditTitle}
+                                onChange={handleTitleChange}
+                                onBlur={handleTitleBlur}
+                                autoFocus
+                            />
+                        ) : (
+                            <p className={cx('lessonTitleDetail')} onClick={handleTitleClick}>
+                                {lessonEditTitle}
+                            </p>
+                        )}
+                        {/* <p className={cx('lessonDesc')}>{'This will teach you...'} </p> */}
                         <div className={cx('unitsBody')}>
                             <div className={cx('unitsTopBody')}>
                                 <p className={cx('unitsTitle')}>Units</p>
@@ -126,11 +162,6 @@ function EditLesson({ handleNextStep, handleBackStep }) {
                                             </p>
                                             <p className={cx('itemOrder')}>{index + 1}</p>
                                             <div className={cx('moveBtnContainer')}>
-                                                {/* {lessons[lessons.indexOf(item) + 1] && (
-                                    <button onClick={() => moveItem(item.LessonId, 1)}>
-                                        <FontAwesomeIcon icon={faChevronUp} />
-                                    </button>
-                                )} */}
                                                 <button
                                                     className={cx('moveBtn')}
                                                     style={lessons[lessons.indexOf(item) - 1] ? activeBtn : disableBtn}
@@ -153,12 +184,6 @@ function EditLesson({ handleNextStep, handleBackStep }) {
                                                 >
                                                     <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronDown} />
                                                 </button>
-
-                                                {/* {lessons[lessons.indexOf(item) - 1] && (
-                                    <button onClick={() => moveItem(item.LessonId, -1)}>
-                                        <FontAwesomeIcon icon={faChevronDown} />
-                                    </button>
-                                )} */}
                                             </div>
                                         </div>
                                     </li>
@@ -166,7 +191,7 @@ function EditLesson({ handleNextStep, handleBackStep }) {
                             </ul>
                         </div>
                     </div>
-                    <CancelConfirmBtns onCancel={handleCancel} />
+                    <CancelConfirmBtns onConfirm={handleConfirm} onCancel={handleCancel} />
                 </div>
             )}
             {stepLesson === 1 && <EditMaterial handleBackStep={handleCancelMaterialClick} />}

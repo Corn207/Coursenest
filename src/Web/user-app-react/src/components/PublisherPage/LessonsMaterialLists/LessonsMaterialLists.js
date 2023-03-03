@@ -9,7 +9,7 @@ import styles from './LessonsMaterialLists.module.scss';
 
 const cx = classNames.bind(styles);
 
-function LessonsMaterialLists({ lessonsList, handleNextStep }) {
+function LessonsMaterialLists({ lessonsList, editedTitleValue, handleNextStep, handleTitleValue, onEdit }) {
     // const [lessons, setLessons] = useState(lessonsList);
     const { lessons, setLessons } = useContext(CourseContext);
 
@@ -57,8 +57,10 @@ function LessonsMaterialLists({ lessonsList, handleNextStep }) {
         console.log(newArrLesson);
     };
 
-    const handleEditLesson = (id) => {
+    const handleEditLesson = (lesson) => {
+        onEdit(lesson);
         handleNextStep();
+        handleTitleValue(lesson.Title);
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 
@@ -87,7 +89,7 @@ function LessonsMaterialLists({ lessonsList, handleNextStep }) {
                     <li className={cx('itemDiv')} key={index}>
                         <p className={cx('itemTitle')}>{item.Title}</p>
                         <div className={cx('itemAction')}>
-                            <p className={cx('btnAction')} onClick={handleEditLesson}>
+                            <p className={cx('btnAction')} onClick={() => handleEditLesson(item)}>
                                 Edit
                             </p>
                             <p className={cx('btnAction')} onClick={() => handleDeleteLesson(item.LessonId)}>
