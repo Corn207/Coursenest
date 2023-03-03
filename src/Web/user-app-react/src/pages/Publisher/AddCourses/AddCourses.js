@@ -24,7 +24,7 @@ function AddCourses() {
     const [step, setStep] = useState(0);
     const [lessonTitle, setLessonTitle] = useState('');
     const [lessonEditedTitle, setLessonEditedTitle] = useState('');
-    const [chosenLesson, setChosenLesson] = useState(null);
+    const [chosenLessonIndex, setChosenLessonIndex] = useState(null);
 
     let params = useParams();
     const navigate = useNavigate();
@@ -44,8 +44,14 @@ function AddCourses() {
         setLessonEditedTitle(value);
     };
 
-    const handleEditLesson = (lessonObj) => {
-        setChosenLesson(lessonObj);
+    const handleEditLesson = (lesson) => {
+        const newArr = lessons.map((item) => {
+            if (item.LessonId === lesson.LessonId) {
+                return { ...item, Title: lessonEditedTitle };
+            }
+            return item;
+        });
+        setLessons(newArr); /* Todo: fix giá trị title bị delay */
     };
 
     const handleNextStep = () => {
@@ -169,7 +175,8 @@ function AddCourses() {
                 <EditLesson
                     titleValue={titleValue}
                     lessonTitle={lessonTitle}
-                    chosingLesson={chosenLesson}
+                    chosingLessonIndex={chosenLessonIndex}
+                    lessonList={lessons}
                     handleNextStep={handleNextStep}
                     handleBackStep={handleBackStep}
                     onConfirmClick={handleTitleEditedValue}

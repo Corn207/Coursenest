@@ -85,7 +85,7 @@ function LessonsMaterialLists({ lessonsList, editedTitleValue, handleNextStep, h
                 </button>
             </div>
             <ul className={cx('wrapper')}>
-                {lessons.map((item, index) => (
+                {lessonsList.map((item, index) => (
                     <li className={cx('itemDiv')} key={index}>
                         <p className={cx('itemTitle')}>{item.Title}</p>
                         <div className={cx('itemAction')}>

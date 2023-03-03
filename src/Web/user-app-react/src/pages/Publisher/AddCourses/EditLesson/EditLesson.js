@@ -11,7 +11,15 @@ import EditMaterial from './EditMaterial';
 
 const cx = classNames.bind(styles);
 
-function EditLesson({ titleValue, lessonTitle, chosingLesson, handleNextStep, handleBackStep, onConfirmClick }) {
+function EditLesson({
+    titleValue,
+    lessonTitle,
+    chosingLessonIndex,
+    lessonList,
+    handleNextStep,
+    handleBackStep,
+    onConfirmClick,
+}) {
     const { courseData, setCourseData } = useContext(CourseContext);
 
     const [lessons, setLessons] = useState([]);
