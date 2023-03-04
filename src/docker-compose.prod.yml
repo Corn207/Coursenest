@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.9"
 name: coursenest
 
 services:
@@ -22,6 +22,7 @@ services:
       - Jwt__Issuer=http://authentication.api
       - Jwt__AccessTokenLifetime=60
       - Jwt__RefreshTokenLifetime=180
+      - SwaggerUI=True
 
   identity.api:
     environment:
@@ -29,6 +30,7 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
+      - SwaggerUI=True
 
   library.api:
     environment:
@@ -36,12 +38,14 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
+      - SwaggerUI=True
 
   payment.api:
     environment:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
+      - SwaggerUI=True
 
   userdata.api:
     environment:
@@ -49,16 +53,19 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
+      - SwaggerUI=True
 
   database:
     environment:
       - MSSQL_SA_PASSWORD=Pass@word
     volumes:
-      - coursenest-prod-db:/var/opt/mssql
+      - database:/var/opt/mssql
+    ports:
+      - "1433:1433"
 
   messagebus:
     volumes:
-      - coursenest-prod-mb:/var/lib/rabbitmq
+      - messagebus:/var/lib/rabbitmq
 
   reverseproxy:
     volumes:
@@ -68,7 +75,5 @@ services:
       - "20001:20001"
 
 volumes:
-  coursenest-prod-db:
-    external: true
-  coursenest-prod-mb:
-    external: true
+  database:
+  messagebus:
