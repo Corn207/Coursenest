@@ -23,9 +23,9 @@ export default function ReviewModal(props) {
             headers: { Authorization: `Bearer ${tokenStr}` }
         })
         .catch(err => console.log(err));
-        setShow(false)
+        setShow(false);
+        window.location.reload();
     }
-    // xử lý vấn đề chưa rerender page khi review course
 
     return (
         <div>
