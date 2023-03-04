@@ -20,11 +20,21 @@ export default function Profile() {
     const [changedInfo, setChangedInfo] = useState({});
     const [aboutMe, setAboutMe] = useState({ "aboutMe": "" });
     const [gender, setGender] = useState({});
+    const [experience, setExperience] = useState({
+        "name": "",
+        "title": "",
+        "started": "",
+        "ended": ""
+    })
+    const [deletedExperience, setDeletedExperience] = useState();
 
     const [showModalAchievement, setShowModalAchievement] = useState(false);
     const [showModalChangeAvatar, setShowModalChangeAvatar] = useState(false);
     const [showModalEditInfo, setShowModalEditInfo] = useState(false);
     const [showModalEditAboutMe, setShowModalEditAboutMe] = useState(false);
+    const [showModalAddExperience, setShowModalAddExperience] = useState(false);
+    const [showModalDeleteExperience, setShowModalDeleteExperience] = useState(false);
+
 
     const [avatar, setAvatar] = useState(avatarImg);
     const [file, setFile] = useState(null);
@@ -67,14 +77,13 @@ export default function Profile() {
         let value = event.target.value;
         let name = event.target.name;
 
+        if (name == "dateOfBirth") {
+            value = new Date(event.target.value).toISOString();
+        }
         setTest({
             ...test,
             [name]: value
         })
-
-        if (name == "dateOfBirth") {
-            value = new Date(event.target.value).toISOString();
-        }
         setUserInfoNeedUpdate({
             ...userInfoNeedUpdate,
             [name]: value,
@@ -99,6 +108,7 @@ export default function Profile() {
     const handleConfirmUpdateInfo = (event) => {
         event.preventDefault();
         const update = getUpdatedKeys(userInfoNeedUpdate, currentInfo);
+        console.log(gender);
 
         if (update.length === 0) {
             setShowModalEditInfo(false);
@@ -110,16 +120,15 @@ export default function Profile() {
                     'Content-Type': 'application/json'
                 }
             })
-            .then(() => {
-                setShowModalEditInfo(false);
-                fetchInfoUser();
-            })
-            .catch((err) => {
-                console.log(err);
-            })
+                .then(() => {
+                    setShowModalEditInfo(false);
+                    fetchInfoUser();
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
         }
     }
-
 
     // change avatar
     const handleNewImage = (e) => {
@@ -176,6 +185,66 @@ export default function Profile() {
         setShowModalEditAboutMe(true);
     }
 
+    // add experience
+    const handleClickAddExperience = () => {
+        setShowModalAddExperience(true);
+    }
+
+    const handleChangeExperience = (event) => {
+        let value = event.target.value;
+        let name = event.target.name;
+
+        if (name == "started" || name == "ended") {
+            value = new Date(event.target.value).toISOString();
+        }
+        setExperience({
+            ...experience,
+            [name]: value
+        })
+    }
+
+    const handleConfirmAddExperience = (event) => {
+        event.preventDefault();
+        axios
+            .post(`${config.baseUrl}/api/users/me/experiences`, experience, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(() => {
+                setShowModalAddExperience(false);
+                fetchInfoUser();
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
+
+    // delete experience
+    const handleClickDeleteExperience = (experienceId) => {
+        setShowModalDeleteExperience(true);
+        setDeletedExperience(experienceId);
+    }
+
+    const handleSubmitDeleteExperience = () => {
+        console.log(deletedExperience);
+        axios
+            .delete(`${config.baseUrl}/api/users/me/experiences/${deletedExperience}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(() => {
+                setShowModalDeleteExperience(false);
+                fetchInfoUser();
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -225,12 +294,12 @@ export default function Profile() {
                     </div>
                     <table className={styles.tableInfo}>
                         <tbody>
-                            <tr>
+                            {/* <tr>
                                 <td>Gender</td>
                                 <td className={styles.tableRightContent}>
                                     {userInfo.gender === 1 ? 'female' : userInfo.gender === 0 ? 'male' : 'N/A'}
                                 </td>
-                            </tr>
+                            </tr> */}
                             <tr>
                                 <td>Date of Birth</td>
                                 <td className={styles.tableRightContent}>
@@ -258,7 +327,7 @@ export default function Profile() {
                 <div>
                     <div className={styles.heading}>
                         <h2>Work Experiences</h2>
-                        <p className={styles.editBtn}>Edit</p>
+                        <p className={styles.editBtn} onClick={() => handleClickAddExperience()}>Add</p>
                     </div>
                     <div className={styles.listExperience}>
                         {userInfo.experiences &&
@@ -269,6 +338,12 @@ export default function Profile() {
                                         <div className={styles.experienceContent}>
                                             <h5>{experience.name}</h5>
                                             <p>{experience.title}</p>
+                                            <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+                                                <p>{new Date(experience.started).toDateString()}</p>
+                                                <p> - </p>
+                                                <p>{new Date(experience.ended).toDateString()}</p>
+                                                <i class="fa fa-trash" onClick={() => handleClickDeleteExperience(experience.experienceId)}></i>
+                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -301,6 +376,7 @@ export default function Profile() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
             <Modal
                 show={showModalEditAboutMe}
                 onHide={() => setShowModalEditAboutMe(false)}
@@ -387,14 +463,17 @@ export default function Profile() {
                                 onChange={handleChangeInfo}
                             />
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+
+                        {/* <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
                             <label>Gender: </label>
-                            {/* <select name='gender' value={userInfoNeedUpdate.gender} onChange={handleChangeInfo}> */}
-                            <select name='gender' onChange={(event) => setGender({ "gender": event.target.value })}>
+                            //<select name='gender' defaultValue={userInfoNeedUpdate.gender} onChange={handleChangeInfo}>
+                            <select name='gender' onChange={(event) => setGender({ "gender": Number(event.target.value) })}>
                                 <option value={0}>Male</option>
                                 <option value={1}>Female</option>
                             </select>
-                        </div>
+                        </div> 
+                        */}
+
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
                             <label>Date of birth:</label>
                             <input type="date" name='dateOfBirth' onChange={handleChangeInfo} />
@@ -434,6 +513,93 @@ export default function Profile() {
                             return <Achievement key={achievement.achievementId} achievement={achievement} />;
                         })}
                 </Modal.Body>
+            </Modal>
+
+            <Modal
+                show={showModalAddExperience}
+                onHide={() => setShowModalAddExperience(false)}
+                backdrop="static"
+                keyboard={false}
+                size="md"
+                centered
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h3>Add Experience</h3>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={handleConfirmAddExperience} style={{ paddingLeft: 50, paddingRight: 50 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Name:</label>
+                            <input
+                                type="text"
+                                name="name"
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Title:</label>
+                            <input
+                                type="text"
+                                name="title"
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Started:</label>
+                            <input
+                                type="date"
+                                name='started'
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Ended:</label>
+                            <input
+                                type="date"
+                                name='ended'
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div>
+                            <input type='submit' style={{ color: "white", padding: 5, backgroundColor: "blue", borderRadius: 5 }} />
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal>
+
+            <Modal
+                show={showModalDeleteExperience}
+                onHide={() => setShowModalDeleteExperience(false)}
+                backdrop="static"
+                keyboard={false}
+                size="sm"
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h5>Delete This Experience ?</h5>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModalDeleteExperience(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={() => {
+                            handleSubmitDeleteExperience();
+                        }}
+                    >
+                        Delete
+                    </Button>
+                </Modal.Footer>
             </Modal>
         </div>
     );
