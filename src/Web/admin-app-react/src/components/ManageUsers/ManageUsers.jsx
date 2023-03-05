@@ -21,6 +21,11 @@ export default function ManageUsers() {
     const [deletedData, setDeletedData] = useState({});
     const [showModalUpdateUser, setShowModalUpdateUser] = useState(false);
     const [dataNeedUpdate, setDataNeedUpdate] = useState({});
+    
+    const [roleStudent, setRoleStudent] = useState(null);
+    const [roleInstructor, setRoleInstructor] = useState(null);
+    const [rolePublisher, setRolePublisher] = useState(null);
+    const [roleAdmin, setRoleAdmin] = useState(null);
 
     useEffect(() => {
         fetchListUser();
@@ -52,6 +57,27 @@ export default function ManageUsers() {
     const handleClickUpdateUser = (user) => {
         setShowModalUpdateUser(true);
         setDataNeedUpdate(user);
+        instance.get(`roles/${user.userId}`)
+                .then((res) => {
+                    return res.data;
+                })
+                .then((res) => {
+                    res.map((item) => {
+                        if (item.type == 0) {
+                            setRoleStudent(item);
+                        }
+                        else if (item.type == 1) {
+                            setRoleInstructor(item);
+                        }
+                        else if (item.type == 2) {
+                            setRolePublisher(item);
+                        }
+                        else if (item.type == 3) {
+                            setRoleAdmin(item);
+                        }
+                    })
+                })
+                .catch((err) => console.log(err));
     };
 
     const handleClickDelUser = (user) => {
@@ -96,7 +122,6 @@ export default function ManageUsers() {
                 </div>
                 <DisplayListUser
                     listUsers={filteredListUser}
-                    // handleClickDelUser={handleClickDelUser}
                     handleClickUpdateUser={handleClickUpdateUser}
                 />
                 <ModalDetailUser
@@ -105,6 +130,14 @@ export default function ManageUsers() {
                     fetchListUser={fetchListUser}
                     dataNeedUpdate={dataNeedUpdate}
                     handleClickDelUser={handleClickDelUser}
+                    roleStudent={roleStudent}
+                    roleInstructor={roleInstructor}
+                    rolePublisher={rolePublisher}
+                    roleAdmin={roleAdmin}
+                    setRoleStudent={setRoleStudent}
+                    setRoleInstructor={setRoleInstructor}
+                    setRolePublisher={setRolePublisher}
+                    setRoleAdmin={setRoleAdmin}
                 />
                 <ModalDeleteUser
                     show={showModalDeleteUser}
