@@ -44,14 +44,15 @@ function AddCourses() {
         setLessonEditedTitle(value);
     };
 
-    const handleEditLesson = (lesson) => {
-        const newArr = lessons.map((item) => {
-            if (item.LessonId === lesson.LessonId) {
-                return { ...item, Title: lessonEditedTitle };
+    const handleLessonUpdate = (updatedLesson) => {
+        const updatedLessons = lessons.map((lesson) => {
+            if (lesson.LessonId === updatedLesson.LessonId) {
+                return { ...lesson, Title: lessonEditedTitle };
+            } else {
+                return lesson;
             }
-            return item;
         });
-        setLessons(newArr); /* Todo: fix giá trị title bị delay */
+        setLessons(updatedLessons);
     };
 
     const handleNextStep = () => {
@@ -162,7 +163,7 @@ function AddCourses() {
                             <LessonsMaterialLists
                                 lessonsList={lessons}
                                 editedTitleValue={lessonEditedTitle}
-                                onEdit={handleEditLesson}
+                                onEdit={handleLessonUpdate}
                                 handleNextStep={handleNextStep}
                                 handleTitleValue={handleTitleValue}
                             />
@@ -176,7 +177,6 @@ function AddCourses() {
                     titleValue={titleValue}
                     lessonTitle={lessonTitle}
                     chosingLessonIndex={chosenLessonIndex}
-                    lessonList={lessons}
                     handleNextStep={handleNextStep}
                     handleBackStep={handleBackStep}
                     onConfirmClick={handleTitleEditedValue}

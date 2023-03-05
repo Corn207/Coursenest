@@ -1,7 +1,7 @@
 import { faChevronDown, faChevronRight, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 import CourseContext from '~/contexts/courseContext';
@@ -11,21 +11,18 @@ import EditMaterial from './EditMaterial';
 
 const cx = classNames.bind(styles);
 
-function EditLesson({
-    titleValue,
-    lessonTitle,
-    chosingLessonIndex,
-    lessonList,
-    handleNextStep,
-    handleBackStep,
-    onConfirmClick,
-}) {
+function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, handleBackStep, onConfirmClick }) {
     const { courseData, setCourseData } = useContext(CourseContext);
 
+    // const [lessons, setLessons] = useContext(CourseContext);
     const [lessons, setLessons] = useState([]);
     const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [stepLesson, setStepLesson] = useState(0);
+
+    useEffect(() => {
+        setLessonEditTitle(lessonTitle);
+    }, [lessonTitle]);
 
     const handleEditMaterialClick = () => {
         setStepLesson(stepLesson + 1);
@@ -38,6 +35,15 @@ function EditLesson({
     const handleTitleChange = (event) => {
         setLessonEditTitle(event.target.value);
     };
+
+    // const handleUpdateLesson = (updatedItem) => {
+    //     // Find the lesson object with the corresponding ID
+    //     const lessonToUpdate = lessons.find((lesson) => lesson.LessonId === updatedItem.LessonId);
+    //     // Create a new lesson object with the updated title
+    //     const updatedLesson = { ...lessonToUpdate, title: lessonEditTitle };
+    //     // Pass the updated lesson back to the parent component
+    //     onLessonUpdate(updatedLesson);
+    // };
 
     const handleTitleBlur = () => {
         setIsEditingTitle(false);
@@ -140,7 +146,7 @@ function EditLesson({
                             />
                         ) : (
                             <p className={cx('lessonTitleDetail')} onClick={handleTitleClick}>
-                                {lessonEditTitle}
+                                {'Title: ' + lessonEditTitle}
                             </p>
                         )}
                         {/* <p className={cx('lessonDesc')}>{'This will teach you...'} </p> */}
@@ -156,7 +162,7 @@ function EditLesson({
                             </div>
                             <ul className={cx('listWrapper')}>
                                 {lessons.map((item, index) => (
-                                    <li className={cx('itemDiv')} key={index}>
+                                    <li className={cx('itemDiv')} key={item.LessonId}>
                                         <p className={cx('itemTitle')}>{item.Title}</p>
                                         <div className={cx('itemAction')}>
                                             <p className={cx('btnAction')} onClick={handleEditLesson}>

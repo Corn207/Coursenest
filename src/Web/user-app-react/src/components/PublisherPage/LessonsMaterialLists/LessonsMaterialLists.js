@@ -1,6 +1,7 @@
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
+import { useEffect } from 'react';
 import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CourseContext from '~/contexts/courseContext';
@@ -12,6 +13,10 @@ const cx = classNames.bind(styles);
 function LessonsMaterialLists({ lessonsList, editedTitleValue, handleNextStep, handleTitleValue, onEdit }) {
     // const [lessons, setLessons] = useState(lessonsList);
     const { lessons, setLessons } = useContext(CourseContext);
+
+    useEffect(() => {
+        setLessons(lessonsList);
+    }, [lessonsList]);
 
     const navigate = useNavigate();
     let params = useParams();
@@ -85,8 +90,8 @@ function LessonsMaterialLists({ lessonsList, editedTitleValue, handleNextStep, h
                 </button>
             </div>
             <ul className={cx('wrapper')}>
-                {lessonsList.map((item, index) => (
-                    <li className={cx('itemDiv')} key={index}>
+                {lessons.map((item, index) => (
+                    <li className={cx('itemDiv')} key={item.LessonId}>
                         <p className={cx('itemTitle')}>{item.Title}</p>
                         <div className={cx('itemAction')}>
                             <p className={cx('btnAction')} onClick={() => handleEditLesson(item)}>
