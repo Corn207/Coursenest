@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 import CourseContext from '~/contexts/courseContext';
+import EditExam from './EditExam';
 
 import styles from './EditLesson.module.scss';
 import EditMaterial from './EditMaterial';
@@ -17,12 +18,8 @@ function EditLesson({
     titleValue,
     lessonTitle,
     handleLessonUpdate,
-    handleNextStep,
     handleBackStep,
-    onConfirmClick,
 }) {
-    const { courseData, setCourseData } = useContext(CourseContext);
-
     const [lesson, setLesson] = useState(chosenLesson);
     const [materials, setmaterials] = useState([]);
     const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
@@ -34,7 +31,11 @@ function EditLesson({
     // }, [lessonTitle]);
 
     const handleEditMaterialClick = () => {
-        setStepLesson(stepLesson + 1);
+        setStepLesson(1);
+    };
+
+    const handleAddExamClick = () => {
+        setStepLesson(2);
     };
 
     const handleTitleClick = () => {
@@ -60,7 +61,7 @@ function EditLesson({
     };
 
     const handleCancelMaterialClick = () => {
-        setStepLesson(stepLesson - 1);
+        setStepLesson(0);
     };
 
     const navigate = useNavigate();
@@ -77,7 +78,7 @@ function EditLesson({
         setmaterials(newItems);
     };
 
-    const handleAddLessonClick = () => {
+    const handleAddMaterialClick = () => {
         if (materials.length === 0) {
             const defaultNewLesson = {
                 LessonId: 1,
@@ -166,10 +167,12 @@ function EditLesson({
                             <div className={cx('unitsTopBody')}>
                                 <p className={cx('unitsTitle')}>Units</p>
                                 <div className={cx('unitsBtns')}>
-                                    <button className={cx('unitsBtn')} onClick={handleAddLessonClick}>
+                                    <button className={cx('unitsBtn')} onClick={handleAddMaterialClick}>
                                         Add Material
                                     </button>
-                                    <button className={cx('unitsBtn')}>Add Exam</button>
+                                    <button className={cx('unitsBtn')} onClick={handleAddExamClick}>
+                                        Add Exam
+                                    </button>
                                 </div>
                             </div>
                             <ul className={cx('listWrapper')}>
@@ -225,6 +228,7 @@ function EditLesson({
                 </div>
             )}
             {stepLesson === 1 && <EditMaterial handleBackStep={handleCancelMaterialClick} />}
+            {stepLesson === 2 && <EditExam />}
         </>
     );
 }
