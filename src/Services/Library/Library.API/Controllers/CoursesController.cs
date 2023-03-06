@@ -188,6 +188,25 @@ namespace Library.API.Controllers
 		}
 
 
+		// PUT: /courses/5/approve
+		[HttpPut("{courseId}/approve")]
+		[Authorize(Roles = nameof(RoleType.Admin))]
+		public async Task<ActionResult> Approve(
+			int courseId)
+		{
+			var course = await _context.Courses
+				.FirstOrDefaultAsync(x => x.CourseId == courseId && !x.IsApproved);
+			if (course == null)
+				return NotFound("Course does not exist, or is approved or you're not authorized.");
+
+			course.IsApproved = true;
+
+			await _context.SaveChangesAsync();
+
+			return NoContent();
+		}
+
+
 		private int GetUserId()
 		{
 			return ClaimUtilities.GetUserId(User.Claims);
