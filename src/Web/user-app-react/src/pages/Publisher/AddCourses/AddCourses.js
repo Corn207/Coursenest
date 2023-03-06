@@ -23,8 +23,8 @@ function AddCourses() {
     const [lessons, setLessons] = useState([]);
     const [step, setStep] = useState(0);
     const [lessonTitle, setLessonTitle] = useState('');
-    const [lessonEditedTitle, setLessonEditedTitle] = useState('');
-    const [chosenLessonIndex, setChosenLessonIndex] = useState(null);
+    // const [lessonEditedTitle, setLessonEditedTitle] = useState('');
+    const [chosenLesson, setChosenLesson] = useState(null);
 
     let params = useParams();
     const navigate = useNavigate();
@@ -40,19 +40,29 @@ function AddCourses() {
         setLessonTitle(value);
     };
 
-    const handleTitleEditedValue = (value) => {
-        setLessonEditedTitle(value);
+    // const handleTitleEditedValue = (value) => {
+    //     setLessonEditedTitle(value);
+    // };
+
+    const handleUpdateListOnAddClick = (list) => {
+        setLessons(list);
     };
 
     const handleLessonUpdate = (updatedLesson) => {
+        // setChosenLesson(updatedLesson);
         const updatedLessons = lessons.map((lesson) => {
             if (lesson.LessonId === updatedLesson.LessonId) {
-                return { ...lesson, Title: lessonEditedTitle };
+                return updatedLesson;
             } else {
                 return lesson;
             }
         });
         setLessons(updatedLessons);
+        console.log(updatedLessons);
+    };
+
+    const handleOnEdit = (choseLesson) => {
+        setChosenLesson(choseLesson);
     };
 
     const handleNextStep = () => {
@@ -95,8 +105,15 @@ function AddCourses() {
         navigate('/publisher/add-course/add-lesson');
     }
 
+    {
+        /*<CourseContext.Provider value={{ courseData, setCourseData, lessons, setLessons }}>*/
+    }
+    {
+        /*</CourseContext.Provider>*/
+    }
+
     return (
-        <CourseContext.Provider value={{ courseData, setCourseData, lessons, setLessons }}>
+        <div className={cx('divWrapper')}>
             {step === 0 && (
                 <form className={cx('formWrapper')} onSubmit={handleSubmit}>
                     <div className={cx('wrapper')}>
@@ -162,8 +179,9 @@ function AddCourses() {
 
                             <LessonsMaterialLists
                                 lessonsList={lessons}
-                                editedTitleValue={lessonEditedTitle}
-                                onEdit={handleLessonUpdate}
+                                // editedTitleValue={lessonEditedTitle}
+                                getLessonsListOnAdd={handleUpdateListOnAddClick}
+                                onEdit={handleOnEdit}
                                 handleNextStep={handleNextStep}
                                 handleTitleValue={handleTitleValue}
                             />
@@ -174,15 +192,17 @@ function AddCourses() {
             )}
             {step === 1 && (
                 <EditLesson
+                    chosenLesson={chosenLesson}
+                    // lessonsList={lessons}
                     titleValue={titleValue}
                     lessonTitle={lessonTitle}
-                    chosingLessonIndex={chosenLessonIndex}
+                    handleLessonUpdate={handleLessonUpdate}
                     handleNextStep={handleNextStep}
                     handleBackStep={handleBackStep}
-                    onConfirmClick={handleTitleEditedValue}
+                    // onConfirmClick={handleTitleEditedValue}
                 />
             )}
-        </CourseContext.Provider>
+        </div>
     );
 }
 

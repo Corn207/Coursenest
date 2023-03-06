@@ -10,13 +10,13 @@ import styles from './LessonsMaterialLists.module.scss';
 
 const cx = classNames.bind(styles);
 
-function LessonsMaterialLists({ lessonsList, editedTitleValue, handleNextStep, handleTitleValue, onEdit }) {
-    // const [lessons, setLessons] = useState(lessonsList);
-    const { lessons, setLessons } = useContext(CourseContext);
+function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, getLessonsListOnAdd, onEdit }) {
+    const [lessons, setLessons] = useState(lessonsList);
+    // const { lessons, setLessons } = useContext(CourseContext);
 
-    useEffect(() => {
-        setLessons(lessonsList);
-    }, [lessonsList]);
+    // useEffect(() => {
+    //     setLessons(lessonsList);
+    // }, [lessonsList]);
 
     const navigate = useNavigate();
     let params = useParams();
@@ -43,6 +43,7 @@ function LessonsMaterialLists({ lessonsList, editedTitleValue, handleNextStep, h
             };
             const addedLessonsList = [defaultNewLesson];
             setLessons(addedLessonsList);
+            getLessonsListOnAdd(addedLessonsList);
         } else {
             const defaultNewLesson = {
                 LessonId: lessons[lessons.length - 1].LessonId + 1,
@@ -51,6 +52,7 @@ function LessonsMaterialLists({ lessonsList, editedTitleValue, handleNextStep, h
             };
             const addedLessonsList = [...lessons, defaultNewLesson];
             setLessons(addedLessonsList);
+            getLessonsListOnAdd(addedLessonsList);
         }
         // setLessons(addedLessonsList);
         console.log(lessons);

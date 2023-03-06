@@ -11,18 +11,27 @@ import EditMaterial from './EditMaterial';
 
 const cx = classNames.bind(styles);
 
-function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, handleBackStep, onConfirmClick }) {
+function EditLesson({
+    chosenLesson,
+    // materialsList,
+    titleValue,
+    lessonTitle,
+    handleLessonUpdate,
+    handleNextStep,
+    handleBackStep,
+    onConfirmClick,
+}) {
     const { courseData, setCourseData } = useContext(CourseContext);
 
-    // const [lessons, setLessons] = useContext(CourseContext);
-    const [lessons, setLessons] = useState([]);
+    const [lesson, setLesson] = useState(chosenLesson);
+    const [materials, setmaterials] = useState([]);
     const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [stepLesson, setStepLesson] = useState(0);
 
-    useEffect(() => {
-        setLessonEditTitle(lessonTitle);
-    }, [lessonTitle]);
+    // useEffect(() => {
+    //     setLessonEditTitle(lessonTitle);
+    // }, [lessonTitle]);
 
     const handleEditMaterialClick = () => {
         setStepLesson(stepLesson + 1);
@@ -34,11 +43,12 @@ function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, h
 
     const handleTitleChange = (event) => {
         setLessonEditTitle(event.target.value);
+        setLesson({ ...lesson, Title: event.target.value });
     };
 
     // const handleUpdateLesson = (updatedItem) => {
     //     // Find the lesson object with the corresponding ID
-    //     const lessonToUpdate = lessons.find((lesson) => lesson.LessonId === updatedItem.LessonId);
+    //     const lessonToUpdate = materials.find((lesson) => lesson.LessonId === updatedItem.LessonId);
     //     // Create a new lesson object with the updated title
     //     const updatedLesson = { ...lessonToUpdate, title: lessonEditTitle };
     //     // Pass the updated lesson back to the parent component
@@ -56,42 +66,42 @@ function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, h
     const navigate = useNavigate();
     let params = useParams();
 
-    // const [lessonsList, setLessonsList] = useState([]);
+    // const [materialsList, setmaterialsList] = useState([]);
 
     const moveItem = (LessonId, direction) => {
-        const newItems = [...lessons];
+        const newItems = [...materials];
         const index = newItems.findIndex((item) => item.LessonId === LessonId);
         const temp = newItems[index];
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
-        setLessons(newItems);
+        setmaterials(newItems);
     };
 
     const handleAddLessonClick = () => {
-        if (lessons.length === 0) {
+        if (materials.length === 0) {
             const defaultNewLesson = {
                 LessonId: 1,
                 Title: `New item 1`,
                 Description: 'Description of item ',
             };
-            const addedLessonsList = [defaultNewLesson];
-            setLessons(addedLessonsList);
+            const addedmaterialsList = [defaultNewLesson];
+            setmaterials(addedmaterialsList);
         } else {
             const defaultNewLesson = {
-                LessonId: lessons[lessons.length - 1].LessonId + 1,
-                Title: `New item ${lessons[lessons.length - 1].LessonId + 1}`,
+                LessonId: materials[materials.length - 1].LessonId + 1,
+                Title: `New item ${materials[materials.length - 1].LessonId + 1}`,
                 Description: 'Description of item ',
             };
-            const addedLessonsList = [...lessons, defaultNewLesson];
-            setLessons(addedLessonsList);
+            const addedmaterialsList = [...materials, defaultNewLesson];
+            setmaterials(addedmaterialsList);
         }
-        // setLessons(addedLessonsList);
-        console.log(lessons);
+        // setmaterials(addedmaterialsList);
+        console.log(materials);
     };
 
     const handleDeleteLesson = (id) => {
-        const newArrLesson = [...lessons.filter((item) => item.LessonId !== id)];
-        setLessons(newArrLesson);
+        const newArrLesson = [...materials.filter((item) => item.LessonId !== id)];
+        setmaterials(newArrLesson);
         console.log(newArrLesson);
     };
 
@@ -109,7 +119,9 @@ function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, h
         handleBackStep();
         // chosingLesson.Title = { lessonEditTitle };
         // const newLesson = {Title: lessonEditTitle,...chosingLesson}
-        onConfirmClick(lessonEditTitle);
+        // onConfirmClick(lessonEditTitle);
+        handleLessonUpdate(lesson);
+        console.log(lesson);
         // navigate(`/publisher/${params.PublisherUserId}/add-course`);
     };
 
@@ -161,7 +173,7 @@ function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, h
                                 </div>
                             </div>
                             <ul className={cx('listWrapper')}>
-                                {lessons.map((item, index) => (
+                                {materials.map((item, index) => (
                                     <li className={cx('itemDiv')} key={item.LessonId}>
                                         <p className={cx('itemTitle')}>{item.Title}</p>
                                         <div className={cx('itemAction')}>
@@ -178,9 +190,11 @@ function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, h
                                             <div className={cx('moveBtnContainer')}>
                                                 <button
                                                     className={cx('moveBtn')}
-                                                    style={lessons[lessons.indexOf(item) - 1] ? activeBtn : disableBtn}
+                                                    style={
+                                                        materials[materials.indexOf(item) - 1] ? activeBtn : disableBtn
+                                                    }
                                                     onClick={() =>
-                                                        lessons[lessons.indexOf(item) - 1]
+                                                        materials[materials.indexOf(item) - 1]
                                                             ? moveItem(item.LessonId, -1)
                                                             : console.log('not allowed to click')
                                                     }
@@ -189,9 +203,11 @@ function EditLesson({ titleValue, lessonTitle, onLessonUpdate, handleNextStep, h
                                                 </button>
                                                 <button
                                                     className={cx('moveBtn')}
-                                                    style={lessons[lessons.indexOf(item) + 1] ? activeBtn : disableBtn}
+                                                    style={
+                                                        materials[materials.indexOf(item) + 1] ? activeBtn : disableBtn
+                                                    }
                                                     onClick={() =>
-                                                        lessons[lessons.indexOf(item) + 1]
+                                                        materials[materials.indexOf(item) + 1]
                                                             ? moveItem(item.LessonId, 1)
                                                             : console.log('not allowed to click')
                                                     }
