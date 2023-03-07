@@ -1,10 +1,9 @@
 import { faChevronDown, faChevronRight, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
-import CourseContext from '~/contexts/courseContext';
 import EditExam from './EditExam';
 
 import styles from './EditLesson.module.scss';
@@ -12,23 +11,14 @@ import EditMaterial from './EditMaterial';
 
 const cx = classNames.bind(styles);
 
-function EditLesson({
-    chosenLesson,
-    // materialsList,
-    titleValue,
-    lessonTitle,
-    handleLessonUpdate,
-    handleBackStep,
-}) {
+function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate, handleBackStep }) {
     const [lesson, setLesson] = useState(chosenLesson);
-    const [materials, setmaterials] = useState([]);
+    const [materials, setMaterials] = useState([]);
     const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [stepLesson, setStepLesson] = useState(0);
-
-    // useEffect(() => {
-    //     setLessonEditTitle(lessonTitle);
-    // }, [lessonTitle]);
+    const [lessonDesc, setLessonDesc] = useState(chosenLesson.Description);
+    const [isEditingDesc, setIsEditingDesc] = useState(false);
 
     const handleEditMaterialClick = () => {
         setStepLesson(1);
@@ -47,17 +37,21 @@ function EditLesson({
         setLesson({ ...lesson, Title: event.target.value });
     };
 
-    // const handleUpdateLesson = (updatedItem) => {
-    //     // Find the lesson object with the corresponding ID
-    //     const lessonToUpdate = materials.find((lesson) => lesson.LessonId === updatedItem.LessonId);
-    //     // Create a new lesson object with the updated title
-    //     const updatedLesson = { ...lessonToUpdate, title: lessonEditTitle };
-    //     // Pass the updated lesson back to the parent component
-    //     onLessonUpdate(updatedLesson);
-    // };
-
     const handleTitleBlur = () => {
         setIsEditingTitle(false);
+    };
+
+    const handleDescClick = () => {
+        setIsEditingDesc(true);
+    };
+
+    const handleDescChange = (event) => {
+        setLessonDesc(event.target.value);
+        setLesson({ ...lesson, Description: event.target.value });
+    };
+
+    const handleDescBlur = () => {
+        setIsEditingDesc(false);
     };
 
     const handleCancelMaterialClick = () => {
@@ -67,15 +61,13 @@ function EditLesson({
     const navigate = useNavigate();
     let params = useParams();
 
-    // const [materialsList, setmaterialsList] = useState([]);
-
     const moveItem = (LessonId, direction) => {
         const newItems = [...materials];
         const index = newItems.findIndex((item) => item.LessonId === LessonId);
         const temp = newItems[index];
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
-        setmaterials(newItems);
+        setMaterials(newItems);
     };
 
     const handleAddMaterialClick = () => {
@@ -86,7 +78,7 @@ function EditLesson({
                 Description: 'Description of item ',
             };
             const addedmaterialsList = [defaultNewLesson];
-            setmaterials(addedmaterialsList);
+            setMaterials(addedmaterialsList);
         } else {
             const defaultNewLesson = {
                 LessonId: materials[materials.length - 1].LessonId + 1,
@@ -94,15 +86,14 @@ function EditLesson({
                 Description: 'Description of item ',
             };
             const addedmaterialsList = [...materials, defaultNewLesson];
-            setmaterials(addedmaterialsList);
+            setMaterials(addedmaterialsList);
         }
-        // setmaterials(addedmaterialsList);
         console.log(materials);
     };
 
     const handleDeleteLesson = (id) => {
         const newArrLesson = [...materials.filter((item) => item.LessonId !== id)];
-        setmaterials(newArrLesson);
+        setMaterials(newArrLesson);
         console.log(newArrLesson);
     };
 
@@ -118,11 +109,7 @@ function EditLesson({
 
     const handleConfirm = () => {
         handleBackStep();
-        // chosingLesson.Title = { lessonEditTitle };
-        // const newLesson = {Title: lessonEditTitle,...chosingLesson}
-        // onConfirmClick(lessonEditTitle);
         handleLessonUpdate(lesson);
-        console.log(lesson);
         // navigate(`/publisher/${params.PublisherUserId}/add-course`);
     };
 
@@ -162,7 +149,20 @@ function EditLesson({
                                 {'Title: ' + lessonEditTitle}
                             </p>
                         )}
-                        {/* <p className={cx('lessonDesc')}>{'This will teach you...'} </p> */}
+                        {isEditingDesc ? (
+                            <input
+                                type="text"
+                                className={cx('titleInput')}
+                                value={lessonDesc}
+                                onChange={handleDescChange}
+                                onBlur={handleDescBlur}
+                                autoFocus
+                            />
+                        ) : (
+                            <p className={cx('lessonDesc')} onClick={handleDescClick}>
+                                {lessonDesc}
+                            </p>
+                        )}
                         <div className={cx('unitsBody')}>
                             <div className={cx('unitsTopBody')}>
                                 <p className={cx('unitsTitle')}>Units</p>
