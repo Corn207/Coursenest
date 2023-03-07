@@ -9,7 +9,7 @@ function EditExam() {
         <div className={cx('wrapper')}>
             <div className={cx('topContent')}>
                 <p className={cx('examTitle')}>Title</p>
-                <p className={cx('examDuration')}>Time: 45:00</p>
+                <p className={cx('timeLimit')}>Time: 45:00</p>
             </div>
             <p className={cx('examDesc')}>Desc</p>
             <div className={cx('bodyContainer')}>

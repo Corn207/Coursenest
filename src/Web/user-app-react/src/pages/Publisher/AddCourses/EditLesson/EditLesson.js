@@ -13,6 +13,7 @@ const cx = classNames.bind(styles);
 
 function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate, handleBackStep }) {
     const [lesson, setLesson] = useState(chosenLesson);
+    const [chosenUnit, setChosenUnit] = useState(null);
     const [materials, setMaterials] = useState([]);
     const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -61,9 +62,9 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     const navigate = useNavigate();
     let params = useParams();
 
-    const moveItem = (LessonId, direction) => {
+    const moveItem = (UnitId, direction) => {
         const newItems = [...materials];
-        const index = newItems.findIndex((item) => item.LessonId === LessonId);
+        const index = newItems.findIndex((item) => item.UnitId === UnitId);
         const temp = newItems[index];
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
@@ -73,32 +74,33 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     const handleAddMaterialClick = () => {
         if (materials.length === 0) {
             const defaultNewLesson = {
-                LessonId: 1,
+                UnitId: 1,
                 Title: `New item 1`,
                 Description: 'Description of item ',
             };
-            const addedmaterialsList = [defaultNewLesson];
-            setMaterials(addedmaterialsList);
+            const addedMaterialsList = [defaultNewLesson];
+            setMaterials(addedMaterialsList);
         } else {
             const defaultNewLesson = {
-                LessonId: materials[materials.length - 1].LessonId + 1,
-                Title: `New item ${materials[materials.length - 1].LessonId + 1}`,
+                UnitId: materials[materials.length - 1].UnitId + 1,
+                Title: `New item ${materials[materials.length - 1].UnitId + 1}`,
                 Description: 'Description of item ',
             };
-            const addedmaterialsList = [...materials, defaultNewLesson];
-            setMaterials(addedmaterialsList);
+            const addedMaterialsList = [...materials, defaultNewLesson];
+            setMaterials(addedMaterialsList);
         }
         console.log(materials);
     };
 
     const handleDeleteLesson = (id) => {
-        const newArrLesson = [...materials.filter((item) => item.LessonId !== id)];
+        const newArrLesson = [...materials.filter((item) => item.UnitId !== id)];
         setMaterials(newArrLesson);
         console.log(newArrLesson);
     };
 
-    const handleEditLesson = (id) => {
+    const handleEditLesson = (item) => {
         handleEditMaterialClick();
+        setChosenUnit(item);
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson/edit-material`);
     };
 
@@ -111,6 +113,19 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
         handleBackStep();
         handleLessonUpdate(lesson);
         // navigate(`/publisher/${params.PublisherUserId}/add-course`);
+    };
+
+    const handleMaterialUpdate = (updatedMaterial) => {
+        // setChosenMaterial(updatedMaterial);
+        const updatedMaterials = materials.map((material) => {
+            if (material.UnitId === updatedMaterial.UnitId) {
+                return updatedMaterial;
+            } else {
+                return material;
+            }
+        });
+        setMaterials(updatedMaterials);
+        console.log(updatedMaterials);
     };
 
     let activeBtn = {
@@ -177,15 +192,15 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                             </div>
                             <ul className={cx('listWrapper')}>
                                 {materials.map((item, index) => (
-                                    <li className={cx('itemDiv')} key={item.LessonId}>
+                                    <li className={cx('itemDiv')} key={item.UnitId}>
                                         <p className={cx('itemTitle')}>{item.Title}</p>
                                         <div className={cx('itemAction')}>
-                                            <p className={cx('btnAction')} onClick={handleEditLesson}>
+                                            <p className={cx('btnAction')} onClick={() => handleEditLesson(item)}>
                                                 Edit
                                             </p>
                                             <p
                                                 className={cx('btnAction')}
-                                                onClick={() => handleDeleteLesson(item.LessonId)}
+                                                onClick={() => handleDeleteLesson(item.UnitId)}
                                             >
                                                 Delete
                                             </p>
@@ -198,7 +213,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                                     }
                                                     onClick={() =>
                                                         materials[materials.indexOf(item) - 1]
-                                                            ? moveItem(item.LessonId, -1)
+                                                            ? moveItem(item.UnitId, -1)
                                                             : console.log('not allowed to click')
                                                     }
                                                 >
@@ -211,7 +226,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                                     }
                                                     onClick={() =>
                                                         materials[materials.indexOf(item) + 1]
-                                                            ? moveItem(item.LessonId, 1)
+                                                            ? moveItem(item.UnitId, 1)
                                                             : console.log('not allowed to click')
                                                     }
                                                 >
@@ -227,7 +242,13 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                     <CancelConfirmBtns onConfirm={handleConfirm} onCancel={handleCancel} />
                 </div>
             )}
-            {stepLesson === 1 && <EditMaterial handleBackStep={handleCancelMaterialClick} />}
+            {stepLesson === 1 && (
+                <EditMaterial
+                    chosenMaterial={chosenUnit}
+                    handleBackStep={handleCancelMaterialClick}
+                    handleMaterialsUpdate={handleMaterialUpdate}
+                />
+            )}
             {stepLesson === 2 && <EditExam />}
         </>
     );

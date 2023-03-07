@@ -7,14 +7,28 @@
     border-bottom-left-radius: 40px;
     border-top-left-radius: 40px;
 
-    .title {
-        font-size: 24px;
-        font-weight: 700;
+    .topContent {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 8px;
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: rgba(38, 38, 38, 1);
+        }
+
+        .approximateTime {
+            font-weight: 500;
+            color: rgba(38, 38, 38, 1);
+        }
     }
 
     .description {
         font-size: 16px;
         font-weight: 600;
+        margin-bottom: 8px;
     }
 
     .contentContainer {
@@ -26,6 +40,7 @@
         .content {
             font-size: 20px;
             font-weight: 600;
+            margin-bottom: 8px;
         }
 
         .contentText {
