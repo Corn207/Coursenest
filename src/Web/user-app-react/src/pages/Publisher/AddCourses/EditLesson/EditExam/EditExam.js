@@ -1,5 +1,7 @@
 import classNames from 'classnames/bind';
 import { useState } from 'react';
+import MultiChoicesQuesTion from '~/components/MultiChoicesQuesTion';
+import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 
 import styles from './EditExam.module.scss';
 
@@ -100,15 +102,9 @@ function EditExam() {
                 </p>
             )}
             <div className={cx('bodyContainer')}>
-                <div className={cx('topBody')}>
-                    <p className={cx('bodyTitle')}>Lessons</p>
-                    <button className={cx('addQuestionBtn')}>
-                        {/* <Link className={cx('addLessonLink')} to="add-lesson"> */}
-                        Add Question
-                        {/* </Link> */}
-                    </button>
-                </div>
+                <MultiChoicesQuesTion title={'Question'} addBtnName={'Add Question'} />
             </div>
+            <CancelConfirmBtns />
         </div>
     );
 }
