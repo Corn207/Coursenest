@@ -10,12 +10,14 @@ import EditLesson from './EditLesson';
 import styles from './AddCourses.module.scss';
 import EditMaterial from './EditLesson/EditMaterial';
 import TopicsSearch from '~/components/TopicsSearch';
+import axios from 'axios';
+import config from '~/config';
 
 const cx = classNames.bind(styles);
 
 function AddCourses() {
     const [image, setImage] = useState(null);
-    const [isSelected, setIsSlected] = useState(0);
+    const [tier, setTier] = useState(0);
     const [titleValue, setTitleValue] = useState('');
     const [descriptionValue, setDescriptionValue] = useState('');
     const [aboutValue, setAboutValue] = useState('');
@@ -67,7 +69,7 @@ function AddCourses() {
     };
 
     const handleClick = (id) => {
-        setIsSlected(id);
+        setTier(id);
     };
 
     const handleTitleChange = (event) => {
@@ -101,7 +103,28 @@ function AddCourses() {
         } else if (interestedTopic === null) {
             alert('Please chose your topic!!');
             return;
+        } else {
+            // try {
+            //     const res = await axios.post(`${config.baseUrl}/api/courses`, {
+            //         title: titleValue,
+            //         description: descriptionValue,
+            //         about: aboutValue,
+            //         tier: tier,
+            //         topicId: interestedTopic.topicId,
+            //     });
+            //     console.log(res.data);
+            // } catch (error) {
+            //     console.log(error);
+            // }
+            console.log({
+                title: titleValue,
+                description: descriptionValue,
+                about: aboutValue,
+                tier: tier,
+                topicId: interestedTopic,
+            });
         }
+
         console.log('done');
     };
 
@@ -149,14 +172,14 @@ function AddCourses() {
                                     <div className={cx('courseTierDiv')}>
                                         <p
                                             className={cx('courseTier')}
-                                            style={{ opacity: isSelected === 0 ? 1 : 0.3 }}
+                                            style={{ opacity: tier === 0 ? 1 : 0.3 }}
                                             onClick={() => handleClick(0)}
                                         >
                                             Free
                                         </p>
                                         <p
                                             className={cx('courseTierPremium')}
-                                            style={{ opacity: isSelected === 1 ? 1 : 0.3 }}
+                                            style={{ opacity: tier === 1 ? 1 : 0.3 }}
                                             onClick={() => handleClick(1)}
                                         >
                                             Premium
@@ -173,7 +196,7 @@ function AddCourses() {
                                         onChange={handleAboutChange}
                                     ></textarea>
                                 </div>
-                                <TopicsSearch handleTopicsId={handleGetTopics} maxTopics={1} />
+                                <TopicsSearch handleGetTopics={handleGetTopics} maxTopics={1} />
                             </div>
 
                             <LessonsMaterialLists

@@ -17,7 +17,7 @@ import config from '~/config';
 
 const cx = classNames.bind(styles);
 
-function TopicsSearch({ handleTopicsId, maxTopics }) {
+function TopicsSearch({ handleGetTopics, handleTopicsId, maxTopics }) {
     const [chosenTopics, setChosenTopics] = useState([]);
     const [chosenTopicsId, setChosenTopicsId] = useState([]);
     const [searchValue, setSearchValue] = useState('');
@@ -70,7 +70,7 @@ function TopicsSearch({ handleTopicsId, maxTopics }) {
             return;
         }
 
-        const chosenCourse = await topicsApi.get(topicId);
+        const chosenTopic = await topicsApi.get(topicId);
         const newArr = searchResultFiltered.filter((item) => item.topicId !== topicId);
 
         if (chosenTopicsId !== undefined) {
@@ -80,8 +80,13 @@ function TopicsSearch({ handleTopicsId, maxTopics }) {
         setChosenArr([searchResultFiltered.findIndex((e) => e.topicId === topicId), ...chosenArr]);
         setDropDown(false);
         setSearchResultFiltered(newArr);
-        setChosenTopics((chosenTopics) => [chosenCourse, ...chosenTopics]);
-        handleTopicsId(chosenTopics);
+        setChosenTopics((chosenTopics) => [chosenTopic, ...chosenTopics]);
+        if (handleTopicsId) {
+            handleTopicsId(chosenTopics);
+        }
+        if (handleGetTopics) {
+            handleGetTopics(topicId);
+        }
     };
 
     const handleRemoveCourse = async (courseId) => {
