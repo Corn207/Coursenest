@@ -25,7 +25,7 @@ function AddCourses() {
     const [step, setStep] = useState(0);
     const [lessonTitle, setLessonTitle] = useState('');
     const [chosenLesson, setChosenLesson] = useState(null);
-    const [interestedTopicId, setInterestedTopicId] = useState([]);
+    const [interestedTopic, setInterestedTopic] = useState(null);
 
     let params = useParams();
     const navigate = useNavigate();
@@ -91,20 +91,23 @@ function AddCourses() {
 
     const onSubmit = (event) => {
         event.preventDefault();
-        console.log('done');
+        console.log('done onSubmit');
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    const handleSubmit = async () => {
         if (!titleValue.trim()) {
-            alert('Please enter a course name.');
+            alert('Please enter a course name!!');
+            return;
+        } else if (interestedTopic === null) {
+            alert('Please chose your topic!!');
             return;
         }
         console.log('done');
     };
 
     const handleGetTopics = (topicData) => {
-        setInterestedTopicId(topicData);
+        setInterestedTopic(topicData);
+        console.log(topicData);
     };
 
     return (

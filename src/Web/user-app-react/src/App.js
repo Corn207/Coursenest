@@ -28,7 +28,7 @@ function App() {
     let logged = true;
     // localStorage.getItem('accessToken') ? (logged = true) : (logged = false);
     const accessToken = localStorage.getItem('accessToken');
-    // const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem('userId');
 
     const [isInstructor, setIsInstructor] = useState(false);
     const [isPublisher, setIsPublisher] = useState(false);
@@ -52,10 +52,10 @@ function App() {
             });
     };
 
-    // if (accessToken && userId) {
-    //     logged = true;
-    //     getRoleMe();
-    // }
+    if (accessToken && userId) {
+        logged = true;
+        getRoleMe();
+    }
     if (accessToken) {
         logged = true;
     }
