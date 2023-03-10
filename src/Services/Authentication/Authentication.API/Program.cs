@@ -23,11 +23,7 @@ if (section.Exists())
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
+app.UseSwaggerUI();
 
 app.UseAuthentication();
 

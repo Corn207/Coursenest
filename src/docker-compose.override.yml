@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.9"
 name: coursenest-dev
 
 services:
@@ -25,8 +25,7 @@ services:
       - Jwt__Issuer=http://authentication.api
       - Jwt__AccessTokenLifetime=60
       - Jwt__RefreshTokenLifetime=180
-    #ports:
-    #  - "21001:80"
+      - SwaggerUI=True
 
   identity.api:
     environment:
@@ -35,8 +34,7 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    #ports:
-    #  - "21002:80"
+      - SwaggerUI=True
 
   library.api:
     environment:
@@ -45,8 +43,7 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    #ports:
-    #  - "21003:80"
+      - SwaggerUI=True
 
   payment.api:
     environment:
@@ -54,8 +51,7 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    #ports:
-    #  - "21004:80"
+      - SwaggerUI=True
 
   userdata.api:
     environment:
@@ -64,8 +60,7 @@ services:
       - MassTransit__Host=messagebus
       - Jwt__SigningKey=1234567890123456
       - Jwt__Issuer=http://authentication.api
-    #ports:
-    #  - "21005:80"
+      - SwaggerUI=True
 
   database:
     environment:

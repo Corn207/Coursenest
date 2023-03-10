@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.9"
 
 services:
   web.user:
@@ -9,6 +9,7 @@ services:
       dockerfile: Web/user-app-react/Dockerfile
     networks:
       - frontend
+    profiles: ["frontend"]
 
   web.admin:
     image: coursenest-webadmin
@@ -18,6 +19,7 @@ services:
       dockerfile: Web/admin-app-react/Dockerfile
     networks:
       - frontend
+    profiles: ["frontend"]
 
   gatewayapi:
     image: coursenest-gatewayapi
@@ -28,6 +30,7 @@ services:
     networks:
       - frontend
       - backend
+    profiles: ["backend"]
 
   authentication.api:
     image: coursenest-authenticationapi
@@ -40,6 +43,7 @@ services:
     depends_on:
       - database
       - messagebus
+    profiles: ["backend"]
 
   identity.api:
     image: coursenest-identityapi
@@ -52,6 +56,7 @@ services:
     depends_on:
       - database
       - messagebus
+    profiles: ["backend"]
 
   library.api:
     image: coursenest-libraryapi
@@ -64,6 +69,7 @@ services:
     depends_on:
       - database
       - messagebus
+    profiles: ["backend"]
 
   payment.api:
     image: coursenest-paymentapi
@@ -75,6 +81,7 @@ services:
       - backend
     depends_on:
       - messagebus
+    profiles: ["backend"]
 
   userdata.api:
     image: coursenest-userdataapi
@@ -87,6 +94,7 @@ services:
     depends_on:
       - database
       - messagebus
+    profiles: ["backend"]
 
   database:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -96,12 +104,14 @@ services:
       - MSSQL_PID=Express
     networks:
       - backend
+    profiles: ["backend"]
 
   messagebus:
     image: masstransit/rabbitmq
     container_name: MessageBus
     networks:
       - backend
+    profiles: ["backend"]
 
   reverseproxy:
     image: caddy:2.6.2-alpine
@@ -109,8 +119,7 @@ services:
     networks:
       - frontend
       - backend
-    profiles:
-      - reverseproxy
+    profiles: ["reverseproxy"]
 
 networks:
   frontend:
