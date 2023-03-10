@@ -46,7 +46,8 @@ function TopicsSearch({ handleTopicsId, maxTopics }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedValue]);
 
-    const handleDropDownClick = () => {
+    const handleDropDownClick = (e) => {
+        e.preventDefault();
         setDropDown(!dropDown);
     };
 
@@ -120,7 +121,7 @@ function TopicsSearch({ handleTopicsId, maxTopics }) {
                     onClickOutside={handleHideResult}
                 >
                     <div className={cx('wrapper')}>
-                        <label>Chose topic: </label>
+                        <label className={cx('searchLabel')}>Chose topic: </label>
                         <div className={cx('searchDiv')}>
                             <FontAwesomeIcon className={cx('searchIcon')} icon={faMagnifyingGlass} />
                             <input

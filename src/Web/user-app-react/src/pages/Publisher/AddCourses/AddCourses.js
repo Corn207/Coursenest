@@ -9,6 +9,7 @@ import EditLesson from './EditLesson';
 
 import styles from './AddCourses.module.scss';
 import EditMaterial from './EditLesson/EditMaterial';
+import TopicsSearch from '~/components/TopicsSearch';
 
 const cx = classNames.bind(styles);
 
@@ -23,33 +24,21 @@ function AddCourses() {
     const [lessons, setLessons] = useState([]);
     const [step, setStep] = useState(0);
     const [lessonTitle, setLessonTitle] = useState('');
-    // const [lessonEditedTitle, setLessonEditedTitle] = useState('');
     const [chosenLesson, setChosenLesson] = useState(null);
+    const [interestedTopicId, setInterestedTopicId] = useState([]);
 
     let params = useParams();
     const navigate = useNavigate();
 
-    // const lessonsList = [
-    //     { LessonId: 1, Title: 'Lesson 1', Description: 'Description of lesson 1', Order: 1.5 },
-    //     { LessonId: 2, Title: 'Lesson 2', Description: 'Description of lesson 2', Order: 2.5 },
-    //     { LessonId: 3, Title: 'Lesson 3', Description: 'Description of lesson 3', Order: 3.5 },
-    //     { LessonId: 4, Title: 'Lesson 4', Description: 'Description of lesson 4', Order: 4.5 },
-    //     { LessonId: 5, Title: 'Lesson 5', Description: 'Description of lesson 5', Order: 5.5 },
-    // ];
     const handleTitleValue = (value) => {
         setLessonTitle(value);
     };
-
-    // const handleTitleEditedValue = (value) => {
-    //     setLessonEditedTitle(value);
-    // };
 
     const handleUpdateListOnAddClick = (list) => {
         setLessons(list);
     };
 
     const handleLessonUpdate = (updatedLesson) => {
-        // setChosenLesson(updatedLesson);
         const updatedLessons = lessons.map((lesson) => {
             if (lesson.LessonId === updatedLesson.LessonId) {
                 return updatedLesson;
@@ -100,22 +89,28 @@ function AddCourses() {
         navigate(`/publisher/${params.PublisherUserId}`);
     };
 
-    function handleSubmit(event) {
+    const onSubmit = (event) => {
         event.preventDefault();
-        navigate('/publisher/add-course/add-lesson');
-    }
+        console.log('done');
+    };
 
-    {
-        /*<CourseContext.Provider value={{ courseData, setCourseData, lessons, setLessons }}>*/
-    }
-    {
-        /*</CourseContext.Provider>*/
-    }
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if (!titleValue.trim()) {
+            alert('Please enter a course name.');
+            return;
+        }
+        console.log('done');
+    };
+
+    const handleGetTopics = (topicData) => {
+        setInterestedTopicId(topicData);
+    };
 
     return (
         <div className={cx('divWrapper')}>
             {step === 0 && (
-                <form className={cx('formWrapper')} onSubmit={handleSubmit}>
+                <form className={cx('formWrapper')} onSubmit={onSubmit}>
                     <div className={cx('wrapper')}>
                         <p className={cx('title')}>Web Design Course</p>
                         <div className={cx('contentContainer')}>
@@ -175,6 +170,7 @@ function AddCourses() {
                                         onChange={handleAboutChange}
                                     ></textarea>
                                 </div>
+                                <TopicsSearch handleTopicsId={handleGetTopics} maxTopics={1} />
                             </div>
 
                             <LessonsMaterialLists
@@ -186,7 +182,7 @@ function AddCourses() {
                                 handleTitleValue={handleTitleValue}
                             />
                         </div>
-                        <CancelConfirmBtns onCancel={handleCancel} />
+                        <CancelConfirmBtns onCancel={handleCancel} onConfirm={handleSubmit} />
                     </div>
                 </form>
             )}
