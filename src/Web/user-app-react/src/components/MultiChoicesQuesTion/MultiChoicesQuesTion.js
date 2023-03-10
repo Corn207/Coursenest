@@ -1,7 +1,7 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import styles from './MultiChoicesQuesTion.module.scss';
 
@@ -68,11 +68,27 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState([]);
 
+    // useEffect(() => {
+    //     console.log(questions);
+    // }, [questions]);
+
     const handleAnswerChange = (questionIndex, answerIndex) => {
         setAnswers((prevAnswers) => {
             const newAnswers = [...prevAnswers];
             newAnswers[questionIndex] = answerIndex;
             return newAnswers;
+        });
+        setQuestions((prevQuestionList) => {
+            const newQuestionList = [...prevQuestionList];
+            const newQuestion = { ...newQuestionList[questionIndex] };
+            newQuestion.Choice = newQuestion.Choice.map((choice, index) => {
+                return {
+                    ...choice,
+                    IsCorrect: index === answerIndex,
+                };
+            });
+            newQuestionList[questionIndex] = newQuestion;
+            return newQuestionList;
         });
     };
 
@@ -124,7 +140,54 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
             setQuestions(addedQuestionsList);
         }
         // setLessons(addedLessonsList);
-        console.log(questions);
+    };
+
+    const handleDeleteQuestion = (index) => {
+        setQuestions((prevQuestionList) => {
+            const newQuestionList = [...prevQuestionList];
+            newQuestionList.splice(index, 1);
+            return newQuestionList;
+        });
+    };
+
+    const handleAddAnswer = (questionIndex) => {
+        setQuestions((prevQuestionList) => {
+            const newQuestionList = [...prevQuestionList];
+            newQuestionList[questionIndex] = {
+                ...newQuestionList[questionIndex],
+                Choice: [
+                    ...newQuestionList[questionIndex].Choice,
+                    {
+                        Content: 'new answer',
+                        IsCorrect: false,
+                    },
+                ],
+            };
+            return newQuestionList;
+        });
+    };
+
+    const handleChoiceContentEdit = (questionIndex, choiceIndex, newContent) => {
+        setQuestions((prevQuestionList) => {
+            const questionToUpdate = prevQuestionList[questionIndex];
+            const updatedChoices = [...questionToUpdate.Choice];
+            const choiceToUpdate = updatedChoices[choiceIndex];
+            choiceToUpdate.Content = newContent;
+            questionToUpdate.Choice = updatedChoices;
+            const updatedQuestionList = [...prevQuestionList];
+            updatedQuestionList[questionIndex] = questionToUpdate;
+            return updatedQuestionList;
+        });
+    };
+
+    const handleChoiceClick = (questionIndex, choiceIndex) => {
+        const newContent = window.prompt(
+            'Enter new content of the answer:',
+            questions[questionIndex].Choice[choiceIndex].Content,
+        );
+        if (newContent !== null) {
+            handleChoiceContentEdit(questionIndex, choiceIndex, newContent);
+        }
     };
 
     return (
@@ -144,7 +207,9 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
                             </p>
                             <div className={cx('rightHeader')}>
                                 <p className={cx('point')}>{item.Point} Point</p>
-                                <button className={cx('deleteBtn')}>X</button>
+                                <button className={cx('deleteBtn')} onClick={() => handleDeleteQuestion(questionIndex)}>
+                                    X
+                                </button>
                             </div>
                         </div>
                         <ul className={cx('answerList')}>
@@ -159,12 +224,14 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
                                             checked={answers[questionIndex] === answerIndex}
                                             onChange={() => handleAnswerChange(questionIndex, answerIndex)}
                                         />
-                                        {choice.Content}
+                                        <span onClick={() => handleChoiceClick(questionIndex, answerIndex)}>
+                                            {choice.Content}
+                                        </span>
                                     </label>
                                 </li>
                             ))}
                         </ul>
-                        <button className={cx('addAnswerBtn')}>
+                        <button className={cx('addAnswerBtn')} onClick={() => handleAddAnswer(questionIndex)}>
                             <FontAwesomeIcon icon={faPlus} />
                         </button>
                     </li>
