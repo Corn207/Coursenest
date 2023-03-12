@@ -1,7 +1,7 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, useParams } from 'react-router-dom';
 
 import styles from './PublisherSideBar.module.scss';
@@ -11,6 +11,12 @@ const cx = classNames.bind(styles);
 function PublisherSideBar() {
     let params = useParams();
     const [isSelected, setIsSlected] = useState(1);
+    const [isAddCourseActive, setIsAddCourseActive] = useState(false);
+
+    useEffect(() => {
+        const isContain = window.location.href.includes(`add-course`);
+        setIsAddCourseActive(isContain);
+    }, [window.location.href]);
 
     const handleClick = (id) => {
         setIsSlected(id);
@@ -24,8 +30,8 @@ function PublisherSideBar() {
                 <div className={cx('tabsDiv')}>
                     <NavLink
                         to={`${params.PublisherUserId}`}
-                        className={cx('navLink')}
-                        // className={({ isActive }) => (isActive ? cx('activeTab') : cx('noneActiveTab'))}
+                        // className={cx('navLink')}
+                        className={isAddCourseActive ? cx('noneActiveTab') : cx('activeTab')}
                     >
                         <p
                             className={cx('subTab')}
@@ -37,10 +43,9 @@ function PublisherSideBar() {
                     </NavLink>
                     <NavLink
                         to={`${params.PublisherUserId}/add-course`}
-                        className={cx('navLink')}
-
+                        // className={cx('navLink')}
+                        className={isAddCourseActive ? cx('activeTab') : cx('noneActiveTab')}
                         // to="edit-course"
-                        // className={({ isActive }) => (isActive ? cx('activeTab') : cx('noneActiveTab'))}
                     >
                         <p
                             className={cx('subTab')}

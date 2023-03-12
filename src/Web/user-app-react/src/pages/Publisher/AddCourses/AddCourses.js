@@ -100,13 +100,23 @@ function AddCourses({ isEditCourse }) {
             return;
         } else {
             try {
-                const res = await axios.post(`${config.baseUrl}/api/courses`, {
-                    title: titleValue,
-                    description: descriptionValue,
-                    about: aboutValue,
-                    tier: tier,
-                    topicId: interestedTopicId,
-                });
+                const accessToken = localStorage.getItem('accessToken');
+                const res = await axios.post(
+                    `${config.baseUrl}/api/courses`,
+                    {
+                        title: titleValue,
+                        description: descriptionValue,
+                        about: aboutValue,
+                        tier: tier,
+                        topicId: interestedTopicId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                );
+                navigate(`/publisher/${params.PublisherUserId}`);
                 // console.log({
                 //     title: titleValue,
                 //     description: descriptionValue,
