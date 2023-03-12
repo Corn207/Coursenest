@@ -107,6 +107,10 @@ function App() {
                                 path=":PublisherUserId/add-course/add-lesson/edit-material"
                                 element={<EditMaterial />}
                             ></Route>
+                            <Route
+                                path=":PublisherUserId/edit-course/:courseId"
+                                element={<AddCourses isEditCourse={true} />}
+                            ></Route>
                         </Route>
                     )}
                 </Routes>

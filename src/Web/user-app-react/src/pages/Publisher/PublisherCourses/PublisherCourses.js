@@ -17,7 +17,7 @@ import {
 
 import styles from './PublisherCourses.module.scss';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import config from '~/config';
 
 const useStyles = makeStyles({
@@ -43,6 +43,7 @@ function PublisherCourses() {
     const [pageSize, setPageSize] = useState(5);
 
     let params = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -98,7 +99,7 @@ function PublisherCourses() {
     };
 
     const handleEditCourse = (courseId) => {
-        console.log(courseId);
+        navigate(`/publisher/${params.PublisherUserId}/edit-course/${courseId}`);
     };
 
     const handleChange = (event) => {
