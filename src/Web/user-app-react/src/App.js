@@ -24,7 +24,6 @@ import MyCourses from './pages/MyCourses/MyCourses';
 
 function App() {
     let logged = false;
-    // localStorage.getItem('accessToken') ? (logged = true) : (logged = false);
     const accessToken = localStorage.getItem('accessToken');
     const userId = localStorage.getItem('userId');
 
@@ -35,18 +34,18 @@ function App() {
         axios.get(`${config.baseUrl}/api/roles/me`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
-        .then((res) => {
-            const roles = res.data;
-            if(roles.find(role => role.type === 1)) {
-                setIsInstructor(true);
-            }
-            if(roles.find(role => role.type === 2)) {
-                setIsPublisher(true);
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+            .then((res) => {
+                const roles = res.data;
+                if (roles.find(role => role.type === 1)) {
+                    setIsInstructor(true);
+                }
+                if (roles.find(role => role.type === 2)) {
+                    setIsPublisher(true);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
     if (accessToken && userId) {
@@ -61,35 +60,29 @@ function App() {
                 <Route path="sign-in" element={<SignIn />} />
                 <Route path="sign-up" element={<SignUp />} />
                 <Route path="forgot-password" element={<Forgot />} />
-                {console.log(isInstructor, isPublisher)}
-                <Route path="/" element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher}/>}>
-                    <Route index element={<Home logged={logged}/>} />
+                <Route path="/" element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher} />}>
+                    <Route index element={<Home logged={logged} />} />
                     {logged && (
                         <>
                             <Route path="profile" element={<Profile />} />
                             <Route path="courses/:id" element={<Course />} />
                             <Route path="my-courses" element={<MyCourses />} />
+                            <Route path="instructor" element={<Instructor />}>
+                                <Route index element={<Following />}></Route>
+                                <Route path="following" element={<Following />}></Route>
+                                <Route path="pending" element={<Pending />}></Route>
+                                <Route path="history" element={<History />}></Route>
+                            </Route>
+                            <Route path="publisher" element={<Publisher />}>
+                                <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
+                                <Route path="courses" element={<PublisherCourses />}></Route>
+                                <Route path="add-course" element={<AddCourses />}></Route>
+                            </Route>
                         </>
                     )}
-                    <Route path="topics/:id" element={<Topic logged={logged}/>} />
+                    <Route path="topics/:id" element={<Topic logged={logged} />} />
                 </Route>
             </Routes>
-            {logged && (
-                // ngoài check đã login phải check thêm role của user xem có quyền truy cập hay ko
-                <Routes>
-                    <Route path="instructor" element={<Instructor />}>
-                        <Route index element={<Following />}></Route>
-                        <Route path="following" element={<Following />}></Route>
-                        <Route path="pending" element={<Pending />}></Route>
-                        <Route path="history" element={<History />}></Route>
-                    </Route>
-                    <Route path="publisher" element={<Publisher />}>
-                        <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
-                        <Route path="courses" element={<PublisherCourses />}></Route>
-                        <Route path="add-course" element={<AddCourses />}></Route>
-                    </Route>
-                </Routes>
-            )}
         </div>
     );
 }

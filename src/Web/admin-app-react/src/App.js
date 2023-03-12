@@ -10,6 +10,7 @@ import ListCategories from "./components/ListCategories/ListCategories";
 import ManageCourses from "./components/ManageCourses/ManageCourses";
 
 import styles from "./App.module.css";
+import UnapprovedCourse from "./components/UnapprovedCourse/UnapprovedCourse/UnapprovedCourse";
 
 const setToken = (adminToken) => {
     localStorage.setItem('accessToken', adminToken);
@@ -41,6 +42,7 @@ function App() {
                     <Route exact path="/profile" element={<DisplayAdminInfo/>} />
                     <Route exact path="/categories" element={<ListCategories />} />
                     <Route exact path="/courses" element={<ManageCourses />} />
+                    <Route exact path="/courses/:id" element={<UnapprovedCourse />} />
                     <Route path="*" element={<p>Path not resolved</p>} />
                 </Routes>
             </div>}
