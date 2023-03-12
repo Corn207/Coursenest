@@ -33,8 +33,8 @@ function Forgot() {
     const onSubmit = async () => {
         setNewPassword('');
         setError('');
-        await axiosClient
-            .put(`/authenticate/forgot-password`, {
+        await axios
+            .put(`${config.baseUrl}/api/authenticate/forgot-password`, {
                 username: userName,
                 email: email,
             })

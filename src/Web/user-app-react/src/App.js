@@ -86,23 +86,27 @@ function App() {
             {logged && (
                 // ngoài check đã login phải check thêm role của user xem có quyền truy cập hay ko
                 <Routes>
-                    <Route path="instructor" element={<Instructor />}>
-                        <Route index element={<Following />}></Route>
-                        <Route path="following" element={<Following />}></Route>
-                        <Route path="pending" element={<Pending />}></Route>
-                        <Route path="history" element={<History />}></Route>
-                    </Route>
-                    <Route path="publisher" element={<Publisher />}>
-                        {/* <Route index element={<PublisherCourses />}></Route> */}
-                        <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
-                        {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
-                        <Route path=":PublisherUserId/add-course" element={<AddCourses />}></Route>
-                        <Route path=":PublisherUserId/add-course/add-lesson" element={<EditLesson />}></Route>
-                        <Route
-                            path=":PublisherUserId/add-course/add-lesson/edit-material"
-                            element={<EditMaterial />}
-                        ></Route>
-                    </Route>
+                    {isInstructor && (
+                        <Route path="instructor" element={<Instructor />}>
+                            <Route index element={<Following />}></Route>
+                            <Route path="following" element={<Following />}></Route>
+                            <Route path="pending" element={<Pending />}></Route>
+                            <Route path="history" element={<History />}></Route>
+                        </Route>
+                    )}
+                    {isPublisher && (
+                        <Route path="publisher" element={<Publisher />}>
+                            {/* <Route index element={<PublisherCourses />}></Route> */}
+                            <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
+                            {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
+                            <Route path=":PublisherUserId/add-course" element={<AddCourses />}></Route>
+                            <Route path=":PublisherUserId/add-course/add-lesson" element={<EditLesson />}></Route>
+                            <Route
+                                path=":PublisherUserId/add-course/add-lesson/edit-material"
+                                element={<EditMaterial />}
+                            ></Route>
+                        </Route>
+                    )}
                 </Routes>
             )}
         </div>

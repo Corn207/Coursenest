@@ -15,19 +15,17 @@ import config from '~/config';
 
 const cx = classNames.bind(styles);
 
-function AddCourses() {
+function AddCourses({ isEditCourse }) {
     const [image, setImage] = useState(null);
     const [tier, setTier] = useState(0);
     const [titleValue, setTitleValue] = useState('');
     const [descriptionValue, setDescriptionValue] = useState('');
     const [aboutValue, setAboutValue] = useState('');
-    const [error, setError] = useState('');
-    const [courseData, setCourseData] = useState({});
     const [lessons, setLessons] = useState([]);
     const [step, setStep] = useState(0);
     const [lessonTitle, setLessonTitle] = useState('');
     const [chosenLesson, setChosenLesson] = useState(null);
-    const [interestedTopic, setInterestedTopic] = useState(null);
+    const [interestedTopicId, setinterestedTopicIdId] = useState(null);
 
     let params = useParams();
     const navigate = useNavigate();
@@ -74,17 +72,14 @@ function AddCourses() {
 
     const handleTitleChange = (event) => {
         setTitleValue(event.target.value);
-        setError('');
     };
 
     const handleDescChange = (event) => {
         setDescriptionValue(event.target.value);
-        setError('');
     };
 
     const handleAboutChange = (event) => {
         setAboutValue(event.target.value);
-        setError('');
     };
 
     const handleCancel = () => {
@@ -100,37 +95,29 @@ function AddCourses() {
         if (!titleValue.trim()) {
             alert('Please enter a course name!!');
             return;
-        } else if (interestedTopic === null) {
+        } else if (interestedTopicId === null) {
             alert('Please chose your topic!!');
             return;
         } else {
-            // try {
-            //     const res = await axios.post(`${config.baseUrl}/api/courses`, {
-            //         title: titleValue,
-            //         description: descriptionValue,
-            //         about: aboutValue,
-            //         tier: tier,
-            //         topicId: interestedTopic.topicId,
-            //     });
-            //     console.log(res.data);
-            // } catch (error) {
-            //     console.log(error);
-            // }
-            console.log({
-                title: titleValue,
-                description: descriptionValue,
-                about: aboutValue,
-                tier: tier,
-                topicId: interestedTopic,
-            });
+            try {
+                const res = await axios.post(`${config.baseUrl}/api/courses`, {
+                    title: titleValue,
+                    description: descriptionValue,
+                    about: aboutValue,
+                    tier: tier,
+                    topicId: interestedTopicId,
+                });
+                console.log(res.data);
+            } catch (error) {
+                console.log(error);
+            }
         }
 
         console.log('done');
     };
 
     const handleGetTopics = (topicData) => {
-        setInterestedTopic(topicData);
-        console.log(topicData);
+        setinterestedTopicIdId(topicData);
     };
 
     return (
