@@ -1,5 +1,5 @@
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
@@ -25,10 +25,45 @@ function AddCourses({ isEditCourse }) {
     const [step, setStep] = useState(0);
     const [lessonTitle, setLessonTitle] = useState('');
     const [chosenLesson, setChosenLesson] = useState(null);
-    const [interestedTopicId, setinterestedTopicIdId] = useState(null);
+    const [interestedTopicId, setinterestedTopicId] = useState(null);
+    const [interestedTopic, setInterestedTopic] = useState(null);
 
     let params = useParams();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isEditCourse) {
+            axios
+                .get(`${config.baseUrl}/api/courses/${params.courseId}`)
+                .then((response) => {
+                    console.log(response.data);
+                    setTitleValue(response.data.title);
+                    setDescriptionValue(response.data.description);
+                    setAboutValue(response.data.about);
+                    setTier(response.data.tier);
+                    setinterestedTopicId(response.data.topicId);
+
+                    axios
+                        .get(`${config.baseUrl}/api/topics/${response.data.topicId}`)
+                        .then((response) => {
+                            setInterestedTopic(response.data);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        } else {
+            setTitleValue('');
+            setDescriptionValue('');
+            setAboutValue('');
+            setTier(0);
+            setinterestedTopicId(null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [window.location.href]);
 
     const handleTitleValue = (value) => {
         setLessonTitle(value);
@@ -134,7 +169,7 @@ function AddCourses({ isEditCourse }) {
     };
 
     const handleGetTopics = (topicData) => {
-        setinterestedTopicIdId(topicData);
+        setinterestedTopicId(topicData);
     };
 
     return (
@@ -200,7 +235,12 @@ function AddCourses({ isEditCourse }) {
                                         onChange={handleAboutChange}
                                     ></textarea>
                                 </div>
-                                <TopicsSearch handleGetTopics={handleGetTopics} maxTopics={1} />
+                                <TopicsSearch
+                                    handleGetTopics={handleGetTopics}
+                                    chosenTopicId={interestedTopicId}
+                                    // topicsList={[interestedTopic]}
+                                    maxTopics={1}
+                                />
                             </div>
 
                             {isEditCourse && (

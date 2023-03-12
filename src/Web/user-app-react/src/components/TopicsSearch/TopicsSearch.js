@@ -29,6 +29,22 @@ function TopicsSearch({ handleGetTopics, handleTopicsId, maxTopics }) {
 
     const inputRef = useRef();
 
+    // useEffect(() => {
+    //     if (chosenTopicId) {
+    //         axios
+    //             .get(`${config.baseUrl}/api/topics/${chosenTopicId}`)
+    //             .then((response) => {
+    //                 console.log(response.data);
+    //                 setChosenTopics([response.data]);
+    //             })
+    //             .catch((error) => {
+    //                 console.log(error);
+    //             });
+    //     } else {
+    //         setChosenTopics([]);
+    //     }
+    // }, [window.location.href]);
+
     useEffect(() => {
         if (!debouncedValue.trim()) {
             return;
