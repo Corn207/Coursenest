@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import instance from '../../api/request';
 import { Pagination } from "rsuite/";
 import Search from "../Search";
 import styles from "./ManageCourses.module.css";
 import DisplayListCourses from "../DisplayListCourses/DisplayListCourses";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 export default function ManageCourses() {
 
@@ -19,7 +21,7 @@ export default function ManageCourses() {
 
     const fetchListCourses = () => {
         instance
-            .get(`/courses?PageNumber=${page}&PageSize=${pageSize}`)
+            .get(`/courses?IsApproved=${false}&PageNumber=${page}&PageSize=${pageSize}`)
             .then((res) => {
                 console.log(res.data.queried);
                 setListCourses(res.data.queried);
@@ -27,6 +29,21 @@ export default function ManageCourses() {
             })
             .catch((err) => console.log(err));
     };
+
+    
+    function getFilteredListCourse() {
+        if (!keyword) {
+            return listCourses;
+        }
+        return listCourses.filter((course) => {
+            return (
+                course.title.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
+            );
+        });
+    }
+
+    var filteredListCourse = useMemo(getFilteredListCourse, [keyword, listCourses]);
+
 
     const handleOnChangePage = (event) => {
         setPage(parseInt(event));
@@ -37,11 +54,30 @@ export default function ManageCourses() {
         setPageSize(parseInt(event.target.value));
     };
 
-    const handleClickUpdateCourse = (course) => {
+    const handleClickSeeCourseDetail = (course) => {
         console.log(course);
-        // setShowModalUpdateUser(true);
-        // setDataNeedUpdate(user);
     };
+
+    const [courseNeedApprove, setCourseNeedApprove] = useState(0);
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+
+    const handleClickApproveCourse = (courseId) => {
+        setShow(true);
+        setCourseNeedApprove(courseId);
+    }
+
+    const handleConfirmApproveCourse = () => {
+        instance
+            .put(`courses/${courseNeedApprove}/approve`)
+            .then(() => {
+                handleClose();
+                fetchListCourses();
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
 
     const options = [
         { value: '5', text: '5 courses/page' },
@@ -67,8 +103,9 @@ export default function ManageCourses() {
                 </div>
             </div>
             <DisplayListCourses
-                listCourses={listCourses}
-                handleClickUpdateCourse={handleClickUpdateCourse}
+                listCourses={filteredListCourse}
+                handleClickApproveCourse={handleClickApproveCourse}
+                handleClickSeeCourseDetail={handleClickSeeCourseDetail}
             />
             <div className={styles.pagination}>
                 <div className={styles.center}>
@@ -86,6 +123,30 @@ export default function ManageCourses() {
                     />
                 </div>
             </div>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                backdrop="static"
+                keyboard={false}
+                size="md"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Approve this course ?</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="success"
+                        onClick={() => {
+                            handleConfirmApproveCourse();
+                        }}
+                    >
+                        Approve
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }

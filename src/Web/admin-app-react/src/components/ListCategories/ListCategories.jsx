@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import editIcon from "../../assets/edit-icon.png";
 import deleteIcon from "../../assets/delete-icon.png";
+import arrowDown from "../../assets/black-arrow-down.png";
 import styles from "./ListCategories.module.css";
 import instance from "../../api/request";
 
@@ -90,66 +91,72 @@ export default function ListCategories() {
         setCate(data);
     }
 
+    const [open, setOpen] = useState(0);
+    const handleToggleButton = (sub) => {
+        setOpen(sub.subcategoryId)
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h3>Categories</h3>
+                <h4 style={{minWidth: 180}}>Categories: {data.length}</h4>
                 <Search setKeyWord={setKeyWord} />
-                <button className={styles.buttonAdd} onClick={() => setShowModalAddCate(true)}>Add Category</button>
+                <button style={{width: 130, height: 35}} className={styles.buttonAdd} onClick={() => setShowModalAddCate(true)}>Add Category</button>
             </div>
             <div>
-                {data && data.map((cate) => {
+                {data && data.map((cate, index) => {
                     return (
                         <div className={styles.cateBox} key={cate.categoryId}>
                             <div className={styles.cateHeader}>
-                                <h3>{cate.content}</h3>
+                                <h4>{index+1}. {cate.content}</h4>
                                 <div className={styles.actions}>
-                                    <img src={editIcon} alt="" onClick={() => handleEditCate(cate)} />
-                                    <img src={deleteIcon} alt="" onClick={() => handleClickDelCate(cate)} />
+                                    <img title="edit cate"  src={editIcon} alt="" onClick={() => handleEditCate(cate)} />
+                                    <img title="delete cate" src={deleteIcon} alt="" onClick={() => handleClickDelCate(cate)} />
+                                    <button style={{width: 130, height: 35}}  className={styles.buttonAdd} onClick={() => handleAddSubCate(cate.categoryId)}>Add Subcategory</button>
                                 </div>
                             </div>
                             <div className={styles.subBox}>
-                                <div className={styles.subBoxHeader}>
-                                    <h4>Subcategories</h4>
-                                    <button className={styles.buttonAdd} onClick={() => handleAddSubCate(cate.categoryId)}>Add Subcategory</button>
-                                </div>
                                 <div className={styles.subBoxContent}>
                                     {
-                                        cate.subcategories && cate.subcategories.map((sub) => {
+                                        cate.subcategories && cate.subcategories.map((sub, index) => {
                                             return (
                                                 <div key={sub.subcategoryId}>
-                                                    <hr className={styles.devider} />
+                                                    {index != 0 && (
+                                                        <hr className={styles.devider} />
+                                                    )}
                                                     <div className={styles.subcateContent} >
-                                                        <h5>{sub.content}</h5>
+                                                        <h5>{sub.content}: {sub.topics.length} topics</h5>
                                                         <div className={styles.actions}>
-                                                            <img src={editIcon} alt="" onClick={() => handleEditSubCate(sub)} />
-                                                            <img src={deleteIcon} alt="" onClick={() => handleClickDelSubCate(sub)} />
+                                                            <button title="Add topic" style={{width: 23, height: 23}}  className={styles.buttonAdd} onClick={() => handleAddTopic(sub.subcategoryId)}>+</button>
+                                                            <img title="Edit subcate" src={editIcon} alt="" onClick={() => handleEditSubCate(sub)} />
+                                                            <img title="Delete subcate" src={deleteIcon} alt="" onClick={() => handleClickDelSubCate(sub)} />
+                                                            <img src={arrowDown} alt="" style={{width: 30}} onClick={() => {handleToggleButton(sub)}}/>
                                                         </div>
                                                     </div>
+                                                    {(open == sub.subcategoryId) && (
                                                     <div className={styles.listTopics}>
-                                                        <div className={styles.subBoxHeader}>
-                                                            <h6>Topics</h6>
-                                                            <button className={styles.buttonAdd} onClick={() => handleAddTopic(sub.subcategoryId)}>Add Topic</button>
-                                                        </div>
                                                         <div>
-                                                            {
-                                                                sub.topics && sub.topics.map((topic) => {
-                                                                    return (
-                                                                        <div key={topic.id}>
+                                                        {
+                                                            sub.topics && sub.topics.map((topic, index) => {
+                                                                return (
+                                                                    <div key={topic.id}>
+                                                                        {index != 0 && (
                                                                             <hr className={styles.deviderTopic} />
-                                                                            <div className={styles.topic}>
-                                                                                <p>{topic.content}</p>
-                                                                                <div className={styles.topicActions}>
-                                                                                    <img src={editIcon} alt="" onClick={() => handleEditTopic(topic)}/>
-                                                                                    <img src={deleteIcon} alt="" onClick={() => handleClickDelTopic(topic)} />
-                                                                                </div>
+                                                                        )}
+                                                                        <div className={styles.topic}>
+                                                                            <p>{topic.content}</p>
+                                                                            <div className={styles.topicActions}>
+                                                                                <img title="edit topic" src={editIcon} alt="" onClick={() => handleEditTopic(topic)}/>
+                                                                                <img title="delete topic" src={deleteIcon} alt="" onClick={() => handleClickDelTopic(topic)} />
                                                                             </div>
                                                                         </div>
-                                                                    )
-                                                                })
-                                                            }
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
                                                         </div>
                                                     </div>
+                                                    )}
                                                 </div>
                                             )
                                         })

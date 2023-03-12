@@ -12,10 +12,8 @@
 }
 .action {
     margin-top: 10px;
+    margin-left: 5px;
 }
 .description {
     width: 300px;
-}
-.paddingTop p {
-    padding-top: 15px;
 }

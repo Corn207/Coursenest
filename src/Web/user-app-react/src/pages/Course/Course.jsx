@@ -1,13 +1,12 @@
 // import { useParams } from "react-router";
 
-export default function Course () {
+export default function Course() {
     // const { id } = useParams();
     // console.log(id);
-    
-    return(
+
+    return (
         <div>
             <p>course</p>
-
         </div>
     );
 }
