@@ -107,7 +107,14 @@ function AddCourses({ isEditCourse }) {
                     tier: tier,
                     topicId: interestedTopicId,
                 });
-                console.log(res.data);
+                // console.log({
+                //     title: titleValue,
+                //     description: descriptionValue,
+                //     about: aboutValue,
+                //     tier: tier,
+                //     topicId: interestedTopicId,
+                // });
+                console.log('da~ them course: ' + res.data);
             } catch (error) {
                 console.log(error);
             }
@@ -186,14 +193,16 @@ function AddCourses({ isEditCourse }) {
                                 <TopicsSearch handleGetTopics={handleGetTopics} maxTopics={1} />
                             </div>
 
-                            <LessonsMaterialLists
-                                lessonsList={lessons}
-                                // editedTitleValue={lessonEditedTitle}
-                                getLessonsListOnAdd={handleUpdateListOnAddClick}
-                                onEdit={handleOnEdit}
-                                handleNextStep={handleNextStep}
-                                handleTitleValue={handleTitleValue}
-                            />
+                            {isEditCourse && (
+                                <LessonsMaterialLists
+                                    lessonsList={lessons}
+                                    // editedTitleValue={lessonEditedTitle}
+                                    getLessonsListOnAdd={handleUpdateListOnAddClick}
+                                    onEdit={handleOnEdit}
+                                    handleNextStep={handleNextStep}
+                                    handleTitleValue={handleTitleValue}
+                                />
+                            )}
                         </div>
                         <CancelConfirmBtns onCancel={handleCancel} onConfirm={handleSubmit} />
                     </div>

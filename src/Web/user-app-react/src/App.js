@@ -99,7 +99,10 @@ function App() {
                             {/* <Route index element={<PublisherCourses />}></Route> */}
                             <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
                             {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
-                            <Route path=":PublisherUserId/add-course" element={<AddCourses />}></Route>
+                            <Route
+                                path=":PublisherUserId/add-course"
+                                element={<AddCourses isEditCourse={false} />}
+                            ></Route>
                             <Route path=":PublisherUserId/add-course/add-lesson" element={<EditLesson />}></Route>
                             <Route
                                 path=":PublisherUserId/add-course/add-lesson/edit-material"
