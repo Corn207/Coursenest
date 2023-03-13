@@ -17,6 +17,7 @@ const cx = classNames.bind(styles);
 
 function AddCourses({ isEditCourse }) {
     const [image, setImage] = useState(null);
+    const [fileImage, setFileImage] = useState(null);
     const [tier, setTier] = useState(0);
     const [titleValue, setTitleValue] = useState('');
     const [descriptionValue, setDescriptionValue] = useState('');
@@ -30,6 +31,7 @@ function AddCourses({ isEditCourse }) {
 
     let params = useParams();
     const navigate = useNavigate();
+
     const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
@@ -106,8 +108,11 @@ function AddCourses({ isEditCourse }) {
         setStep(step - 1);
     };
 
-    const handleChange = (e) => {
-        setImage(URL.createObjectURL(e.target.files[0]));
+    const handleChange = (event) => {
+        const file = event.target.files[0];
+        setImage(URL.createObjectURL(event.target.files[0]));
+        setFileImage(file);
+        console.log(image);
     };
 
     const handleClick = (id) => {
@@ -135,6 +140,22 @@ function AddCourses({ isEditCourse }) {
         console.log('done onSubmit');
     };
 
+    const convertFileToBinaryString = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                resolve(reader.result);
+            };
+
+            reader.onerror = () => {
+                reject(reader.error);
+            };
+
+            reader.readAsBinaryString(file);
+        });
+    };
+
     const handleSubmit = async () => {
         if (!titleValue.trim()) {
             alert('Please enter a course name!!');
@@ -144,34 +165,72 @@ function AddCourses({ isEditCourse }) {
             return;
         }
 
-        try {
-            const accessToken = localStorage.getItem('accessToken');
-            const res = await axios.post(
-                `${config.baseUrl}/api/courses`,
-                {
-                    title: titleValue,
-                    description: descriptionValue,
-                    about: aboutValue,
-                    tier: tier,
-                    topicId: interestedTopicId,
-                },
-                {
+        if (isEditCourse) {
+            const formData = new FormData();
+            formData.append('formFile', fileImage);
+
+            Promise.all([
+                axios.put(
+                    `${config.baseUrl}/api/courses/${params.courseId}`,
+                    {
+                        title: titleValue,
+                        description: descriptionValue,
+                        about: aboutValue,
+                        tier: tier,
+                        topicId: interestedTopicId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                ),
+                await axios.put(`${config.baseUrl}/api/courses/${params.courseId}/cover`, formData, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'multipart/form-data',
                     },
-                },
-            );
-            navigate(`/publisher/${params.PublisherUserId}`);
-            // console.log({
-            //     title: titleValue,
-            //     description: descriptionValue,
-            //     about: aboutValue,
-            //     tier: tier,
-            //     topicId: interestedTopicId,
-            // });
-            console.log('da~ them course: ' + res.data);
-        } catch (error) {
-            console.log(error);
+                }),
+            ])
+                .then((responses) => {
+                    // handle success
+                    navigate(`/publisher/${params.PublisherUserId}`);
+                    console.log(responses.data);
+                })
+                .catch((errors) => {
+                    // handle errors
+                    console.log(errors);
+                });
+        } else {
+            try {
+                const accessToken = localStorage.getItem('accessToken');
+                const res = await axios.post(
+                    `${config.baseUrl}/api/courses`,
+                    {
+                        title: titleValue,
+                        description: descriptionValue,
+                        about: aboutValue,
+                        tier: tier,
+                        topicId: interestedTopicId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                );
+                navigate(`/publisher/${params.PublisherUserId}`);
+                // console.log({
+                //     title: titleValue,
+                //     description: descriptionValue,
+                //     about: aboutValue,
+                //     tier: tier,
+                //     topicId: interestedTopicId,
+                // });
+                console.log('da~ them course: ' + res.data);
+            } catch (error) {
+                console.log(error);
+            }
         }
 
         console.log('done');

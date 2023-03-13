@@ -126,7 +126,12 @@ function TopicsSearch({ handleGetTopics, handleTopicsId, chosenTopicId, maxTopic
         await setChosenTopics(newArr);
         setChosenTopicsId(...newArr.map((topic) => topic.topicId));
 
-        handleTopicsId(chosenTopics);
+        if (handleTopicsId) {
+            handleTopicsId(chosenTopics);
+        }
+        if (handleGetTopics) {
+            return;
+        }
     };
 
     return (
