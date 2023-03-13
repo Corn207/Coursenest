@@ -1,9 +1,10 @@
 .container {
-    margin: 10px 30px 0px 30px;
+    padding: 10px 30px 0px 30px;
+    background-image: url(../../assets/listCourseBg.png);
 }
 
 .header{
-    margin-bottom: 30px;
+    padding-bottom: 30px;
     display: flex;
     align-items: center;
     gap: 20px;

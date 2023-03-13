@@ -1,10 +1,11 @@
 import styles from "./DisplayListCourses.module.css";
 import "font-awesome/css/font-awesome.min.css";
-import courseAvatar from "../../assets/courseAvatarDefault.png"
+import courseAvatar from "../../assets/courseAvatarDefault.png";
+import Badge from 'react-bootstrap/Badge';
 
 function DisplayListCourses(props) {
 
-    const {listCourses, handleClickUpdateCourse} = props;
+    const {listCourses, handleClickApproveCourse, handleClickSeeCourseDetail} = props;
    
     return(
         <div>
@@ -29,24 +30,31 @@ function DisplayListCourses(props) {
                                         <p>{course.title}</p>
                                     </div>
                                 </td>
-                                <td>
+                                <td style={{maxWidth: 300, paddingRight: 20}}>
                                     <p>{course.description}</p>
                                 </td>
-                                <td className={styles.paddingTop}>
-                                    <p>{course.isApproved == true ? "Approved" : "Pending"}</p>
+                                <td style={{paddingTop: 20}}>
+                                    <Badge style={{padding: 8, width: 60}}>Pending</Badge>
                                 </td>
-                                <td className={styles.paddingTop}>
+                                <td style={{paddingTop: 20}}>
                                     <p>{course.topicTitle}</p>
                                 </td>
-                                <td className={styles.paddingTop}>
-                                    <p>{course.tier == 0 ? "Free" : "Premium"}</p>
+                                <td style={{paddingTop: 20}}>
+                                    {course.tier == 0 ? <Badge style={{padding: 8, width: 60}} bg="success">Free</Badge > : <Badge style={{padding: 8, width: 60}} bg="danger">Premium</Badge>}
                                 </td>
                                 <td>
                                     <button
                                         className={`btn btn-secondary btn-sm ${styles.action}`}
-                                        onClick={handleClickUpdateCourse(course)}
+                                        onClick={() => handleClickApproveCourse(course.courseId)}
+                                        title="Approve this course"
                                     >
                                         <i className="fa fa-edit"></i>
+                                    </button>
+                                    <button 
+                                        title="See course detail"
+                                        className={`btn btn-secondary btn-sm ${styles.action}`}
+                                        onClick={() => handleClickSeeCourseDetail(course)}>
+                                            <i className="fa fa-eye" aria-hidden="true"></i>
                                     </button>
                                 </td>
                             </tr>

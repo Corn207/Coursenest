@@ -23,7 +23,7 @@ export default function GetRolesByUserId(props) {
                 return (
                     <Badge
                         style={{marginRight: 10}}
-                        key={i} pill bg="info"
+                        key={i} pill bg={(role == 0) ? "info" : (role == 1) ? "secondary" : (role == 2) ? "success" : (role == 3) ? "dark" : ""}
                     >
                         {
                             role == 0 ? "Student" 

@@ -6,28 +6,38 @@ import Button from 'react-bootstrap/Button';
 import Achievement from '../Achievement/Achievement';
 import avatarImg from '../../assets/avatar.png';
 import experienceImg from '../../assets/experience.png';
+import { isEqual, uniq } from "lodash";
 
 export default function DisplayAdminInfo() {
 
     const userId = localStorage.getItem("userId")
 
     const [userInfo, setUserInfo] = useState({});
-    const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({
-        "email": "",
-        "phonenumber": "",
-        "fullName": "",
+    const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({});
+    const [currentInfo, setCurrentInfo] = useState({});
+    const [changedInfo, setChangedInfo] = useState({});
+    const [aboutMe, setAboutMe] = useState({ "aboutMe": "" });
+    const [gender, setGender] = useState({});
+    const [experience, setExperience] = useState({
+        "name": "",
         "title": "",
-        "aboutMe": "",
-        "location": ""
-    });
+        "started": "",
+        "ended": ""
+    })
+    const [deletedExperience, setDeletedExperience] = useState();
 
     const [showModalAchievement, setShowModalAchievement] = useState(false);
     const [showModalChangeAvatar, setShowModalChangeAvatar] = useState(false);
     const [showModalEditInfo, setShowModalEditInfo] = useState(false);
+    const [showModalEditAboutMe, setShowModalEditAboutMe] = useState(false);
+    const [showModalAddExperience, setShowModalAddExperience] = useState(false);
+    const [showModalDeleteExperience, setShowModalDeleteExperience] = useState(false);
 
     const [avatar, setAvatar] = useState(avatarImg);
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState();
+
+    const [test, setTest] = useState({});
 
 
     useEffect(() => {
@@ -46,13 +56,128 @@ export default function DisplayAdminInfo() {
                     "phonenumber": res.data.phonenumber,
                     "fullName": res.data.fullName,
                     "title": res.data.title,
-                    "aboutMe": res.data.aboutMe,
-                    "location": res.data.location    
+                    "location": res.data.location, 
+                    "dateOfBirth": res.data.dateOfBirth   
                 })
+                setAboutMe({ "aboutMe": res.data.aboutMe });
             })
             .catch((err) => console.log(err));
     }
 
+    // const handleNewImage = (e) => {
+    //     setFile(e.target.files[0]);
+    //     const objectUrl = URL.createObjectURL(e.target.files[0]);
+    //     setPreview(objectUrl);
+    // }
+
+    // const handleClickSaveChangeAvatar = () => {
+    //     const formData = new FormData();
+    //     formData.append("formFile", file);
+    //     instance
+    //         .put(`users/me/cover`, formData, {
+    //             headers: {
+    //                 'Content-Type': "multipart/form-data"
+    //             }
+    //         })
+    //         .then(() => {
+    //             fetchInfoUser();
+    //             setShowModalChangeAvatar(false);
+    //         })
+    //         .catch((err) => {
+    //             console.log(err);
+    //         })
+    // }
+
+    // const handleClickEditInfo = () => {
+    //     console.log(userInfoNeedUpdate);
+    //     setShowModalEditInfo(true);
+    // }
+
+    // const handleConfirmUpdateInfo = (event) => {
+    //     // test
+    //     // const userInfoNeedUpdate = { "dateOfBirth": "2023-02-13T13:30:20-05:00" }
+    //     event.preventDefault();
+    //     console.log(userInfoNeedUpdate);
+    //     instance
+    //         .put(`users/me`, userInfoNeedUpdate)
+    //         .then((res) => {
+    //             console.log(res.data);
+    //             setShowModalEditInfo(false);
+    //             fetchInfoUser();
+    //         })
+    //         .catch((err) => {
+    //             console.log(err);
+    //         })
+
+    // }
+
+    // const handleChangeInfo = (event) => {
+    //     const value = event.target.value;
+    //     setUserInfoNeedUpdate({
+    //         ...userInfoNeedUpdate,
+    //         [event.target.name]: value
+    //     });
+    // }
+
+    // update basic info
+    const handleClickEditInfo = () => {
+        setShowModalEditInfo(true);
+        setCurrentInfo(userInfoNeedUpdate);
+    }
+
+    const handleChangeInfo = (event) => {
+        let value = event.target.value;
+        let name = event.target.name;
+
+        if (name == "dateOfBirth") {
+            value = new Date(event.target.value).toISOString();
+        }
+        setTest({
+            ...test,
+            [name]: value
+        })
+        setUserInfoNeedUpdate({
+            ...userInfoNeedUpdate,
+            [name]: value,
+        });
+    }
+
+    const getUpdatedKeys = (newData, oldData) => {
+        const data = uniq([...Object.keys(newData), ...Object.keys(oldData)]);
+        const keys = [];
+        for (const key of data) {
+            if (!isEqual(oldData[key], newData[key])) {
+                keys.push(key);
+                setChangedInfo({
+                    ...changedInfo,
+                    [key]: newData[key]
+                })
+            }
+        }
+        return keys;
+    }
+
+    const handleConfirmUpdateInfo = (event) => {
+        event.preventDefault();
+        const update = getUpdatedKeys(userInfoNeedUpdate, currentInfo);
+        console.log(gender);
+
+        if (update.length === 0) {
+            setShowModalEditInfo(false);
+        }
+        else {
+            instance.put(`users/me`, test)
+                .then(() => {
+                    setShowModalEditInfo(false);
+                    fetchInfoUser();
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+        }
+    }
+
+    // change avatar
     const handleNewImage = (e) => {
         setFile(e.target.files[0]);
         const objectUrl = URL.createObjectURL(e.target.files[0]);
@@ -63,11 +188,7 @@ export default function DisplayAdminInfo() {
         const formData = new FormData();
         formData.append("formFile", file);
         instance
-            .put(`users/me/cover`, formData, {
-                headers: {
-                    'Content-Type': "multipart/form-data"
-                }
-            })
+            .put(`users/me/cover`, formData)
             .then(() => {
                 fetchInfoUser();
                 setShowModalChangeAvatar(false);
@@ -77,35 +198,77 @@ export default function DisplayAdminInfo() {
             })
     }
 
-    const handleClickEditInfo = () => {
-        console.log(userInfoNeedUpdate);
-        setShowModalEditInfo(true);
-    }
-
-    const handleConfirmUpdateInfo = (event) => {
-        // test
-        // const userInfoNeedUpdate = { "dateOfBirth": "2023-02-13T13:30:20-05:00" }
+    // update about me info
+    const handleConfirmUpdateAboutMe = (event) => {
         event.preventDefault();
-        console.log(userInfoNeedUpdate);
         instance
-            .put(`users/me`, userInfoNeedUpdate)
-            .then((res) => {
-                console.log(res.data);
-                setShowModalEditInfo(false);
+            .put(`users/me`, aboutMe)
+            .then(() => {
+                setShowModalEditAboutMe(false);
                 fetchInfoUser();
             })
             .catch((err) => {
                 console.log(err);
             })
-
     }
 
-    const handleChangeInfo = (event) => {
+    const handleChangeAboutMe = (event) => {
         const value = event.target.value;
-        setUserInfoNeedUpdate({
-            ...userInfoNeedUpdate,
-            [event.target.name]: value
-        });
+        setAboutMe({ "aboutMe": value });
+    }
+
+    const handleClickEditAboutMe = () => {
+        setShowModalEditAboutMe(true);
+    }
+
+    // add experience
+    const handleClickAddExperience = () => {
+        setShowModalAddExperience(true);
+    }
+
+    const handleChangeExperience = (event) => {
+        let value = event.target.value;
+        let name = event.target.name;
+
+        if (name == "started" || name == "ended") {
+            value = new Date(event.target.value).toISOString();
+        }
+        setExperience({
+            ...experience,
+            [name]: value
+        })
+    }
+
+    const handleConfirmAddExperience = (event) => {
+        event.preventDefault();
+        instance
+            .post(`users/me/experiences`, experience)
+            .then(() => {
+                setShowModalAddExperience(false);
+                fetchInfoUser();
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
+
+    // delete experience
+    const handleClickDeleteExperience = (experienceId) => {
+        setShowModalDeleteExperience(true);
+        setDeletedExperience(experienceId);
+    }
+
+    const handleSubmitDeleteExperience = () => {
+        console.log(deletedExperience);
+        instance
+            .delete(`users/me/experiences/${deletedExperience}`)
+            .then(() => {
+                setShowModalDeleteExperience(false);
+                fetchInfoUser();
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
     return (
@@ -145,7 +308,7 @@ export default function DisplayAdminInfo() {
                 <div>
                     <div className={styles.heading}>
                         <h2>About Me</h2>
-                        <p className={styles.editBtn} onClick={handleClickEditInfo}>Edit</p>
+                        <p className={styles.editBtn} onClick={handleClickEditAboutMe}>Edit</p>
                     </div>
                     <p>{userInfo.aboutMe}</p>
                 </div>
@@ -153,16 +316,16 @@ export default function DisplayAdminInfo() {
                 <div>
                     <div className={styles.heading}>
                         <h2>Basic Information</h2>
-                        {/* <p className={styles.editBtn}>Edit</p> */}
+                        <p className={styles.editBtn} onClick={() => handleClickEditInfo()}>Edit</p>
                     </div>
                     <table className={styles.tableInfo}>
                         <tbody>
-                            <tr>
+                            {/* <tr>
                                 <td>Gender</td>
                                 <td className={styles.tableRightContent}>
                                     {userInfo.gender === 1 ? 'female' : userInfo.gender === 0 ? 'male' : 'N/A'}
                                 </td>
-                            </tr>
+                            </tr> */}
                             <tr>
                                 <td>Date of Birth</td>
                                 <td className={styles.tableRightContent}>
@@ -190,7 +353,7 @@ export default function DisplayAdminInfo() {
                 <div>
                     <div className={styles.heading}>
                         <h2>Work Experiences</h2>
-                        <p className={styles.editBtn}>Edit</p>
+                        <p className={styles.editBtn} onClick={() => handleClickAddExperience()}>Add</p>
                     </div>
                     <div className={styles.listExperience}>
                         {userInfo.experiences &&
@@ -201,6 +364,12 @@ export default function DisplayAdminInfo() {
                                         <div className={styles.experienceContent}>
                                             <h5>{experience.name}</h5>
                                             <p>{experience.title}</p>
+                                            <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+                                                <p>{new Date(experience.started).toDateString()}</p>
+                                                <p> - </p>
+                                                <p>{new Date(experience.ended).toDateString()}</p>
+                                                <i class="fa fa-trash" onClick={() => handleClickDeleteExperience(experience.experienceId)}></i>
+                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -232,6 +401,40 @@ export default function DisplayAdminInfo() {
                         Save Changes
                     </Button>
                 </Modal.Footer>
+            </Modal>
+
+            <Modal
+                show={showModalEditAboutMe}
+                onHide={() => setShowModalEditAboutMe(false)}
+                backdrop="static"
+                keyboard={false}
+                size="lg"
+                centered
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h3>About Me</h3>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={handleConfirmUpdateAboutMe} style={{ paddingLeft: 50, paddingRight: 50 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>About me:</label>
+                            <textarea
+                                cols="70"
+                                rows="10"
+                                type="text"
+                                name="aboutMe"
+                                value={aboutMe?.aboutMe}
+                                onChange={handleChangeAboutMe}>
+                            </textarea>
+                        </div>
+                        <div>
+                            <input type='submit' style={{ color: "white", padding: 5, backgroundColor: "blue", borderRadius: 5 }} />
+                        </div>
+                    </form>
+                </Modal.Body>
             </Modal>
 
             <Modal
@@ -286,25 +489,16 @@ export default function DisplayAdminInfo() {
                                 onChange={handleChangeInfo}
                             />
                         </div>
-                        <div className={styles.displayFlex}>
-                            <label>About me:</label>
-                            <input
-                                type="text"
-                                name="aboutMe"
-                                value={userInfoNeedUpdate.aboutMe}
-                                onChange={handleChangeInfo}
-                            />
-                        </div>
-                        <div className={styles.displayFlex}>
+                        {/* <div className={styles.displayFlex}>
                             <label>Gender: </label>
                             <select onChange={handleChangeInfo}>
                                 <option value="grapefruit">Male</option>
                                 <option value="lime">Female</option>
                             </select>
-                        </div>
+                        </div> */}
                         <div className={styles.displayFlex}>
                             <label>Date of birth:</label>
-                            <input type="date"/>
+                            <input type="date" name='dateOfBirth' onChange={handleChangeInfo} />
                         </div>
                         <div className={styles.displayFlex}>
                             <label>Location:</label>
@@ -342,6 +536,93 @@ export default function DisplayAdminInfo() {
                             return <Achievement key={achievement.achievementId} achievement={achievement} />;
                         })}
                 </Modal.Body>
+            </Modal>
+
+            <Modal
+                show={showModalAddExperience}
+                onHide={() => setShowModalAddExperience(false)}
+                backdrop="static"
+                keyboard={false}
+                size="md"
+                centered
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h3>Add Experience</h3>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={handleConfirmAddExperience} style={{ paddingLeft: 50, paddingRight: 50 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Name:</label>
+                            <input
+                                type="text"
+                                name="name"
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Title:</label>
+                            <input
+                                type="text"
+                                name="title"
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Started:</label>
+                            <input
+                                type="date"
+                                name='started'
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <label>Ended:</label>
+                            <input
+                                type="date"
+                                name='ended'
+                                required
+                                onChange={handleChangeExperience}
+                            />
+                        </div>
+                        <div>
+                            <input type='submit' style={{ color: "white", padding: 5, backgroundColor: "blue", borderRadius: 5 }} />
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal>
+
+            <Modal
+                show={showModalDeleteExperience}
+                onHide={() => setShowModalDeleteExperience(false)}
+                backdrop="static"
+                keyboard={false}
+                size="sm"
+                scrollable={true}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <h5>Delete This Experience ?</h5>
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModalDeleteExperience(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={() => {
+                            handleSubmitDeleteExperience();
+                        }}
+                    >
+                        Delete
+                    </Button>
+                </Modal.Footer>
             </Modal>
         </div>
     );
