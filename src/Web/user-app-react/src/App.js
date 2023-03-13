@@ -50,29 +50,10 @@ function App() {
                 console.log(err);
             });
     };
-        axios.get(`${config.baseUrl}/api/roles/me`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        })
-            .then((res) => {
-                const roles = res.data;
-                if (roles.find(role => role.type === 1)) {
-                    setIsInstructor(true);
-                }
-                if (roles.find(role => role.type === 2)) {
-                    setIsPublisher(true);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-    }
 
     if (accessToken && userId) {
         logged = true;
         getRoleMe();
-    }
-    if (accessToken) {
-        logged = true;
     }
 
     return (
@@ -92,55 +73,42 @@ function App() {
                             <Route path="profile" element={<Profile />} />
                             <Route path="courses/:id" element={<Course />} />
                             <Route path="my-courses" element={<MyCourses />} />
-                            <Route path="instructor" element={<Instructor />}>
-                                <Route index element={<Following />}></Route>
-                                <Route path="following" element={<Following />}></Route>
-                                <Route path="pending" element={<Pending />}></Route>
-                                <Route path="history" element={<History />}></Route>
-                            </Route>
-                            <Route path="publisher" element={<Publisher />}>
-                                <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
-                                <Route path="courses" element={<PublisherCourses />}></Route>
-                                <Route path="add-course" element={<AddCourses />}></Route>
-                            </Route>
+                            {isInstructor && (
+                                <Route path="instructor" element={<Instructor />}>
+                                    <Route index element={<Following />}></Route>
+                                    <Route path="following" element={<Following />}></Route>
+                                    <Route path="pending" element={<Pending />}></Route>
+                                    <Route path="history" element={<History />}></Route>
+                                </Route>
+                            )}
+                            {isPublisher && (
+                                <Route path="publisher" element={<Publisher />}>
+                                    {/* <Route index element={<PublisherCourses />}></Route> */}
+                                    <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
+                                    {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
+                                    <Route
+                                        path=":PublisherUserId/add-course"
+                                        element={<AddCourses isEditCourse={false} />}
+                                    ></Route>
+                                    <Route
+                                        path=":PublisherUserId/add-course/add-lesson"
+                                        element={<EditLesson />}
+                                    ></Route>
+                                    <Route
+                                        path=":PublisherUserId/add-course/add-lesson/edit-material"
+                                        element={<EditMaterial />}
+                                    ></Route>
+                                    <Route
+                                        path=":PublisherUserId/edit-course/:courseId"
+                                        element={<AddCourses isEditCourse={true} />}
+                                    ></Route>
+                                </Route>
+                            )}
                         </>
                     )}
                     <Route path="topics/:id" element={<Topic logged={logged} />} />
                 </Route>
             </Routes>
-            {logged && (
-                // ngoài check đã login phải check thêm role của user xem có quyền truy cập hay ko
-                <Routes>
-                    {isInstructor && (
-                        <Route path="instructor" element={<Instructor />}>
-                            <Route index element={<Following />}></Route>
-                            <Route path="following" element={<Following />}></Route>
-                            <Route path="pending" element={<Pending />}></Route>
-                            <Route path="history" element={<History />}></Route>
-                        </Route>
-                    )}
-                    {isPublisher && (
-                        <Route path="publisher" element={<Publisher />}>
-                            {/* <Route index element={<PublisherCourses />}></Route> */}
-                            <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
-                            {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
-                            <Route
-                                path=":PublisherUserId/add-course"
-                                element={<AddCourses isEditCourse={false} />}
-                            ></Route>
-                            <Route path=":PublisherUserId/add-course/add-lesson" element={<EditLesson />}></Route>
-                            <Route
-                                path=":PublisherUserId/add-course/add-lesson/edit-material"
-                                element={<EditMaterial />}
-                            ></Route>
-                            <Route
-                                path=":PublisherUserId/edit-course/:courseId"
-                                element={<AddCourses isEditCourse={true} />}
-                            ></Route>
-                        </Route>
-                    )}
-                </Routes>
-            )}
         </div>
     );
 }
