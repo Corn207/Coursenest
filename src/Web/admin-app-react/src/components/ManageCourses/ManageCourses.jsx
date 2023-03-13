@@ -6,6 +6,8 @@ import styles from "./ManageCourses.module.css";
 import DisplayListCourses from "../DisplayListCourses/DisplayListCourses";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 export default function ManageCourses() {
 
@@ -14,12 +16,14 @@ export default function ManageCourses() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [keyword, setKeyWord] = useState();
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         fetchListCourses();
     }, [page, pageSize]);
 
     const fetchListCourses = () => {
+        setIsLoading(true);
         instance
             .get(`/courses?IsApproved=${false}&PageNumber=${page}&PageSize=${pageSize}`)
             .then((res) => {
@@ -27,7 +31,8 @@ export default function ManageCourses() {
                 setListCourses(res.data.queried);
                 setCountCourses(res.data.total)
             })
-            .catch((err) => console.log(err));
+            .catch((err) => console.log(err))
+            .finally(() => setIsLoading(false))
     };
 
     
@@ -54,8 +59,9 @@ export default function ManageCourses() {
         setPageSize(parseInt(event.target.value));
     };
 
+    const navigate = useNavigate();
     const handleClickSeeCourseDetail = (course) => {
-        console.log(course);
+        navigate(`/courses/${course.courseId}`);
     };
 
     const [courseNeedApprove, setCourseNeedApprove] = useState(0);
@@ -84,6 +90,8 @@ export default function ManageCourses() {
         { value: '50', text: '50 courses/page' },
         { value: '100', text: '100 courses/page' }
     ];
+    
+    if(isLoading) return <LoadingSpinner />
 
     return (
         <div className={styles.container}>

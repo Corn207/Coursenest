@@ -53,7 +53,7 @@ function DisplayListCourses(props) {
                                     <button 
                                         title="See course detail"
                                         className={`btn btn-secondary btn-sm ${styles.action}`}
-                                        onClick={() => handleClickSeeCourseDetail(course.courseId)}>
+                                        onClick={() => handleClickSeeCourseDetail(course)}>
                                             <i className="fa fa-eye" aria-hidden="true"></i>
                                     </button>
                                 </td>

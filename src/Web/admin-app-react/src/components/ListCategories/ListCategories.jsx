@@ -4,6 +4,7 @@ import deleteIcon from "../../assets/delete-icon.png";
 import arrowDown from "../../assets/black-arrow-down.png";
 import styles from "./ListCategories.module.css";
 import instance from "../../api/request";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 import Search from "../Search";
 import ModalDeleteCate from "../ModalDeleteCate";
@@ -43,17 +44,21 @@ export default function ListCategories() {
     const [cate, setCate] = useState({});
     const [topicNeedUpdate, setTopicNeedUpdate] = useState({});
 
+    const [isLoading, setIsLoading] = useState(false);
+
     useEffect(() => {
         fetchListCate();
     }, []);
 
     const fetchListCate = () => {
+        setIsLoading(true);
         instance
             .get("categories/hierarchy")
             .then((res) => {
                 setData(res.data);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => console.log(err))
+            .finally(() => setIsLoading(false))
     }
     const handleClickDelCate = (cate) => {
         setShowModalDeleteCate(true);
@@ -95,6 +100,8 @@ export default function ListCategories() {
     const handleToggleButton = (sub) => {
         setOpen(sub.subcategoryId)
     }
+
+    if(isLoading) return <LoadingSpinner />
 
     return (
         <div className={styles.container}>
