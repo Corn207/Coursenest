@@ -29,7 +29,7 @@ function AddCourses({ isEditCourse }) {
     const [interestedTopicId, setinterestedTopicId] = useState(null);
     const [interestedTopic, setInterestedTopic] = useState(null);
 
-    let params = useParams();
+    let urlParams = useParams();
     const navigate = useNavigate();
 
     const accessToken = localStorage.getItem('accessToken');
@@ -37,7 +37,7 @@ function AddCourses({ isEditCourse }) {
     useEffect(() => {
         if (isEditCourse) {
             axios
-                .get(`${config.baseUrl}/api/courses/${params.courseId}`, {
+                .get(`${config.baseUrl}/api/courses/${urlParams.courseId}`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
@@ -72,9 +72,10 @@ function AddCourses({ isEditCourse }) {
             setAboutValue('');
             setTier(0);
             setinterestedTopicId(null);
+            setLessons([]);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [window.location.href]);
+    }, [isEditCourse]);
 
     const handleTitleValue = (value) => {
         setLessonTitle(value);
@@ -132,28 +133,12 @@ function AddCourses({ isEditCourse }) {
     };
 
     const handleCancel = () => {
-        navigate(`/publisher/${params.PublisherUserId}`);
+        navigate(`/publisher/${urlParams.PublisherUserId}`);
     };
 
     const onSubmit = (event) => {
         event.preventDefault();
         console.log('done onSubmit');
-    };
-
-    const convertFileToBinaryString = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = () => {
-                resolve(reader.result);
-            };
-
-            reader.onerror = () => {
-                reject(reader.error);
-            };
-
-            reader.readAsBinaryString(file);
-        });
     };
 
     const handleSubmit = async () => {
@@ -171,7 +156,7 @@ function AddCourses({ isEditCourse }) {
 
             Promise.all([
                 axios.put(
-                    `${config.baseUrl}/api/courses/${params.courseId}`,
+                    `${config.baseUrl}/api/courses/${urlParams.courseId}`,
                     {
                         title: titleValue,
                         description: descriptionValue,
@@ -185,7 +170,7 @@ function AddCourses({ isEditCourse }) {
                         },
                     },
                 ),
-                await axios.put(`${config.baseUrl}/api/courses/${params.courseId}/cover`, formData, {
+                await axios.put(`${config.baseUrl}/api/courses/${urlParams.courseId}/cover`, formData, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'multipart/form-data',
@@ -194,7 +179,7 @@ function AddCourses({ isEditCourse }) {
             ])
                 .then((responses) => {
                     // handle success
-                    navigate(`/publisher/${params.PublisherUserId}`);
+                    navigate(`/publisher/${urlParams.PublisherUserId}`);
                     console.log(responses.data);
                 })
                 .catch((errors) => {
@@ -219,7 +204,7 @@ function AddCourses({ isEditCourse }) {
                         },
                     },
                 );
-                navigate(`/publisher/${params.PublisherUserId}`);
+                navigate(`/publisher/${urlParams.PublisherUserId}`);
                 // console.log({
                 //     title: titleValue,
                 //     description: descriptionValue,

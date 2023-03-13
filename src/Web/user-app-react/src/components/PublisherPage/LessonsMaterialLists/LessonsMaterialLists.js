@@ -1,9 +1,11 @@
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import classNames from 'classnames/bind';
 import { useEffect } from 'react';
 import { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import config from '~/config';
 import CourseContext from '~/contexts/courseContext';
 
 import styles from './LessonsMaterialLists.module.scss';
@@ -14,52 +16,110 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
     const [lessons, setLessons] = useState(lessonsList);
     // const { lessons, setLessons } = useContext(CourseContext);
 
-    // useEffect(() => {
-    //     setLessons(lessonsList);
-    // }, [lessonsList]);
+    useEffect(() => {
+        axios
+            .get(`${config.baseUrl}/api/lessons`, {
+                params: {
+                    courseId: params.courseId,
+                },
+            })
+            .then((response) => {
+                setLessons([...response.data]);
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [lessonsList]);
 
     const navigate = useNavigate();
     let params = useParams();
+    const accessToken = localStorage.getItem('accessToken');
 
     // const [lessonsList, setLessonsList] = useState([]);
 
-    const moveItem = (LessonId, direction, event) => {
+    const moveItem = (lessonId, direction, event) => {
         event.preventDefault();
         const newItems = [...lessons];
-        const index = newItems.findIndex((item) => item.LessonId === LessonId);
+        const index = newItems.findIndex((item) => item.lessonId === lessonId);
         const temp = newItems[index];
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
         setLessons(newItems);
     };
 
-    const handleAddLessonClick = (event) => {
+    const handleAddLessonClick = async (event) => {
         event.preventDefault();
         if (lessons.length === 0) {
             const defaultNewLesson = {
-                LessonId: 1,
+                // lessonId: 1,
                 Title: `New item 1`,
                 Description: 'Description of item ',
             };
-            const addedLessonsList = [defaultNewLesson];
-            setLessons(addedLessonsList);
-            getLessonsListOnAdd(addedLessonsList);
+            await axios
+                .post(
+                    `${config.baseUrl}/api/lessons`,
+                    {
+                        title: defaultNewLesson.Title,
+                        description: defaultNewLesson.Title,
+                        courseId: params.courseId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedLessonsList = [defaultNewLesson];
+                    setLessons(addedLessonsList);
+                    getLessonsListOnAdd(addedLessonsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         } else {
             const defaultNewLesson = {
-                LessonId: lessons[lessons.length - 1].LessonId + 1,
-                Title: `New item ${lessons[lessons.length - 1].LessonId + 1}`,
+                // lessonId: lessons[lessons.length - 1].lessonId + 1,
+                Title: `New item ${lessons.length + 1}`,
                 Description: 'Description of item ',
             };
-            const addedLessonsList = [...lessons, defaultNewLesson];
-            setLessons(addedLessonsList);
-            getLessonsListOnAdd(addedLessonsList);
+            await axios
+                .post(
+                    `${config.baseUrl}/api/lessons`,
+                    {
+                        title: defaultNewLesson.Title,
+                        description: defaultNewLesson.Title,
+                        courseId: params.courseId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedLessonsList = [...lessons, defaultNewLesson];
+                    setLessons(addedLessonsList);
+                    getLessonsListOnAdd(addedLessonsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
         // setLessons(addedLessonsList);
         console.log(lessons);
     };
 
-    const handleDeleteLesson = (id) => {
-        const newArrLesson = [...lessons.filter((item) => item.LessonId !== id)];
+    const handleDeleteLesson = async (id) => {
+        await axios.delete(`${config.baseUrl}/api/lessons/${id}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        const newArrLesson = [...lessons.filter((item) => item.lessonId !== id)];
         setLessons(newArrLesson);
         console.log(newArrLesson);
     };
@@ -93,13 +153,13 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
             </div>
             <ul className={cx('wrapper')}>
                 {lessons.map((item, index) => (
-                    <li className={cx('itemDiv')} key={item.LessonId}>
-                        <p className={cx('itemTitle')}>{item.Title}</p>
+                    <li className={cx('itemDiv')} key={index}>
+                        <p className={cx('itemTitle')}>{item.title}</p>
                         <div className={cx('itemAction')}>
                             <p className={cx('btnAction')} onClick={() => handleEditLesson(item)}>
                                 Edit
                             </p>
-                            <p className={cx('btnAction')} onClick={() => handleDeleteLesson(item.LessonId)}>
+                            <p className={cx('btnAction')} onClick={() => handleDeleteLesson(item.lessonId)}>
                                 Delete
                             </p>
                             <p className={cx('itemOrder')}>{index + 1}</p>
@@ -109,7 +169,7 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
                                     style={lessons[lessons.indexOf(item) - 1] ? activeBtn : disableBtn}
                                     onClick={(event) =>
                                         lessons[lessons.indexOf(item) - 1]
-                                            ? moveItem(item.LessonId, -1, event)
+                                            ? moveItem(item.lessonId, -1, event)
                                             : console.log('not allowed to click')
                                     }
                                 >
@@ -120,7 +180,7 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
                                     style={lessons[lessons.indexOf(item) + 1] ? activeBtn : disableBtn}
                                     onClick={(event) =>
                                         lessons[lessons.indexOf(item) + 1]
-                                            ? moveItem(item.LessonId, 1, event)
+                                            ? moveItem(item.lessonId, 1, event)
                                             : console.log('not allowed to click')
                                     }
                                 >
