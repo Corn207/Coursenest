@@ -30,11 +30,16 @@ function AddCourses({ isEditCourse }) {
 
     let params = useParams();
     const navigate = useNavigate();
+    const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
         if (isEditCourse) {
             axios
-                .get(`${config.baseUrl}/api/courses/${params.courseId}`)
+                .get(`${config.baseUrl}/api/courses/${params.courseId}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                })
                 .then((response) => {
                     console.log(response.data);
                     setTitleValue(response.data.title);
@@ -44,7 +49,11 @@ function AddCourses({ isEditCourse }) {
                     setinterestedTopicId(response.data.topicId);
 
                     axios
-                        .get(`${config.baseUrl}/api/topics/${response.data.topicId}`)
+                        .get(`${config.baseUrl}/api/topics/${response.data.topicId}`, {
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                        })
                         .then((response) => {
                             setInterestedTopic(response.data);
                         })
@@ -133,36 +142,36 @@ function AddCourses({ isEditCourse }) {
         } else if (interestedTopicId === null) {
             alert('Please chose your topic!!');
             return;
-        } else {
-            try {
-                const accessToken = localStorage.getItem('accessToken');
-                const res = await axios.post(
-                    `${config.baseUrl}/api/courses`,
-                    {
-                        title: titleValue,
-                        description: descriptionValue,
-                        about: aboutValue,
-                        tier: tier,
-                        topicId: interestedTopicId,
+        }
+
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            const res = await axios.post(
+                `${config.baseUrl}/api/courses`,
+                {
+                    title: titleValue,
+                    description: descriptionValue,
+                    about: aboutValue,
+                    tier: tier,
+                    topicId: interestedTopicId,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
                     },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    },
-                );
-                navigate(`/publisher/${params.PublisherUserId}`);
-                // console.log({
-                //     title: titleValue,
-                //     description: descriptionValue,
-                //     about: aboutValue,
-                //     tier: tier,
-                //     topicId: interestedTopicId,
-                // });
-                console.log('da~ them course: ' + res.data);
-            } catch (error) {
-                console.log(error);
-            }
+                },
+            );
+            navigate(`/publisher/${params.PublisherUserId}`);
+            // console.log({
+            //     title: titleValue,
+            //     description: descriptionValue,
+            //     about: aboutValue,
+            //     tier: tier,
+            //     topicId: interestedTopicId,
+            // });
+            console.log('da~ them course: ' + res.data);
+        } catch (error) {
+            console.log(error);
         }
 
         console.log('done');
@@ -179,13 +188,15 @@ function AddCourses({ isEditCourse }) {
                     <div className={cx('wrapper')}>
                         <p className={cx('title')}>Web Design Course</p>
                         <div className={cx('contentContainer')}>
-                            <div className={cx('imageDiv')}>
-                                <div className={cx('imageActionDiv')}>
-                                    <p className={cx('fileTitle')}>Course Image</p>
-                                    <input type="file" onChange={handleChange} />
+                            {isEditCourse && (
+                                <div className={cx('imageDiv')}>
+                                    <div className={cx('imageActionDiv')}>
+                                        <p className={cx('fileTitle')}>Course Image</p>
+                                        <input type="file" onChange={handleChange} />
+                                    </div>
+                                    {image && <img className={cx('imageContainer')} src={image} alt={'course'}></img>}
                                 </div>
-                                {image && <img className={cx('imageContainer')} src={image} alt={'course'}></img>}
-                            </div>
+                            )}
                             <div className={cx('courseInfoDiv')}>
                                 <div className={cx('courseInputInfo')}>
                                     <p className={cx('inputTitle')}>Course Title</p>

@@ -48,20 +48,42 @@ function PublisherCourses() {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios.get(`${config.baseUrl}/api/courses`, {
-                    params: {
-                        PublisherUserId: params.PublisherUserId,
-                    },
-                });
-                setData(response.data.queried);
-                console.log(response.data.queried);
-                console.log(params.PublisherUserId);
+                const accessToken = localStorage.getItem('accessToken');
+                const [approvedCoursesResponse, notApprovedCoursesResponse] = await Promise.all([
+                    axios.get(`${config.baseUrl}/api/courses`, {
+                        params: {
+                            PublisherUserId: params.PublisherUserId,
+                            IsApproved: true,
+                            PageSize: 9999,
+                        },
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }),
+                    axios.get(`${config.baseUrl}/api/courses`, {
+                        params: {
+                            PublisherUserId: params.PublisherUserId,
+                            IsApproved: false,
+                            PageSize: 9999,
+                        },
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }),
+                ]);
+
+                const combinedData = [
+                    ...approvedCoursesResponse.data.queried,
+                    ...notApprovedCoursesResponse.data.queried,
+                ];
+                const sortedData = combinedData.sort((a, b) => a.courseId - b.courseId);
+                setData(sortedData);
             } catch (error) {
                 console.error(error);
             }
         };
         fetchCourses();
-    }, []);
+    }, [data]);
 
     const handleSelectAll = (event) => {
         if (event.target.checked) {
@@ -133,7 +155,7 @@ function PublisherCourses() {
                     </TableHead>
                     <TableBody>
                         {currentData.map((row) => (
-                            <TableRow key={row.title}>
+                            <TableRow key={row.courseId}>
                                 <TableCell>
                                     <input
                                         type="checkbox"

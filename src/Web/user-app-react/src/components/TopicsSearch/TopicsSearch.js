@@ -17,7 +17,7 @@ import config from '~/config';
 
 const cx = classNames.bind(styles);
 
-function TopicsSearch({ handleGetTopics, handleTopicsId, maxTopics }) {
+function TopicsSearch({ handleGetTopics, handleTopicsId, chosenTopicId, maxTopics }) {
     const [chosenTopics, setChosenTopics] = useState([]);
     const [chosenTopicsId, setChosenTopicsId] = useState([]);
     const [searchValue, setSearchValue] = useState('');
@@ -29,21 +29,30 @@ function TopicsSearch({ handleGetTopics, handleTopicsId, maxTopics }) {
 
     const inputRef = useRef();
 
-    // useEffect(() => {
-    //     if (chosenTopicId) {
-    //         axios
-    //             .get(`${config.baseUrl}/api/topics/${chosenTopicId}`)
-    //             .then((response) => {
-    //                 console.log(response.data);
-    //                 setChosenTopics([response.data]);
-    //             })
-    //             .catch((error) => {
-    //                 console.log(error);
-    //             });
-    //     } else {
-    //         setChosenTopics([]);
-    //     }
-    // }, [window.location.href]);
+    const accessToken = localStorage.getItem('accessToken');
+
+    useEffect(() => {
+        if (chosenTopicId) {
+            const fetchTopic = async () => {
+                await axios
+                    .get(`${config.baseUrl}/api/topics/${chosenTopicId}`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    })
+                    .then((response) => {
+                        console.log(response.data);
+                        setChosenTopics([response.data]);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            };
+            fetchTopic();
+        } else {
+            setChosenTopics([]);
+        }
+    }, [chosenTopicId]);
 
     useEffect(() => {
         if (!debouncedValue.trim()) {
