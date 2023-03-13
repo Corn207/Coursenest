@@ -8,7 +8,9 @@ import ManageUsers from "./components/ManageUsers/ManageUsers";
 import DisplayAdminInfo from "./components/DisplayAdminInfo/DisplayAdminInfo";
 import ListCategories from "./components/ListCategories/ListCategories";
 import ManageCourses from "./components/ManageCourses/ManageCourses";
-
+import Units from "./components/UnapprovedCourse/Units/Units";
+import Exam from "./components/UnapprovedCourse/Exam/Exam";
+import Material from "./components/UnapprovedCourse/Material/Material";
 import styles from "./App.module.css";
 import UnapprovedCourse from "./components/UnapprovedCourse/UnapprovedCourse/UnapprovedCourse";
 
@@ -42,7 +44,11 @@ function App() {
                     <Route exact path="/profile" element={<DisplayAdminInfo/>} />
                     <Route exact path="/categories" element={<ListCategories />} />
                     <Route exact path="/courses" element={<ManageCourses />} />
-                    <Route exact path="/courses/:id" element={<UnapprovedCourse />} />
+                    <Route exact path="/courses/:id" element={<UnapprovedCourse />} >
+                        <Route index element={<Units />} />
+                        <Route path="material/:materialId" element={<Material />} />
+                        <Route path="exam/:examId" element={<Exam />} />
+                    </Route>
                     <Route path="*" element={<p>Path not resolved</p>} />
                 </Routes>
             </div>}
