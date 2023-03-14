@@ -170,12 +170,14 @@ function AddCourses({ isEditCourse }) {
                         },
                     },
                 ),
-                await axios.put(`${config.baseUrl}/api/courses/${urlParams.courseId}/cover`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
-                }),
+                fileImage !== null
+                    ? await axios.put(`${config.baseUrl}/api/courses/${urlParams.courseId}/cover`, formData, {
+                          headers: {
+                              Authorization: `Bearer ${accessToken}`,
+                              'Content-Type': 'multipart/form-data',
+                          },
+                      })
+                    : console.log('No update on Cover'),
             ])
                 .then((responses) => {
                     // handle success

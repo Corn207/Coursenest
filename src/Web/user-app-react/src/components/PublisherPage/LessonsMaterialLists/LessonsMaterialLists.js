@@ -52,16 +52,15 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
         event.preventDefault();
         if (lessons.length === 0) {
             const defaultNewLesson = {
-                // lessonId: 1,
-                Title: `New item 1`,
-                Description: 'Description of item ',
+                title: `New item 1`,
+                description: 'Description of item ',
             };
             await axios
                 .post(
                     `${config.baseUrl}/api/lessons`,
                     {
-                        title: defaultNewLesson.Title,
-                        description: defaultNewLesson.Title,
+                        title: defaultNewLesson.title,
+                        description: defaultNewLesson.description,
                         courseId: params.courseId,
                     },
                     {
@@ -81,16 +80,15 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
                 });
         } else {
             const defaultNewLesson = {
-                // lessonId: lessons[lessons.length - 1].lessonId + 1,
-                Title: `New item ${lessons.length + 1}`,
-                Description: 'Description of item ',
+                title: `New item ${lessons.length + 1}`,
+                description: 'Description of item ',
             };
             await axios
                 .post(
                     `${config.baseUrl}/api/lessons`,
                     {
-                        title: defaultNewLesson.Title,
-                        description: defaultNewLesson.Title,
+                        title: defaultNewLesson.title,
+                        description: defaultNewLesson.description,
                         courseId: params.courseId,
                     },
                     {
@@ -126,8 +124,9 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
 
     const handleEditLesson = (lesson) => {
         onEdit(lesson);
+        console.log(lesson);
         handleNextStep();
-        handleTitleValue(lesson.Title);
+        handleTitleValue(lesson.title);
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 

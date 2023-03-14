@@ -1,9 +1,11 @@
 import { faChevronDown, faChevronRight, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import classNames from 'classnames/bind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
+import config from '~/config';
 import EditExam from './EditExam';
 
 import styles from './EditLesson.module.scss';
@@ -18,8 +20,29 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [stepLesson, setStepLesson] = useState(0);
-    const [lessonDesc, setLessonDesc] = useState(chosenLesson.Description);
+    const [lessonDesc, setLessonDesc] = useState(chosenLesson.description);
     const [isEditingDesc, setIsEditingDesc] = useState(false);
+    const [timeDefault, setTimeDefault] = useState(45);
+
+    useEffect(() => {
+        axios
+            .get(`${config.baseUrl}/api/units`, {
+                params: {
+                    lessonId: lesson.lessonId,
+                },
+            })
+            .then((response) => {
+                setMaterials([...response.data]);
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [lesson]);
+
+    const navigate = useNavigate();
+    let params = useParams();
+    const accessToken = localStorage.getItem('accessToken');
 
     const handleEditMaterialClick = () => {
         setStepLesson(1);
@@ -35,7 +58,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
 
     const handleTitleChange = (event) => {
         setLessonEditTitle(event.target.value);
-        setLesson({ ...lesson, Title: event.target.value });
+        setLesson({ ...lesson, title: event.target.value });
     };
 
     const handleTitleBlur = () => {
@@ -48,7 +71,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
 
     const handleDescChange = (event) => {
         setLessonDesc(event.target.value);
-        setLesson({ ...lesson, Description: event.target.value });
+        setLesson({ ...lesson, description: event.target.value });
     };
 
     const handleDescBlur = () => {
@@ -59,41 +82,82 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
         setStepLesson(0);
     };
 
-    const navigate = useNavigate();
-    let params = useParams();
-
-    const moveItem = (UnitId, direction) => {
+    const moveItem = (unitId, direction) => {
         const newItems = [...materials];
-        const index = newItems.findIndex((item) => item.UnitId === UnitId);
+        const index = newItems.findIndex((item) => item.unitId === unitId);
         const temp = newItems[index];
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
         setMaterials(newItems);
     };
 
-    const handleAddMaterialClick = () => {
+    const handleAddMaterialClick = async () => {
         if (materials.length === 0) {
             const defaultNewLesson = {
-                UnitId: 1,
-                Title: `New item 1`,
-                Description: 'Description of item ',
+                title: `New item 1`,
+                requiredMinutes: timeDefault,
+                lessonId: lesson.lessonId,
+                content: 'Content of item 1',
             };
-            const addedMaterialsList = [defaultNewLesson];
-            setMaterials(addedMaterialsList);
+            await axios
+                .post(
+                    `${config.baseUrl}/api/units/material`,
+                    {
+                        title: defaultNewLesson.title,
+                        requiredMinutes: defaultNewLesson.requiredMinutes,
+                        lessonId: defaultNewLesson.lessonId,
+                        content: defaultNewLesson.content,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedMaterialsList = [defaultNewLesson];
+                    setMaterials(addedMaterialsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         } else {
             const defaultNewLesson = {
-                UnitId: materials[materials.length - 1].UnitId + 1,
-                Title: `New item ${materials[materials.length - 1].UnitId + 1}`,
-                Description: 'Description of item ',
+                title: `New item ${materials.length + 1}`,
+                requiredMinutes: timeDefault,
+                lessonId: lesson.lessonId,
+                content: `Content of item ${materials.length + 1}`,
             };
-            const addedMaterialsList = [...materials, defaultNewLesson];
-            setMaterials(addedMaterialsList);
+            await axios
+                .post(
+                    `${config.baseUrl}/api/units/material`,
+                    {
+                        title: defaultNewLesson.title,
+                        requiredMinutes: defaultNewLesson.requiredMinutes,
+                        lessonId: defaultNewLesson.lessonId,
+                        content: defaultNewLesson.content,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedMaterialsList = [...materials, defaultNewLesson];
+                    setMaterials(addedMaterialsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
         console.log(materials);
     };
 
     const handleDeleteLesson = (id) => {
-        const newArrLesson = [...materials.filter((item) => item.UnitId !== id)];
+        const newArrLesson = [...materials.filter((item) => item.unitId !== id)];
         setMaterials(newArrLesson);
         console.log(newArrLesson);
     };
@@ -101,6 +165,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     const handleEditLesson = (item) => {
         handleEditMaterialClick();
         setChosenUnit(item);
+        console.log(item);
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson/edit-material`);
     };
 
@@ -118,7 +183,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     const handleMaterialUpdate = (updatedMaterial) => {
         // setChosenMaterial(updatedMaterial);
         const updatedMaterials = materials.map((material) => {
-            if (material.UnitId === updatedMaterial.UnitId) {
+            if (material.unitId === updatedMaterial.unitId) {
                 return updatedMaterial;
             } else {
                 return material;
@@ -192,15 +257,15 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                             </div>
                             <ul className={cx('listWrapper')}>
                                 {materials.map((item, index) => (
-                                    <li className={cx('itemDiv')} key={item.UnitId}>
-                                        <p className={cx('itemTitle')}>{item.Title}</p>
+                                    <li className={cx('itemDiv')} key={index}>
+                                        <p className={cx('itemTitle')}>{item.title}</p>
                                         <div className={cx('itemAction')}>
                                             <p className={cx('btnAction')} onClick={() => handleEditLesson(item)}>
                                                 Edit
                                             </p>
                                             <p
                                                 className={cx('btnAction')}
-                                                onClick={() => handleDeleteLesson(item.UnitId)}
+                                                onClick={() => handleDeleteLesson(item.unitId)}
                                             >
                                                 Delete
                                             </p>
@@ -213,7 +278,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                                     }
                                                     onClick={() =>
                                                         materials[materials.indexOf(item) - 1]
-                                                            ? moveItem(item.UnitId, -1)
+                                                            ? moveItem(item.unitId, -1)
                                                             : console.log('not allowed to click')
                                                     }
                                                 >
@@ -226,7 +291,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                                     }
                                                     onClick={() =>
                                                         materials[materials.indexOf(item) + 1]
-                                                            ? moveItem(item.UnitId, 1)
+                                                            ? moveItem(item.unitId, 1)
                                                             : console.log('not allowed to click')
                                                     }
                                                 >
