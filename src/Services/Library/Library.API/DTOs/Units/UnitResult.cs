@@ -20,4 +20,5 @@ public record ExamResult : UnitResult
 public record MaterialResult : UnitResult
 {
 	public string Content { get; set; }
+	public int PublisherUserId { get; set; }
 }

@@ -97,7 +97,10 @@ public class DefaultProfile : Profile
 				_ => false))
 			.ForMember(
 				dst => dst.CourseId, opt => opt.MapFrom(
-				src => src.Lesson.CourseId));
+				src => src.Lesson.CourseId))
+			.ForMember(
+				dst => dst.PublisherUserId, opt => opt.MapFrom(
+				src => src.Lesson.Course.PublisherUserId));
 		#endregion
 
 

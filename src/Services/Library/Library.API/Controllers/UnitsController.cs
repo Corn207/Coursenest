@@ -116,27 +116,30 @@ namespace Library.API.Controllers
 			var isAdmin = IsAdmin();
 
 			var result = await _context.Materials
-				.Where(x =>
-					x.UnitId == unitId &&
-					(isAdmin || x.Lesson.Course.PublisherUserId == userId))
+				.Where(x => x.UnitId == unitId && isAdmin)
 				.ProjectTo<MaterialResult>(_mapper.ConfigurationProvider)
 				.FirstOrDefaultAsync();
 			if (result == null)
 				return NotFound("Material with UnitId does not exist or you're not authorized.");
 
-			var request = new CheckEnrollment()
-			{
-				CourseId = result.CourseId,
-				StudentUserId = userId
-			};
-			var response = await _checkEnrollmentClient
-				.GetResponse<Existed, NotFound>(request);
+			var isPublisher = result.PublisherUserId == userId;
 
-			if (response.Is(out Response<NotFound>? notFoundResponse))
+			if (!isPublisher && !isAdmin)
 			{
-				return NotFound(notFoundResponse!.Message.Message);
+				var request = new CheckEnrollment()
+				{
+					CourseId = result.CourseId,
+					StudentUserId = userId
+				};
+				var response = await _checkEnrollmentClient
+					.GetResponse<Existed, NotFound>(request);
+
+				if (response.Is(out Response<NotFound>? notFoundResponse))
+				{
+					return NotFound(notFoundResponse!.Message.Message);
+				}
 			}
-
+			
 			return result;
 		}
 
@@ -215,7 +218,7 @@ namespace Library.API.Controllers
 				.Select(x => x.Order)
 				.OrderByDescending(x => x)
 				.FirstOrDefault();
-			exam.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
+			exam.OrderNumerator = max == default ? 1 : ((int)max + 1);
 			exam.OrderDenominator = 1;
 
 			lesson.Units.Add(exam);
@@ -332,8 +335,8 @@ namespace Library.API.Controllers
 				if (after == from)
 					return BadRequest("Nothing has changed.");
 
-				from.OrderNumerator = (after == null ? (int)Math.Ceiling(to.Order) : after.OrderNumerator) + to.OrderNumerator;
-				from.OrderDenominator = (after == null ? 1 : after.OrderDenominator) + to.OrderDenominator;
+				from.OrderNumerator = after == null ? ((int)to.Order + 1) : after.OrderNumerator + to.OrderNumerator;
+				from.OrderDenominator = after == null ? 1 : after.OrderDenominator + to.OrderDenominator;
 			}
 
 			await _context.SaveChangesAsync();
