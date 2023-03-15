@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using CommonLibrary.API.Models;
 using CommonLibrary.API.Utilities.APIs;
+using Humanizer;
 using Library.API.DTOs;
 using Library.API.DTOs.Lessons;
 using Library.API.Infrastructure.Contexts;
@@ -93,7 +94,7 @@ namespace Library.API.Controllers
 				.Select(x => x.Order)
 				.OrderByDescending(x => x)
 				.FirstOrDefault();
-			lesson.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
+			lesson.OrderNumerator = max == default ? 1 : ((int)max + 1);
 			lesson.OrderDenominator = 1;
 
 			course.Lessons.Add(lesson);
@@ -189,8 +190,8 @@ namespace Library.API.Controllers
 				if (after == from)
 					return BadRequest("Nothing has changed.");
 
-				from.OrderNumerator = (after == null ? (int)Math.Ceiling(to.Order) : after.OrderNumerator) + to.OrderNumerator;
-				from.OrderDenominator = (after == null ? 1 : after.OrderDenominator) + to.OrderDenominator;
+				from.OrderNumerator = after == null ? ((int)to.Order + 1) : after.OrderNumerator + to.OrderNumerator;
+				from.OrderDenominator = after == null ? 1 : after.OrderDenominator + to.OrderDenominator;
 			}
 
 			await _context.SaveChangesAsync();

@@ -4,6 +4,7 @@
 
 public record ChoiceResult
 {
+	public int ChoiceId { get; set; }
 	public string Content { get; set; }
 	public bool IsCorrect { get; set; }
 }

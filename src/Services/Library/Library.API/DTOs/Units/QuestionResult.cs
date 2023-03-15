@@ -4,6 +4,7 @@
 
 public record QuestionResult
 {
+	public int QuestionId { get; set; }
 	public string Content { get; set; }
 	public int Point { get; set; }
 	public List<ChoiceResult> Choices { get; set; }
