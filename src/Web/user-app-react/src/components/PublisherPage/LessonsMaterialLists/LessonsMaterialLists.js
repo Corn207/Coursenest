@@ -16,15 +16,28 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
     const [lessons, setLessons] = useState(lessonsList);
     // const { lessons, setLessons } = useContext(CourseContext);
 
+    const navigate = useNavigate();
+    let params = useParams();
+    const accessToken = localStorage.getItem('accessToken');
+
     useEffect(() => {
         axios
-            .get(`${config.baseUrl}/api/lessons`, {
-                params: {
-                    courseId: params.courseId,
+            .get(
+                `${config.baseUrl}/api/lessons`,
+                {
+                    params: {
+                        courseId: params.courseId,
+                    },
                 },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                },
+            )
             .then((response) => {
-                setLessons([...response.data]);
+                const sortedLessons = response.data.sort((a, b) => a.order - b.order);
+                setLessons([...sortedLessons]);
                 console.log(response.data);
             })
             .catch((error) => {
@@ -32,20 +45,57 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
             });
     }, [lessonsList]);
 
-    const navigate = useNavigate();
-    let params = useParams();
-    const accessToken = localStorage.getItem('accessToken');
-
     // const [lessonsList, setLessonsList] = useState([]);
 
-    const moveItem = (lessonId, direction, event) => {
-        event.preventDefault();
+    const moveItem = async (lessonId, direction, event) => {
         const newItems = [...lessons];
         const index = newItems.findIndex((item) => item.lessonId === lessonId);
         const temp = newItems[index];
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
         setLessons(newItems);
+        event.preventDefault();
+        if (direction < 0) {
+            await axios
+                .put(
+                    `${config.baseUrl}/api/lessons/${lessonId}/order`,
+                    {
+                        toId: newItems[index].lessonId,
+                        isBefore: true,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(`Da di chuyen lesson ${lessonId} direction buoc`);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        } else if (direction > 0) {
+            await axios
+                .put(
+                    `${config.baseUrl}/api/lessons/${lessonId}/order`,
+                    {
+                        toId: newItems[index].lessonId,
+                        isBefore: false,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(`Da di chuyen lesson ${lessonId} direction buoc`);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
     };
 
     const handleAddLessonClick = async (event) => {
