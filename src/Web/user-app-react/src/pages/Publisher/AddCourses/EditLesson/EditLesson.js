@@ -156,10 +156,22 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
         console.log(materials);
     };
 
-    const handleDeleteLesson = (id) => {
-        const newArrLesson = [...materials.filter((item) => item.unitId !== id)];
-        setMaterials(newArrLesson);
-        console.log(newArrLesson);
+    const handleDeleteMaterial = async (id) => {
+        await axios
+            .delete(`${config.baseUrl}/api/units/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            })
+            .then((response) => {
+                const newArrLesson = [...materials.filter((item) => item.unitId !== id)];
+                setMaterials(newArrLesson);
+                console.log(newArrLesson);
+                console.log(`da~ xoa unit co id la ${id}`);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     };
 
     const handleEditLesson = (item) => {
@@ -265,7 +277,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                             </p>
                                             <p
                                                 className={cx('btnAction')}
-                                                onClick={() => handleDeleteLesson(item.unitId)}
+                                                onClick={() => handleDeleteMaterial(item.unitId)}
                                             >
                                                 Delete
                                             </p>
