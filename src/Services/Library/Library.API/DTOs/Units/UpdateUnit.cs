@@ -5,7 +5,7 @@
 public record UpdateUnit
 {
 	public string? Title { get; set; }
-	public TimeSpan? RequiredTime { get; set; }
+	public int? RequiredMinutes { get; set; }
 }
 
 public record UpdateExam : UpdateUnit
