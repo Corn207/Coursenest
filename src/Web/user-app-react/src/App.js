@@ -17,10 +17,15 @@ import Publisher from '~/pages/Publisher/Publisher';
 import PublisherCourses from './pages/Publisher/PublisherCourses';
 import AddCourses from './pages/Publisher/AddCourses';
 import Topic from './pages/Topic/Topic';
-import Course from './pages/Course/Course';
+import Course from './pages/Course/Course/Course';
+import Material from './pages/Course/Material/Material';
+import Exam from './pages/Course/Exam/Exam';
+
 import axios from 'axios';
 import config from './config';
 import MyCourses from './pages/MyCourses/MyCourses';
+import getNumberOfDays from './helper/getNumberOfDays';
+import EnrolledCourse from './pages/Course/EnrolledCourse/EnrolledCourse';
 
 function App() {
     let logged = false;
@@ -30,16 +35,31 @@ function App() {
     const [isInstructor, setIsInstructor] = useState(false);
     const [isPublisher, setIsPublisher] = useState(false);
 
+    const checkInstructor = (role) => {
+        if (role.type === 1 && getNumberOfDays(role.expiry) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    const checkPublisher = (role) => {
+        if (role.type === 2 && getNumberOfDays(role.expiry) > 0) {
+            return true;
+        }
+        return false;
+    }
+
     const getRoleMe = () => {
-        axios.get(`${config.baseUrl}/api/roles/me`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        })
+        axios
+            .get(`${config.baseUrl}/api/roles/me`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            })
             .then((res) => {
                 const roles = res.data;
-                if (roles.find(role => role.type === 1)) {
+                if (roles.find(role => checkInstructor(role))) {
                     setIsInstructor(true);
                 }
-                if (roles.find(role => role.type === 2)) {
+                if (roles.find(role => checkPublisher(role))) {
                     setIsPublisher(true);
                 }
             })
@@ -62,11 +82,19 @@ function App() {
                 <Route path="forgot-password" element={<Forgot />} />
                 <Route path="/" element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher} />}>
                     <Route index element={<Home logged={logged} />} />
+                    <Route path="courses/:id" element={<Course logged={logged} />}>
+                    </Route>
+                    <Route>
+                        {/* trang course enrolled */}
+                        {/* <Route path="material/:materialId" element={<Material />} />
+                        <Route path="exam/:examId" element={<Exam />} /> */}
+                    </Route>
+                    <Route path="topics/:id" element={<Topic />} />
                     {logged && (
                         <>
                             <Route path="profile" element={<Profile />} />
-                            <Route path="courses/:id" element={<Course />} />
                             <Route path="my-courses" element={<MyCourses />} />
+                            <Route path='enrolled/course' element={<EnrolledCourse/>}/>
                             <Route path="instructor" element={<Instructor />}>
                                 <Route index element={<Following />}></Route>
                                 <Route path="following" element={<Following />}></Route>
@@ -80,7 +108,6 @@ function App() {
                             </Route>
                         </>
                     )}
-                    <Route path="topics/:id" element={<Topic logged={logged} />} />
                 </Route>
             </Routes>
         </div>

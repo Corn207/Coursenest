@@ -3,13 +3,16 @@ import axios from 'axios';
 import styles from './MyCourses.module.scss';
 import config from '~/config';
 import AllEnrolledCourses from '~/components/AllEnrolledCourses/AllEnrolledCourses';
+import LoadingSpinner from '~/components/LoadingSpinner/LoadingSpinner';
 
 export default function MyCourses() {
     const tokenStr = localStorage.getItem('accessToken');
     const [inProgressCourses, setInProgressCourses] = useState([]);
     const [completedCourses, setCompletedCourses] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        setIsLoading(true);
         axios
             .get(`${config.baseUrl}/api/enrollments`, {
                 headers: { Authorization: `Bearer ${tokenStr}` },
@@ -79,8 +82,12 @@ export default function MyCourses() {
                 );
                 setInProgressCourses(inprogress);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => console.log(err))
+            .finally(() => setIsLoading(false))
     }, []);
+
+    
+    if(isLoading) return <LoadingSpinner />
 
     return (
         <div className={styles.container}>

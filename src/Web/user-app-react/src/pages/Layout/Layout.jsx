@@ -11,10 +11,8 @@ export default function Layout(props) {
     const {logged, isInstructor, isPublisher} = props;
     const navigate = useNavigate();
 
-    // dung de change background image
     const path = useLocation().pathname;
     const location = path.split('/')[1];
-    // console.log("location current: ", location);
 
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
