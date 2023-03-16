@@ -82,13 +82,56 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
         setStepLesson(0);
     };
 
-    const moveItem = (unitId, direction) => {
+    const moveItem = async (unitId, direction, event) => {
         const newItems = [...materials];
         const index = newItems.findIndex((item) => item.unitId === unitId);
         const temp = newItems[index];
         newItems[index] = newItems[index + direction];
         newItems[index + direction] = temp;
         setMaterials(newItems);
+        event.preventDefault();
+
+        if (direction < 0) {
+            await axios
+                .put(
+                    `${config.baseUrl}/api/units/${unitId}/order`,
+                    {
+                        toId: newItems[index].unitId,
+                        isBefore: true,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(`Da di chuyen lesson ${unitId} direction buoc`);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        } else if (direction > 0) {
+            await axios
+                .put(
+                    `${config.baseUrl}/api/units/${unitId}/order`,
+                    {
+                        toId: newItems[index].unitId,
+                        isBefore: false,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(`Da di chuyen lesson ${unitId} direction buoc`);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
     };
 
     const handleAddMaterialClick = async () => {
@@ -174,7 +217,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
             });
     };
 
-    const handleEditLesson = (item) => {
+    const handleEditMaterial = (item) => {
         handleEditMaterialClick();
         setChosenUnit(item);
         console.log(item);
@@ -189,7 +232,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     const handleConfirm = async () => {
         await axios
             .put(
-                `${config.baseUrl}/api/units/${lesson.lessonId}`,
+                `${config.baseUrl}/api/lessons/${lesson.lessonId}`,
                 {
                     title: lessonEditTitle,
                     description: lessonDesc,
@@ -291,7 +334,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                     <li className={cx('itemDiv')} key={index}>
                                         <p className={cx('itemTitle')}>{item.title}</p>
                                         <div className={cx('itemAction')}>
-                                            <p className={cx('btnAction')} onClick={() => handleEditLesson(item)}>
+                                            <p className={cx('btnAction')} onClick={() => handleEditMaterial(item)}>
                                                 Edit
                                             </p>
                                             <p
@@ -307,9 +350,9 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                                     style={
                                                         materials[materials.indexOf(item) - 1] ? activeBtn : disableBtn
                                                     }
-                                                    onClick={() =>
+                                                    onClick={(event) =>
                                                         materials[materials.indexOf(item) - 1]
-                                                            ? moveItem(item.unitId, -1)
+                                                            ? moveItem(item.unitId, -1, event)
                                                             : console.log('not allowed to click')
                                                     }
                                                 >
@@ -320,9 +363,9 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                                     style={
                                                         materials[materials.indexOf(item) + 1] ? activeBtn : disableBtn
                                                     }
-                                                    onClick={() =>
+                                                    onClick={(event) =>
                                                         materials[materials.indexOf(item) + 1]
-                                                            ? moveItem(item.unitId, 1)
+                                                            ? moveItem(item.unitId, 1, event)
                                                             : console.log('not allowed to click')
                                                     }
                                                 >
