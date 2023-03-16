@@ -186,9 +186,28 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
         // navigate(`/publisher/${params.PublisherUserId}/add-course`);
     };
 
-    const handleConfirm = () => {
-        handleBackStep();
-        handleLessonUpdate(lesson);
+    const handleConfirm = async () => {
+        await axios
+            .put(
+                `${config.baseUrl}/api/units/${lesson.lessonId}`,
+                {
+                    title: lessonEditTitle,
+                    description: lessonDesc,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                },
+            )
+            .then((response) => {
+                handleBackStep();
+                handleLessonUpdate(lesson);
+                console.log(`da~ cap nhat lesson co id la ${lesson.lessonId}`);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
         // navigate(`/publisher/${params.PublisherUserId}/add-course`);
     };
 
