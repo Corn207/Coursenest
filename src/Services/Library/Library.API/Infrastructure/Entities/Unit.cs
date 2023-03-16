@@ -9,7 +9,7 @@ public abstract class Unit
 	public int RequiredMinutes { get; set; }
 	public int OrderNumerator { get; set; }
 	public int OrderDenominator { get; set; }
-	public decimal Order { get; set; }
+	public double Order { get; set; }
 
 	// Relationship
 	public int LessonId { get; set; }

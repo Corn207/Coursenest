@@ -148,10 +148,10 @@ namespace Library.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Order")
+                    b.Property<double>("Order")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal")
-                        .HasComputedColumnSql("[OrderNumerator] / [OrderDenominator] * 1.0", true);
+                        .HasColumnType("float")
+                        .HasComputedColumnSql("CAST(([OrderNumerator] * 1.0 / [OrderDenominator]) AS float)", true);
 
                     b.Property<int>("OrderDenominator")
                         .HasColumnType("int");
@@ -277,10 +277,10 @@ namespace Library.API.Migrations
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Order")
+                    b.Property<double>("Order")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal")
-                        .HasComputedColumnSql("[OrderNumerator] / [OrderDenominator] * 1.0", true);
+                        .HasColumnType("float")
+                        .HasComputedColumnSql("CAST(([OrderNumerator] * 1.0 / [OrderDenominator]) AS float)", true);
 
                     b.Property<int>("OrderDenominator")
                         .HasColumnType("int");

@@ -8,7 +8,7 @@ public record UnitResult
 	public int CourseId { get; set; }
 	public string Title { get; set; }
 	public int RequiredMinutes { get; set; }
-	public decimal Order { get; set; }
+	public double Order { get; set; }
 	public bool IsExam { get; set; }
 }
 
