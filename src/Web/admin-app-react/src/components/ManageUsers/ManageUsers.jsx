@@ -98,7 +98,6 @@ export default function ManageUsers() {
     ];
 
     const handleOnChangePageSize = event => {
-        console.log(event.target.value);
         setPageSize(parseInt(event.target.value));
     };
 

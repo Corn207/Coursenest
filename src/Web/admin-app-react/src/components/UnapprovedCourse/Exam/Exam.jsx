@@ -12,7 +12,6 @@ export default function Exam() {
         setIsLoading(true);
         instance.get(`units/${examId}/exam`)
         .then((res) => {
-            console.log(res.data);
             setExam(res.data)
         })
         .finally(() => setIsLoading(false))

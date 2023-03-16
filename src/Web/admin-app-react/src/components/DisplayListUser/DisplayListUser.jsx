@@ -2,25 +2,9 @@ import styles from "./DisplayListUser.module.css";
 import "font-awesome/css/font-awesome.min.css";
 import avatarDefault from '../../assets/avatar.png';
 import GetRolesByUserId from "../GetRolesByUserId";
-// import instance from "../../api/request";
-// import { useMemo, useState } from "react";
 
 function DisplayListUser(props) {
     const {listUsers, handleClickUpdateUser} = props;
-
-    // const [newListUsers, setNewListUsers] = useState();
-
-    // const test = useMemo(async () => {
-    //     await Promise.all(
-    //         listUsers.map(async (user) => {
-    //             const res = await instance.get(`roles/${user.userId}`);
-    //             setNewListUsers(res.data)
-    //         })
-    //     );
-    // }, [listUsers]);
-   
-    // console.log(test)
-    // console.log(newListUsers)
 
     return(
         <div>

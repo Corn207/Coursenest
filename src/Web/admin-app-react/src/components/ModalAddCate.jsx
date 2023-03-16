@@ -15,8 +15,7 @@ function ModalAddCate(props) {
         event.preventDefault();
         instance
             .post(`categories`, info)
-            .then((res) => {
-                console.log(res.data)
+            .then(() => {
                 handleClose();
                 fetchListCate();
             })

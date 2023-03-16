@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import editIcon from "../../assets/edit-icon.png";
 import deleteIcon from "../../assets/delete-icon.png";
 import arrowDown from "../../assets/black-arrow-down.png";
@@ -60,6 +60,20 @@ export default function ListCategories() {
             .catch((err) => console.log(err))
             .finally(() => setIsLoading(false))
     }
+
+    function getFilteredListCate() {
+        if (!keyword) {
+            return data;
+        }
+        return data.filter((cate) => {
+            return (
+                cate.content.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
+            );
+        });
+    }
+
+    var filteredListCate = useMemo(getFilteredListCate, [keyword, data]);
+
     const handleClickDelCate = (cate) => {
         setShowModalDeleteCate(true);
         setDeletedData(cate);
@@ -106,12 +120,12 @@ export default function ListCategories() {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h4 style={{minWidth: 180}}>Categories: {data.length}</h4>
+                <h4 style={{minWidth: 180}}>Categories: {filteredListCate.length}</h4>
                 <Search setKeyWord={setKeyWord} />
                 <button style={{width: 130, height: 35}} className={styles.buttonAdd} onClick={() => setShowModalAddCate(true)}>Add Category</button>
             </div>
             <div>
-                {data && data.map((cate, index) => {
+                {filteredListCate && filteredListCate.map((cate, index) => {
                     return (
                         <div className={styles.cateBox} key={cate.categoryId}>
                             <div className={styles.cateHeader}>
