@@ -307,7 +307,7 @@ namespace Library.API.Controllers
 				.FirstOrDefaultAsync(x =>
 					x.Course.PublisherUserId == userId &&
 					x.Units.Any(x => x.UnitId == unitId) &&
-					x.Units.Any(x => x.LessonId == body.ToId));
+					x.Units.Any(x => x.UnitId == body.ToId));
 			if (lesson == null)
 				return NotFound("Lesson contains both LessonIds does not exist or you're not authorized.");
 
