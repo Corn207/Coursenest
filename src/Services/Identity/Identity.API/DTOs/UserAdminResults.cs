@@ -16,6 +16,12 @@ public record UserAdminResults
 		public ImageResult? Avatar { get; set; }
 		public string Email { get; set; }
 		public string Username { get; set; }
-		public IEnumerable<RoleType> Roles { get; set; }
+		public RoleResult[] Roles { get; set; }
+	}
+
+	public record RoleResult
+	{
+		public RoleType Type { get; set; }
+		public DateTime Expiry { get; set; }
 	}
 }
