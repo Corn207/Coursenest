@@ -187,7 +187,7 @@ namespace Library.API.Controllers
 				.Select(x => x.Order)
 				.OrderByDescending(x => x)
 				.FirstOrDefault();
-			material.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
+			material.OrderNumerator = max == default ? 1 : ((int)max + 1);
 			material.OrderDenominator = 1;
 
 			lesson.Units.Add(material);
