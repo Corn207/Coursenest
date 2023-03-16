@@ -83,7 +83,7 @@ function PublisherCourses() {
             }
         };
         fetchCourses();
-    }, [data]);
+    }, []);
 
     const handleSelectAll = (event) => {
         if (event.target.checked) {

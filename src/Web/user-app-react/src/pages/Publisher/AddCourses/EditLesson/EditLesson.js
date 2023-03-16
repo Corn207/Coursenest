@@ -16,7 +16,9 @@ const cx = classNames.bind(styles);
 function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate, handleBackStep }) {
     const [lesson, setLesson] = useState(chosenLesson);
     const [chosenUnit, setChosenUnit] = useState(null);
+    const [chosenExam, setChosenExam] = useState(null);
     const [materials, setMaterials] = useState([]);
+    const [exams, setExams] = useState([]);
     const [lessonEditTitle, setLessonEditTitle] = useState(lessonTitle);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [stepLesson, setStepLesson] = useState(0);
@@ -26,14 +28,26 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
 
     useEffect(() => {
         axios
-            .get(`${config.baseUrl}/api/units`, {
-                params: {
-                    lessonId: lesson.lessonId,
+            .get(
+                `${config.baseUrl}/api/units`,
+                {
+                    params: {
+                        lessonId: lesson.lessonId,
+                    },
                 },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                },
+            )
             .then((response) => {
-                setMaterials([...response.data]);
-                console.log(response.data);
+                const filteredDataMate = response.data.filter((item) => !item.isExam);
+                const filteredDataExam = response.data.filter((item) => item.isExam);
+                const orderedData = response.data.sort((a, b) => a.order - b.order);
+                setMaterials(orderedData);
+                // setExams(filteredDataExam);
+                // console.log(filteredDataMate);
             })
             .catch((error) => {
                 console.log(error);
@@ -48,8 +62,70 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
         setStepLesson(1);
     };
 
-    const handleAddExamClick = () => {
+    const handleEditExamClick = () => {
         setStepLesson(2);
+    };
+
+    const handleAddExamClick = async () => {
+        // setStepLesson(2);
+        if (exams.length === 0) {
+            const defaultNewExam = {
+                title: `New exam 1`,
+                requiredMinutes: timeDefault,
+                lessonId: lesson.lessonId,
+            };
+            await axios
+                .post(
+                    `${config.baseUrl}/api/units/exam`,
+                    {
+                        title: defaultNewExam.title,
+                        requiredMinutes: defaultNewExam.requiredMinutes,
+                        lessonId: defaultNewExam.lessonId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedExamsList = [defaultNewExam];
+                    setExams(addedExamsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        } else {
+            const defaultNewExam = {
+                title: `New exam ${exams.length + 1}`,
+                requiredMinutes: timeDefault,
+                lessonId: lesson.lessonId,
+            };
+            await axios
+                .post(
+                    `${config.baseUrl}/api/units/exam`,
+                    {
+                        title: defaultNewExam.title,
+                        requiredMinutes: defaultNewExam.requiredMinutes,
+                        lessonId: defaultNewExam.lessonId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedMaterialsList = [...exams, defaultNewExam];
+                    setExams(addedMaterialsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+        console.log(materials);
     };
 
     const handleTitleClick = () => {
@@ -78,7 +154,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
         setIsEditingDesc(false);
     };
 
-    const handleCancelMaterialClick = () => {
+    const handleCancelClick = () => {
         setStepLesson(0);
     };
 
@@ -136,7 +212,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
 
     const handleAddMaterialClick = async () => {
         if (materials.length === 0) {
-            const defaultNewLesson = {
+            const defaultNewMaterial = {
                 title: `New item 1`,
                 requiredMinutes: timeDefault,
                 lessonId: lesson.lessonId,
@@ -146,10 +222,10 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                 .post(
                     `${config.baseUrl}/api/units/material`,
                     {
-                        title: defaultNewLesson.title,
-                        requiredMinutes: defaultNewLesson.requiredMinutes,
-                        lessonId: defaultNewLesson.lessonId,
-                        content: defaultNewLesson.content,
+                        title: defaultNewMaterial.title,
+                        requiredMinutes: defaultNewMaterial.requiredMinutes,
+                        lessonId: defaultNewMaterial.lessonId,
+                        content: defaultNewMaterial.content,
                     },
                     {
                         headers: {
@@ -159,14 +235,14 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                 )
                 .then((response) => {
                     console.log(response.data);
-                    const addedMaterialsList = [defaultNewLesson];
+                    const addedMaterialsList = [defaultNewMaterial];
                     setMaterials(addedMaterialsList);
                 })
                 .catch((error) => {
                     console.error(error);
                 });
         } else {
-            const defaultNewLesson = {
+            const defaultNewMaterial = {
                 title: `New item ${materials.length + 1}`,
                 requiredMinutes: timeDefault,
                 lessonId: lesson.lessonId,
@@ -176,10 +252,10 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                 .post(
                     `${config.baseUrl}/api/units/material`,
                     {
-                        title: defaultNewLesson.title,
-                        requiredMinutes: defaultNewLesson.requiredMinutes,
-                        lessonId: defaultNewLesson.lessonId,
-                        content: defaultNewLesson.content,
+                        title: defaultNewMaterial.title,
+                        requiredMinutes: defaultNewMaterial.requiredMinutes,
+                        lessonId: defaultNewMaterial.lessonId,
+                        content: defaultNewMaterial.content,
                     },
                     {
                         headers: {
@@ -189,7 +265,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                 )
                 .then((response) => {
                     console.log(response.data);
-                    const addedMaterialsList = [...materials, defaultNewLesson];
+                    const addedMaterialsList = [...materials, defaultNewMaterial];
                     setMaterials(addedMaterialsList);
                 })
                 .catch((error) => {
@@ -218,11 +294,24 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     };
 
     const handleEditMaterial = (item) => {
-        handleEditMaterialClick();
-        setChosenUnit(item);
-        console.log(item);
+        if (item.isExam) {
+            handleEditExamClick();
+            setChosenExam(item);
+        } else {
+            handleEditMaterialClick();
+            setChosenUnit(item);
+            console.log(item);
+        }
+
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson/edit-material`);
     };
+
+    // const handleEditExam = (item) => {
+    //     handleEditExamClick();
+    //     setChosenExam(item);
+    //     console.log(item);
+    //     // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson/edit-material`);
+    // };
 
     const handleCancel = () => {
         handleBackStep();
@@ -329,6 +418,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                     </button>
                                 </div>
                             </div>
+                            <p className={cx('listTitle')}>Material</p>
                             <ul className={cx('listWrapper')}>
                                 {materials.map((item, index) => (
                                     <li className={cx('itemDiv')} key={index}>
@@ -376,6 +466,54 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                     </li>
                                 ))}
                             </ul>
+                            {/* <p className={cx('listTitle')}>Exams</p>
+                            <ul className={cx('listWrapper')}>
+                                {exams.map((item, index) => (
+                                    <li className={cx('itemDiv')} key={index}>
+                                        <p className={cx('itemTitle')}>{item.title}</p>
+                                        <div className={cx('itemAction')}>
+                                            <p className={cx('btnAction')} onClick={() => handleEditExam(item)}>
+                                                Edit
+                                            </p>
+                                            <p
+                                                className={cx('btnAction')}
+                                                onClick={() => handleDeleteMaterial(item.unitId)}
+                                            >
+                                                Delete
+                                            </p>
+                                            <p className={cx('itemOrder')}>{index + 1}</p>
+                                            <div className={cx('moveBtnContainer')}>
+                                                <button
+                                                    className={cx('moveBtn')}
+                                                    style={
+                                                        materials[materials.indexOf(item) - 1] ? activeBtn : disableBtn
+                                                    }
+                                                    onClick={(event) =>
+                                                        materials[materials.indexOf(item) - 1]
+                                                            ? moveItem(item.unitId, -1, event)
+                                                            : console.log('not allowed to click')
+                                                    }
+                                                >
+                                                    <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronUp} />
+                                                </button>
+                                                <button
+                                                    className={cx('moveBtn')}
+                                                    style={
+                                                        materials[materials.indexOf(item) + 1] ? activeBtn : disableBtn
+                                                    }
+                                                    onClick={(event) =>
+                                                        materials[materials.indexOf(item) + 1]
+                                                            ? moveItem(item.unitId, 1, event)
+                                                            : console.log('not allowed to click')
+                                                    }
+                                                >
+                                                    <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronDown} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul> */}
                         </div>
                     </div>
                     <CancelConfirmBtns onConfirm={handleConfirm} onCancel={handleCancel} />
@@ -384,11 +522,11 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
             {stepLesson === 1 && (
                 <EditMaterial
                     chosenMaterial={chosenUnit}
-                    handleBackStep={handleCancelMaterialClick}
+                    handleBackStep={handleCancelClick}
                     handleMaterialsUpdate={handleMaterialUpdate}
                 />
             )}
-            {stepLesson === 2 && <EditExam />}
+            {stepLesson === 2 && <EditExam chosenExam={chosenExam} handleBackStep={handleCancelClick} />}
         </>
     );
 }

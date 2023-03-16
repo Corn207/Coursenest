@@ -1,19 +1,25 @@
+import axios from 'axios';
 import classNames from 'classnames/bind';
 import { useState } from 'react';
 import MultiChoicesQuesTion from '~/components/MultiChoicesQuesTion';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
+import config from '~/config';
 
 import styles from './EditExam.module.scss';
 
 const cx = classNames.bind(styles);
 
-function EditExam() {
-    const [examTitle, setExamTitle] = useState('Title');
-    const [examDesc, setExamDesc] = useState('Description');
+function EditExam({ chosenExam, handleBackStep }) {
+    const [examTitle, setExamTitle] = useState(chosenExam.title);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [isEditingDesc, setIsEditingDesc] = useState(false);
     const [isEditingTime, setIsEditingTime] = useState(false);
-    const [timeLimit, setTimeLimit] = useState(45);
+    const [timeLimit, setTimeLimit] = useState(chosenExam.requiredMinutes);
+    const [questionList, setQuestionList] = useState([]);
+
+    const handleQuestion = (arr) => {
+        setQuestionList(arr);
+        console.log(arr);
+    };
 
     const handleTitleClick = () => {
         setIsEditingTitle(true);
@@ -29,19 +35,6 @@ function EditExam() {
         setIsEditingTitle(false);
     };
 
-    const handleDescClick = () => {
-        setIsEditingDesc(true);
-    };
-
-    const handleDescChange = (event) => {
-        setExamDesc(event.target.value);
-        // setMaterial({ ...material, Description: event.target.value });
-    };
-
-    const handleDescBlur = () => {
-        setIsEditingDesc(false);
-    };
-
     const handleTimeClick = () => {
         setIsEditingTime(true);
     };
@@ -53,6 +46,55 @@ function EditExam() {
 
     const handleTimeBlur = () => {
         setIsEditingTime(false);
+    };
+
+    const handleCancel = () => {
+        handleBackStep();
+        // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
+    };
+
+    const handleConfirm = async () => {
+        // await axios
+        //     .post(
+        //         `${config.baseUrl}/api/units/${chosenExam.unitId}/material`,
+        //         {
+        //             content: materialTitle,
+        //             requiredTime: approximateTime,
+        //             content: content,
+        //         },
+        //         {
+        //             headers: {
+        //                 Authorization: `Bearer ${accessToken}`,
+        //             },
+        //         },
+        //     )
+        //     .then((response) => {
+        //         handleBackStep();
+        //         handleMaterialsUpdate(material);
+        //     })
+        //     .catch((error) => {
+        //         console.error(error);
+        //     });
+        //     await axios.post(`${config.baseUrl}/api/units/${material.unitId}/material`,
+        //     {
+        //         title: materialTitle,
+        //         requiredTime: approximateTime,
+        //         content: content,
+        //     },
+        //     {
+        //         headers: {
+        //             Authorization: `Bearer ${accessToken}`,
+        //         },
+        //     },
+        // )
+        // .then((response) => {
+        //     handleBackStep();
+        //     handleMaterialsUpdate(material);
+        // })
+        // .catch((error) => {
+        //     console.error(error);
+        // });
+        // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 
     return (
@@ -87,24 +129,15 @@ function EditExam() {
                     </p>
                 )}
             </div>
-            {isEditingDesc ? (
-                <input
-                    type="text"
-                    className={cx('titleInput')}
-                    value={examDesc}
-                    onChange={handleDescChange}
-                    onBlur={handleDescBlur}
-                    autoFocus
-                />
-            ) : (
-                <p className={cx('examDesc')} onClick={handleDescClick}>
-                    {examDesc}
-                </p>
-            )}
             <div className={cx('bodyContainer')}>
-                <MultiChoicesQuesTion title={'Question'} addBtnName={'Add Question'} />
+                <MultiChoicesQuesTion
+                    editingExam={chosenExam}
+                    title={'Question'}
+                    addBtnName={'Add Question'}
+                    onHandleQuestionList={handleQuestion}
+                />
             </div>
-            <CancelConfirmBtns />
+            <CancelConfirmBtns onCancel={handleCancel} />
         </div>
     );
 }

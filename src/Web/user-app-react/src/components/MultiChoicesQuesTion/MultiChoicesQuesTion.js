@@ -1,76 +1,49 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
+import config from '~/config';
+import EditQuestion from '~/pages/Publisher/AddCourses/EditLesson/EditExam/EditQuestion/EditQuestion';
 
 import styles from './MultiChoicesQuesTion.module.scss';
 
 const cx = classNames.bind(styles);
 
-// const questionList = [
-//     {
-//         Content: 'question a',
-//         Point: 1,
-//         Choice: [
-//             {
-//                 Content: 'answer 1',
-//                 IsCorrect: false,
-//             },
-//             {
-//                 Content: 'answer 2',
-//                 IsCorrect: false,
-//             },
-//             {
-//                 Content: 'answer 3',
-//                 IsCorrect: true,
-//             },
-//         ],
-//     },
-//     {
-//         Content: 'question b',
-//         Point: 1,
-//         Choice: [
-//             {
-//                 Content: 'answer 1',
-//                 IsCorrect: true,
-//             },
-//             {
-//                 Content: 'answer 2',
-//                 IsCorrect: false,
-//             },
-//             {
-//                 Content: 'answer 3',
-//                 IsCorrect: false,
-//             },
-//         ],
-//     },
-//     {
-//         Content: 'question c',
-//         Point: 1,
-//         Choice: [
-//             {
-//                 Content: 'answer 1',
-//                 IsCorrect: false,
-//             },
-//             {
-//                 Content: 'answer 2',
-//                 IsCorrect: true,
-//             },
-//             {
-//                 Content: 'answer 3',
-//                 IsCorrect: false,
-//             },
-//         ],
-//     },
-// ];
-
-function MultiChoicesQuesTion({ title, addBtnName }) {
+function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestionList }) {
     const [questions, setQuestions] = useState([]);
+    const [chosenQuestion, setChosenQuestion] = useState(null);
     const [answers, setAnswers] = useState([]);
+    const [step, setStep] = useState(0);
 
-    // useEffect(() => {
-    //     console.log(questions);
-    // }, [questions]);
+    const accessToken = localStorage.getItem('accessToken');
+
+    useEffect(() => {
+        axios
+            .get(`${config.baseUrl}/api/units/${editingExam.unitId}/exam`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            })
+            .then((response) => {
+                setQuestions(response.data.questions);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [editingExam]);
+
+    const handleEditQuestionClick = () => {
+        setStep(1);
+    };
+
+    const handleEditQuestion = (item) => {
+        handleEditQuestionClick();
+        setChosenQuestion(item);
+        console.log(item);
+
+        // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson/edit-material`);
+    };
 
     const handleAnswerChange = (questionIndex, answerIndex) => {
         setAnswers((prevAnswers) => {
@@ -81,10 +54,10 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
         setQuestions((prevQuestionList) => {
             const newQuestionList = [...prevQuestionList];
             const newQuestion = { ...newQuestionList[questionIndex] };
-            newQuestion.Choice = newQuestion.Choice.map((choice, index) => {
+            newQuestion.choices = newQuestion.choices.map((choice, index) => {
                 return {
                     ...choice,
-                    IsCorrect: index === answerIndex,
+                    isCorrect: index === answerIndex,
                 };
             });
             newQuestionList[questionIndex] = newQuestion;
@@ -92,57 +65,108 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
         });
     };
 
-    const handleAddLessonClick = (event) => {
+    const handleAddQuestionClick = async (event) => {
         event.preventDefault();
         if (questions.length === 0) {
             const defaultNewQuestion = {
                 // LessonId: 1,
-                Content: `New item 1`,
-                Point: 1,
-                Choice: [
+                content: `New question 1`,
+                point: 1,
+                choices: [
                     {
-                        Content: 'answer 1',
-                        IsCorrect: true,
+                        content: 'answer 1',
+                        isCorrect: true,
                     },
                     {
-                        Content: 'answer 2',
-                        IsCorrect: false,
+                        content: 'answer 2',
+                        isCorrect: false,
                     },
                     {
-                        Content: 'answer 3',
-                        IsCorrect: false,
+                        content: 'answer 3',
+                        isCorrect: false,
                     },
                 ],
             };
-            const addedQuestionsList = [defaultNewQuestion];
-            setQuestions(addedQuestionsList);
+
+            await axios
+                .post(
+                    `${config.baseUrl}/api/units/questions`,
+                    {
+                        content: defaultNewQuestion.content,
+                        point: defaultNewQuestion.point,
+                        examUnitId: editingExam.unitId,
+                        choices: defaultNewQuestion.choices,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedQuestionsList = [defaultNewQuestion];
+                    setQuestions(addedQuestionsList);
+                    onHandleQuestionList(addedQuestionsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    console.error(defaultNewQuestion.choices);
+                });
         } else {
             const defaultNewQuestion = {
                 // LessonId: lessons[lessons.length - 1].LessonId + 1,
-                Content: `New item ${questions.length + 1}`,
-                Point: 1,
-                Choice: [
+                content: `New question ${questions.length + 1}`,
+                point: 1,
+                choices: [
                     {
-                        Content: 'answer 1',
-                        IsCorrect: true,
+                        content: 'answer 1',
+                        isCorrect: true,
                     },
                     {
-                        Content: 'answer 2',
-                        IsCorrect: false,
+                        content: 'answer 2',
+                        isCorrect: false,
                     },
                     {
-                        Content: 'answer 3',
-                        IsCorrect: false,
+                        content: 'answer 3',
+                        isCorrect: false,
                     },
                 ],
             };
-            const addedQuestionsList = [...questions, defaultNewQuestion];
-            setQuestions(addedQuestionsList);
+            await axios
+                .post(
+                    `${config.baseUrl}/api/units/questions`,
+                    {
+                        content: defaultNewQuestion.content,
+                        point: defaultNewQuestion.point,
+                        examUnitId: editingExam.unitId,
+                        choices: defaultNewQuestion.choices,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    },
+                )
+                .then((response) => {
+                    console.log(response.data);
+                    const addedQuestionsList = [...questions, defaultNewQuestion];
+                    setQuestions(addedQuestionsList);
+                    onHandleQuestionList(addedQuestionsList);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
         // setLessons(addedLessonsList);
     };
 
-    const handleDeleteQuestion = (index) => {
+    const handleDeleteQuestion = async (question, index) => {
+        await axios.delete(`${config.baseUrl}/api/units/questions/${question.questionId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
         setQuestions((prevQuestionList) => {
             const newQuestionList = [...prevQuestionList];
             newQuestionList.splice(index, 1);
@@ -155,11 +179,11 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
             const newQuestionList = [...prevQuestionList];
             newQuestionList[questionIndex] = {
                 ...newQuestionList[questionIndex],
-                Choice: [
-                    ...newQuestionList[questionIndex].Choice,
+                choices: [
+                    ...newQuestionList[questionIndex].choices,
                     {
-                        Content: 'new answer',
-                        IsCorrect: false,
+                        content: 'new answer',
+                        isCorrect: false,
                     },
                 ],
             };
@@ -170,10 +194,10 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
     const handleChoiceContentEdit = (questionIndex, choiceIndex, newContent) => {
         setQuestions((prevQuestionList) => {
             const questionToUpdate = prevQuestionList[questionIndex];
-            const updatedChoices = [...questionToUpdate.Choice];
+            const updatedChoices = [...questionToUpdate.choices];
             const choiceToUpdate = updatedChoices[choiceIndex];
-            choiceToUpdate.Content = newContent;
-            questionToUpdate.Choice = updatedChoices;
+            choiceToUpdate.content = newContent;
+            questionToUpdate.choices = updatedChoices;
             const updatedQuestionList = [...prevQuestionList];
             updatedQuestionList[questionIndex] = questionToUpdate;
             return updatedQuestionList;
@@ -183,7 +207,7 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
     const handleChoiceClick = (questionIndex, choiceIndex) => {
         const newContent = window.prompt(
             'Enter new content of the answer:',
-            questions[questionIndex].Choice[choiceIndex].Content,
+            questions[questionIndex].choices[choiceIndex].content,
         );
         if (newContent !== null) {
             handleChoiceContentEdit(questionIndex, choiceIndex, newContent);
@@ -191,53 +215,64 @@ function MultiChoicesQuesTion({ title, addBtnName }) {
     };
 
     return (
-        <div className={cx('wrapper')}>
-            <div className={cx('top')}>
-                <p className={cx('title')}>{title}</p>
-                <button className={cx('addQuestionBtn')} onClick={handleAddLessonClick}>
-                    {addBtnName}
-                </button>
-            </div>
-            <ul className={cx('body')}>
-                {questions.map((item, questionIndex) => (
-                    <li className={cx('question')} key={questionIndex}>
-                        <div className={cx('questionHeader')}>
-                            <p className={cx('questionName')}>
-                                Question {questionIndex + 1}: {item.Content}
-                            </p>
-                            <div className={cx('rightHeader')}>
-                                <p className={cx('point')}>{item.Point} Point</p>
-                                <button className={cx('deleteBtn')} onClick={() => handleDeleteQuestion(questionIndex)}>
-                                    X
-                                </button>
-                            </div>
-                        </div>
-                        <ul className={cx('answerList')}>
-                            {item.Choice.map((choice, answerIndex) => (
-                                <li key={answerIndex} className={cx('answerLi')}>
-                                    <label className={cx('answerLabel')}>
-                                        <input
-                                            className={cx('answerInput')}
-                                            type="radio"
-                                            name={`question-${questionIndex}`}
-                                            value={choice.Content}
-                                            checked={answers[questionIndex] === answerIndex}
-                                            onChange={() => handleAnswerChange(questionIndex, answerIndex)}
-                                        />
-                                        <span onClick={() => handleChoiceClick(questionIndex, answerIndex)}>
-                                            {choice.Content}
-                                        </span>
-                                    </label>
-                                </li>
-                            ))}
-                        </ul>
-                        <button className={cx('addAnswerBtn')} onClick={() => handleAddAnswer(questionIndex)}>
-                            <FontAwesomeIcon icon={faPlus} />
+        <>
+            {step === 0 && (
+                <div className={cx('wrapper')}>
+                    <div className={cx('top')}>
+                        <p className={cx('title')}>{title}</p>
+                        <button className={cx('addQuestionBtn')} onClick={handleAddQuestionClick}>
+                            {addBtnName}
                         </button>
-                    </li>
-                ))}
-            </ul>
-        </div>
+                    </div>
+                    <ul className={cx('body')}>
+                        {questions.map((item, questionIndex) => (
+                            <li className={cx('question')} key={questionIndex}>
+                                <div className={cx('questionHeader')}>
+                                    <p className={cx('questionName')}>
+                                        Question {questionIndex + 1}: {item.content}
+                                    </p>
+                                    <div className={cx('rightHeader')}>
+                                        <p className={cx('point')}>{item.point} Point</p>
+                                        <p className={cx('edit')} onClick={() => handleEditQuestion(item)}>
+                                            Edit
+                                        </p>
+                                        <button
+                                            className={cx('deleteBtn')}
+                                            onClick={() => handleDeleteQuestion(item, questionIndex)}
+                                        >
+                                            X
+                                        </button>
+                                    </div>
+                                </div>
+                                {/* <ul className={cx('answerList')}>
+                                {item.choices.map((choice, answerIndex) => (
+                                    <li key={answerIndex} className={cx('answerLi')}>
+                                        <label className={cx('answerLabel')}>
+                                            <input
+                                                className={cx('answerInput')}
+                                                type="radio"
+                                                name={`question-${questionIndex}`}
+                                                value={choice.content}
+                                                checked={answers[questionIndex] === answerIndex}
+                                                onChange={() => handleAnswerChange(questionIndex, answerIndex)}
+                                            />
+                                            <span onClick={() => handleChoiceClick(questionIndex, answerIndex)}>
+                                                {choice.content}
+                                            </span>
+                                        </label>
+                                    </li>
+                                ))}
+                            </ul>
+                            <button className={cx('addAnswerBtn')} onClick={() => handleAddAnswer(questionIndex)}>
+                                <FontAwesomeIcon icon={faPlus} />
+                            </button> */}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            {step === 1 && <EditQuestion />}
+        </>
     );
 }
 
