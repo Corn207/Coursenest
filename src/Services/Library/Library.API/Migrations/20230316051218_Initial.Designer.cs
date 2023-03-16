@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Library.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230316024126_ModifiedOrderColumnTypeAndCalculation")]
-    partial class ModifiedOrderColumnTypeAndCalculation
+    [Migration("20230316051218_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -151,10 +151,10 @@ namespace Library.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Order")
+                    b.Property<double>("Order")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("real")
-                        .HasComputedColumnSql("([OrderNumerator] * 1.0 / [OrderDenominator])", true);
+                        .HasColumnType("float")
+                        .HasComputedColumnSql("CAST(([OrderNumerator] * 1.0 / [OrderDenominator]) AS float)", true);
 
                     b.Property<int>("OrderDenominator")
                         .HasColumnType("int");
@@ -280,10 +280,10 @@ namespace Library.API.Migrations
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
-                    b.Property<float>("Order")
+                    b.Property<double>("Order")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("real")
-                        .HasComputedColumnSql("([OrderNumerator] * 1.0 / [OrderDenominator])", true);
+                        .HasColumnType("float")
+                        .HasComputedColumnSql("CAST(([OrderNumerator] * 1.0 / [OrderDenominator]) AS float)", true);
 
                     b.Property<int>("OrderDenominator")
                         .HasColumnType("int");
