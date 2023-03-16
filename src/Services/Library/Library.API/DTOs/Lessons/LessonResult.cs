@@ -7,5 +7,5 @@ public record LessonResult
 	public int LessonId { get; set; }
 	public string Title { get; set; }
 	public string Description { get; set; }
-	public decimal Order { get; set; }
+	public float Order { get; set; }
 }

@@ -165,7 +165,7 @@ public class EnrollmentsController : ControllerBase
 			.FirstOrDefaultAsync(x =>
 				x.StudentUserId == userId &&
 				x.EnrollmentId == body.EnrollmentId &&
-				x.Completed != null);
+				x.Completed == null);
 		if (enrollment == null)
 			return NotFound("EnrollmentId does not exist or completed or you're not authorized.");
 		if (enrollment.CompletedUnits.Any(x => x.UnitId == body.UnitId))

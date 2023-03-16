@@ -13,13 +13,11 @@ public class DataContext : DbContext
 	{
 		builder.Entity<Lesson>()
 			.Property(x => x.Order)
-			.HasColumnType("decimal")
-			.HasComputedColumnSql($"[{nameof(Lesson.OrderNumerator)}] / [{nameof(Lesson.OrderDenominator)}] * 1.0", stored: true);
+			.HasComputedColumnSql($"([{nameof(Lesson.OrderNumerator)}] * 1.0 / [{nameof(Lesson.OrderDenominator)}])", stored: true);
 
 		builder.Entity<Unit>()
 			.Property(x => x.Order)
-			.HasColumnType("decimal")
-			.HasComputedColumnSql($"[{nameof(Unit.OrderNumerator)}] / [{nameof(Unit.OrderDenominator)}] * 1.0", stored: true);
+			.HasComputedColumnSql($"([{nameof(Lesson.OrderNumerator)}] * 1.0 / [{nameof(Lesson.OrderDenominator)}])", stored: true);
 	}
 
 
