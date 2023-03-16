@@ -10,11 +10,9 @@ import styles from './MultiChoicesQuesTion.module.scss';
 
 const cx = classNames.bind(styles);
 
-function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestionList }) {
+function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestionList, onEditClick }) {
     const [questions, setQuestions] = useState([]);
-    const [chosenQuestion, setChosenQuestion] = useState(null);
     const [answers, setAnswers] = useState([]);
-    const [step, setStep] = useState(0);
 
     const accessToken = localStorage.getItem('accessToken');
 
@@ -33,15 +31,14 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
             });
     }, [editingExam]);
 
-    const handleEditQuestionClick = () => {
-        setStep(1);
-    };
+    // const handleEditQuestionClick = () => {
+    //     setStep(1);
+    // };
 
     const handleEditQuestion = (item) => {
-        handleEditQuestionClick();
-        setChosenQuestion(item);
+        onEditClick(item);
+        // setChosenQuestion(item);
         console.log(item);
-
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson/edit-material`);
     };
 
@@ -216,35 +213,34 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
 
     return (
         <>
-            {step === 0 && (
-                <div className={cx('wrapper')}>
-                    <div className={cx('top')}>
-                        <p className={cx('title')}>{title}</p>
-                        <button className={cx('addQuestionBtn')} onClick={handleAddQuestionClick}>
-                            {addBtnName}
-                        </button>
-                    </div>
-                    <ul className={cx('body')}>
-                        {questions.map((item, questionIndex) => (
-                            <li className={cx('question')} key={questionIndex}>
-                                <div className={cx('questionHeader')}>
-                                    <p className={cx('questionName')}>
-                                        Question {questionIndex + 1}: {item.content}
+            <div className={cx('wrapper')}>
+                <div className={cx('top')}>
+                    <p className={cx('title')}>{title}</p>
+                    <button className={cx('addQuestionBtn')} onClick={handleAddQuestionClick}>
+                        {addBtnName}
+                    </button>
+                </div>
+                <ul className={cx('body')}>
+                    {questions.map((item, questionIndex) => (
+                        <li className={cx('question')} key={questionIndex}>
+                            <div className={cx('questionHeader')}>
+                                <p className={cx('questionName')}>
+                                    Question {questionIndex + 1}: {item.content}
+                                </p>
+                                <div className={cx('rightHeader')}>
+                                    <p className={cx('point')}>{item.point} Point</p>
+                                    <p className={cx('edit')} onClick={() => handleEditQuestion(item)}>
+                                        Edit
                                     </p>
-                                    <div className={cx('rightHeader')}>
-                                        <p className={cx('point')}>{item.point} Point</p>
-                                        <p className={cx('edit')} onClick={() => handleEditQuestion(item)}>
-                                            Edit
-                                        </p>
-                                        <button
-                                            className={cx('deleteBtn')}
-                                            onClick={() => handleDeleteQuestion(item, questionIndex)}
-                                        >
-                                            X
-                                        </button>
-                                    </div>
+                                    <button
+                                        className={cx('deleteBtn')}
+                                        onClick={() => handleDeleteQuestion(item, questionIndex)}
+                                    >
+                                        X
+                                    </button>
                                 </div>
-                                {/* <ul className={cx('answerList')}>
+                            </div>
+                            {/* <ul className={cx('answerList')}>
                                 {item.choices.map((choice, answerIndex) => (
                                     <li key={answerIndex} className={cx('answerLi')}>
                                         <label className={cx('answerLabel')}>
@@ -266,12 +262,11 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
                             <button className={cx('addAnswerBtn')} onClick={() => handleAddAnswer(questionIndex)}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </button> */}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-            {step === 1 && <EditQuestion />}
+                            {/*  */}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </>
     );
 }

@@ -6,6 +6,7 @@ import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
 import config from '~/config';
 
 import styles from './EditExam.module.scss';
+import EditQuestion from './EditQuestion';
 
 const cx = classNames.bind(styles);
 
@@ -15,6 +16,13 @@ function EditExam({ chosenExam, handleBackStep }) {
     const [isEditingTime, setIsEditingTime] = useState(false);
     const [timeLimit, setTimeLimit] = useState(chosenExam.requiredMinutes);
     const [questionList, setQuestionList] = useState([]);
+    const [chosenQuestion, setChosenQuestion] = useState(null);
+    const [step, setStep] = useState(0);
+
+    const handleEditQuestionClick = (item) => {
+        setStep(1);
+        setChosenQuestion(item);
+    };
 
     const handleQuestion = (arr) => {
         setQuestionList(arr);
@@ -50,6 +58,11 @@ function EditExam({ chosenExam, handleBackStep }) {
 
     const handleCancel = () => {
         handleBackStep();
+        // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
+    };
+
+    const handleCancelQuestion = () => {
+        setStep(0);
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 
@@ -98,47 +111,59 @@ function EditExam({ chosenExam, handleBackStep }) {
     };
 
     return (
-        <div className={cx('wrapper')}>
-            <div className={cx('topContent')}>
-                {isEditingTitle ? (
-                    <input
-                        type="text"
-                        className={cx('titleInput')}
-                        value={examTitle}
-                        onChange={handleTitleChange}
-                        onBlur={handleTitleBlur}
-                        autoFocus
-                    />
-                ) : (
-                    <p className={cx('examTitle')} onClick={handleTitleClick}>
-                        {examTitle}
-                    </p>
-                )}
-                {isEditingTime ? (
-                    <input
-                        type="text"
-                        className={cx('TimeInput')}
-                        value={timeLimit}
-                        onChange={handleTimeChange}
-                        onBlur={handleTimeBlur}
-                        autoFocus
-                    />
-                ) : (
-                    <p className={cx('timeLimit')} onClick={handleTimeClick}>
-                        Time: {timeLimit}:00
-                    </p>
-                )}
-            </div>
-            <div className={cx('bodyContainer')}>
-                <MultiChoicesQuesTion
-                    editingExam={chosenExam}
-                    title={'Question'}
-                    addBtnName={'Add Question'}
-                    onHandleQuestionList={handleQuestion}
+        <>
+            {step === 0 && (
+                <div className={cx('wrapper')}>
+                    <div className={cx('topContent')}>
+                        {isEditingTitle ? (
+                            <input
+                                type="text"
+                                className={cx('titleInput')}
+                                value={examTitle}
+                                onChange={handleTitleChange}
+                                onBlur={handleTitleBlur}
+                                autoFocus
+                            />
+                        ) : (
+                            <p className={cx('examTitle')} onClick={handleTitleClick}>
+                                {examTitle}
+                            </p>
+                        )}
+                        {isEditingTime ? (
+                            <input
+                                type="text"
+                                className={cx('TimeInput')}
+                                value={timeLimit}
+                                onChange={handleTimeChange}
+                                onBlur={handleTimeBlur}
+                                autoFocus
+                            />
+                        ) : (
+                            <p className={cx('timeLimit')} onClick={handleTimeClick}>
+                                Time: {timeLimit}:00
+                            </p>
+                        )}
+                    </div>
+                    <div className={cx('bodyContainer')}>
+                        <MultiChoicesQuesTion
+                            editingExam={chosenExam}
+                            title={'Question'}
+                            addBtnName={'Add Question'}
+                            onHandleQuestionList={handleQuestion}
+                            onEditClick={handleEditQuestionClick}
+                        />
+                    </div>
+                    <CancelConfirmBtns onCancel={handleCancel} />
+                </div>
+            )}
+            {step === 1 && (
+                <EditQuestion
+                    examTitle={examTitle}
+                    chosenQuestion={chosenQuestion}
+                    handleBackStep={handleCancelQuestion}
                 />
-            </div>
-            <CancelConfirmBtns onCancel={handleCancel} />
-        </div>
+            )}
+        </>
     );
 }
 
