@@ -312,7 +312,7 @@ namespace Library.API.Controllers
 				return NotFound("Lesson contains both LessonIds does not exist or you're not authorized.");
 
 			var from = lesson.Units.First(x => x.UnitId == unitId);
-			var to = lesson.Units.First(x => x.LessonId == body.ToId);
+			var to = lesson.Units.First(x => x.UnitId == body.ToId);
 
 			if (body.IsBefore)
 			{
