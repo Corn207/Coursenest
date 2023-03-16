@@ -1,16 +1,20 @@
 import { useParams } from "react-router";
-import instance from "../../../api/request";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import axios from "axios";
+import LoadingSpinner from "~/components/LoadingSpinner/LoadingSpinner";
 import { useState, useEffect } from "react";
+import config from "~/config";
 
 export default function Material() {
     const { materialId } = useParams();
     const [isLoading, setIsLoading] = useState(false);
     const [material, setMaterial] = useState({});
+    const tokenStr = localStorage.getItem('accessToken');
 
     useEffect(() => {
         setIsLoading(true);
-        instance.get(`units/${materialId}/material`)
+        axios.get(`${config.baseUrl}/api/units/${materialId}/material`, {
+            headers: { Authorization: `Bearer ${tokenStr}` }
+        })
         .then((res) => {
             setMaterial(res.data)
         })

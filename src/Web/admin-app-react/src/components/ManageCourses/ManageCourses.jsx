@@ -27,7 +27,6 @@ export default function ManageCourses() {
         instance
             .get(`/courses?IsApproved=${false}&PageNumber=${page}&PageSize=${pageSize}`)
             .then((res) => {
-                console.log(res.data.queried);
                 setListCourses(res.data.queried);
                 setCountCourses(res.data.total)
             })
@@ -55,7 +54,6 @@ export default function ManageCourses() {
     };
 
     const handleOnChangePageSize = event => {
-        console.log(event.target.value);
         setPageSize(parseInt(event.target.value));
     };
 

@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
-import Footer from '~/components/Footer/Footer';
 import InstructorSideBar from '~/components/InstructorSideBar';
 
 import styles from './Instructor.module.scss';
@@ -15,7 +14,6 @@ function Instructor() {
                 <InstructorSideBar />
                 <Outlet />
             </div>
-            <Footer />
         </div>
     );
 }

@@ -40,7 +40,7 @@ export default function UnapprovedCourse() {
             })
             .catch((err) => console.log(err))
             .finally(() => setIsLoading(false))
-    }, []);
+    }, [id]);
 
     const [open, setOpen] = useState(0);
     const handleToggleButton = (lesson) => {

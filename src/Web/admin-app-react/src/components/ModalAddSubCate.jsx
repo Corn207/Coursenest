@@ -14,7 +14,6 @@ function ModalAddSubCate(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = {content: info, parentId: cateId}
-        console.log(data);
         instance
             .post(`subcategories`, data)
             .then(() => {

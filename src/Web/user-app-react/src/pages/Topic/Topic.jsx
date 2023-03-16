@@ -8,8 +8,7 @@ import { useParams, useNavigate } from 'react-router';
 import images from '~/assets/images';
 import config from '~/config';
 
-export default function Topic(props) {
-    const { logged } = props;
+export default function Topic() {
     const { id } = useParams();
     const [topic, setTopic] = useState({});
     const [allTopicsBySub, setAllTopicsBySub] = useState([]);
@@ -19,7 +18,7 @@ export default function Topic(props) {
     const [listCourses, setListCourses] = useState([]);
     const [countCourse, setCountCourse] = useState();
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(3);
+    const [pageSize, setPageSize] = useState(2);
 
     const fetchListCourses = () => {
         axios
@@ -66,7 +65,6 @@ export default function Topic(props) {
     }, [id]);
 
     const handleOnChangePage = (event) => {
-        console.log(parseInt(event));
         setPage(parseInt(event));
     };
 
@@ -136,7 +134,7 @@ export default function Topic(props) {
             <div>
                 <h4>All Courses</h4>
                 <span>{countCourse} results</span>
-                <AllCoursesByTopic listCourses={listCourses} logged={logged}/>
+                <AllCoursesByTopic listCourses={listCourses}/>
             </div>
 
             <div>

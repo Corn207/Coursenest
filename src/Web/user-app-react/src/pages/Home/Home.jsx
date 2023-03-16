@@ -2,8 +2,6 @@ import InterestedTopics from '~/components/InterestedTopics/InterestedTopics';
 import styles from './Home.module.scss';
 import { Link } from 'react-router-dom';
 import Typical from 'react-typed';
-import tickicon from '~/assets/images/shield-tick.png';
-
 
 export default function Home(props) {
     const { logged } = props;
