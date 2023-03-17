@@ -187,7 +187,7 @@ namespace Library.API.Controllers
 				.Select(x => x.Order)
 				.OrderByDescending(x => x)
 				.FirstOrDefault();
-			material.OrderNumerator = max == default ? 1 : (int)Math.Ceiling(max);
+			material.OrderNumerator = max == default ? 1 : ((int)max + 1);
 			material.OrderDenominator = 1;
 
 			lesson.Units.Add(material);
@@ -307,12 +307,12 @@ namespace Library.API.Controllers
 				.FirstOrDefaultAsync(x =>
 					x.Course.PublisherUserId == userId &&
 					x.Units.Any(x => x.UnitId == unitId) &&
-					x.Units.Any(x => x.LessonId == body.ToId));
+					x.Units.Any(x => x.UnitId == body.ToId));
 			if (lesson == null)
 				return NotFound("Lesson contains both LessonIds does not exist or you're not authorized.");
 
 			var from = lesson.Units.First(x => x.UnitId == unitId);
-			var to = lesson.Units.First(x => x.LessonId == body.ToId);
+			var to = lesson.Units.First(x => x.UnitId == body.ToId);
 
 			if (body.IsBefore)
 			{

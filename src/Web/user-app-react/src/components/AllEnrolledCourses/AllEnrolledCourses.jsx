@@ -38,7 +38,8 @@ export default function AllEnrolledCourses(props) {
     // sửa lại navgate tới enroll-course của userId
     const handleClickGoToCourse = (coursesEnrollment) => {
         const courseId = coursesEnrollment.courseId;
-        navigate(`/courses/${courseId}`);
+        // navigate(`/courses/${courseId}`);
+        navigate(`/enrolled/course`);
     };
 
     // học xong mới đc review nhưng api thì rv đc miễn là đã enroll nên sửa UI theo api

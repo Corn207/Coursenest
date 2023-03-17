@@ -34,7 +34,9 @@ export default function Header(props) {
             `}</style>
 
             <div className={styles.leftHeader}>
-                <img src={images.purpleLogo} alt="" />
+                <div style={{cursor: 'pointer'}} onClick={() => navigate(`/`)}>
+                    <img src={images.purpleLogo} alt="" />
+                </div>
                 <div className={styles.dropdownMenu}>
                     <div className={styles.textDecoration} onClick={() => handleShowCategory()}>
                         <p className={isShownCategory ? 'purpleColor' : ''}>Categories</p>

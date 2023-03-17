@@ -1,16 +1,20 @@
 import { useParams } from "react-router";
-import instance from "../../../api/request";
-import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import { useState, useEffect } from "react";
+import axios from "axios";
+import config from "~/config";
+import LoadingSpinner from "~/components/LoadingSpinner/LoadingSpinner";
 
 export default function Exam() {
     const { examId } = useParams();
     const [isLoading, setIsLoading] = useState(false);
     const [exam, setExam] = useState({});
+    const tokenStr = localStorage.getItem('accessToken');
 
     useEffect(() => {
         setIsLoading(true);
-        instance.get(`units/${examId}/exam`)
+        axios.get(`${config.baseUrl}/api/units/${examId}/exam`, {
+            headers: { Authorization: `Bearer ${tokenStr}` }
+        })
         .then((res) => {
             setExam(res.data)
         })
@@ -30,7 +34,7 @@ export default function Exam() {
                         {(question.choices).map((choice, index) => {
                             return (
                                 <div key={index} style={{marginTop: 10}}>
-                                    <label><input type="radio" disabled/> {choice.content}</label>
+                                    <label><input type="radio"/> {choice.content}</label>
                                 </div>
                             )
                         })}

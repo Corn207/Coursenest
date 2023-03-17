@@ -6,12 +6,18 @@ namespace CommonLibrary.API.MessageBus.Responses;
 
 public record CredentialResults
 {
-	public IEnumerable<CredentialResult> Credentials { get; set; }
+	public CredentialResult[] Credentials { get; set; }
 
 	public record CredentialResult
 	{
 		public int UserId { get; set; }
 		public string Username { get; set; }
-		public IEnumerable<RoleType> Roles { get; set; }
+		public RoleResult[] Roles { get; set; }
+	}
+
+	public record RoleResult
+	{
+		public RoleType Type { get; set; }
+		public DateTime Expiry { get; set; }
 	}
 }

@@ -50,7 +50,6 @@ export default function DisplayAdminInfo() {
             .then((res) => {
                 setUserInfo(res.data);
                 if (res.data.avatar != null) setAvatar(res.data.avatar.uri);
-                console.log(res.data);
                 setUserInfoNeedUpdate({                
                     "email": res.data.email,
                     "phonenumber": res.data.phonenumber,
@@ -63,61 +62,6 @@ export default function DisplayAdminInfo() {
             })
             .catch((err) => console.log(err));
     }
-
-    // const handleNewImage = (e) => {
-    //     setFile(e.target.files[0]);
-    //     const objectUrl = URL.createObjectURL(e.target.files[0]);
-    //     setPreview(objectUrl);
-    // }
-
-    // const handleClickSaveChangeAvatar = () => {
-    //     const formData = new FormData();
-    //     formData.append("formFile", file);
-    //     instance
-    //         .put(`users/me/cover`, formData, {
-    //             headers: {
-    //                 'Content-Type': "multipart/form-data"
-    //             }
-    //         })
-    //         .then(() => {
-    //             fetchInfoUser();
-    //             setShowModalChangeAvatar(false);
-    //         })
-    //         .catch((err) => {
-    //             console.log(err);
-    //         })
-    // }
-
-    // const handleClickEditInfo = () => {
-    //     console.log(userInfoNeedUpdate);
-    //     setShowModalEditInfo(true);
-    // }
-
-    // const handleConfirmUpdateInfo = (event) => {
-    //     // test
-    //     // const userInfoNeedUpdate = { "dateOfBirth": "2023-02-13T13:30:20-05:00" }
-    //     event.preventDefault();
-    //     console.log(userInfoNeedUpdate);
-    //     instance
-    //         .put(`users/me`, userInfoNeedUpdate)
-    //         .then((res) => {
-    //             console.log(res.data);
-    //             setShowModalEditInfo(false);
-    //             fetchInfoUser();
-    //         })
-    //         .catch((err) => {
-    //             console.log(err);
-    //         })
-
-    // }
-
-    // const handleChangeInfo = (event) => {
-    //     const value = event.target.value;
-    //     setUserInfoNeedUpdate({
-    //         ...userInfoNeedUpdate,
-    //         [event.target.name]: value
-    //     });
-    // }
 
     // update basic info
     const handleClickEditInfo = () => {
@@ -160,7 +104,6 @@ export default function DisplayAdminInfo() {
     const handleConfirmUpdateInfo = (event) => {
         event.preventDefault();
         const update = getUpdatedKeys(userInfoNeedUpdate, currentInfo);
-        console.log(gender);
 
         if (update.length === 0) {
             setShowModalEditInfo(false);

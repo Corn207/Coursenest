@@ -9,7 +9,7 @@ public class Lesson
 	public string Description { get; set; }
 	public int OrderNumerator { get; set; }
 	public int OrderDenominator { get; set; }
-	public float Order { get; set; }
+	public double Order { get; set; }
 
 	// Relationship
 	public int CourseId { get; set; }
