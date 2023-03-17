@@ -51,7 +51,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
 
     useEffect(() => {
         fetchUnits();
-    }, [materials]);
+    }, [lesson]);
 
     const navigate = useNavigate();
     let params = useParams();
