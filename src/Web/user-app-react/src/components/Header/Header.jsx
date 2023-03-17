@@ -7,6 +7,8 @@ import GuestActions from '../UserAction/GuestActions';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header(props) {
+    const userId = localStorage.getItem('userId');
+
     const navigate = useNavigate();
     const {
         logged,
@@ -34,7 +36,7 @@ export default function Header(props) {
             `}</style>
 
             <div className={styles.leftHeader}>
-                <div style={{cursor: 'pointer'}} onClick={() => navigate(`/`)}>
+                <div style={{ cursor: 'pointer' }} onClick={() => navigate(`/`)}>
                     <img src={images.purpleLogo} alt="" />
                 </div>
                 <div className={styles.dropdownMenu}>
@@ -105,13 +107,18 @@ export default function Header(props) {
             <div className={styles.rightHeader}>
                 {logged && (
                     <>
-                       <div className={styles.searchInput}>
+                        <div className={styles.searchInput}>
                             <div className="input-group">
-                                 <input className="form-control border-end-0 border rounded-pill" type="search" placeholder='search' id="example-search-input" />
+                                <input
+                                    className="form-control border-end-0 border rounded-pill"
+                                    type="search"
+                                    placeholder="search"
+                                    id="example-search-input"
+                                />
                             </div>
-                       </div>
+                        </div>
                         {isPublisher && (
-                            <div onClick={() => navigate(`/publisher`)}>
+                            <div onClick={() => navigate(`/publisher/${userId}`)}>
                                 <img className={styles.publisherEditIcon} src={images.publisherEditIcon} alt="" />
                             </div>
                         )}
@@ -123,7 +130,7 @@ export default function Header(props) {
                         <UserActions />
                     </>
                 )}
-                {!logged && (<GuestActions />)}
+                {!logged && <GuestActions />}
             </div>
         </div>
     );
