@@ -21,20 +21,16 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
     const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
+        const accessToken = localStorage.getItem('accessToken');
         axios
-            .get(
-                `${config.baseUrl}/api/lessons`,
-                {
-                    params: {
-                        courseId: params.courseId,
-                    },
+            .get(`${config.baseUrl}/api/lessons`, {
+                params: {
+                    courseId: params.courseId,
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
                 },
-            )
+            })
             .then((response) => {
                 const sortedLessons = response.data.sort((a, b) => a.order - b.order);
                 setLessons([...sortedLessons]);
