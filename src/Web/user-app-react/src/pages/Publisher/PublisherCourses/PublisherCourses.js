@@ -4,7 +4,6 @@ import classNames from 'classnames/bind';
 import React, { useEffect, useState } from 'react';
 import {
     Checkbox,
-    makeStyles,
     Paper,
     Table,
     TableBody,
@@ -13,7 +12,9 @@ import {
     TableFooter,
     TableHead,
     TableRow,
-} from '@material-ui/core';
+} from '@mui/material';
+
+import { makeStyles } from '@mui/styles';
 
 import styles from './PublisherCourses.module.scss';
 import axios from 'axios';

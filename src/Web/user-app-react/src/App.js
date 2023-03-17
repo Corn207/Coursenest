@@ -97,17 +97,37 @@ function App() {
                                 <Route path="material/:materialId" element={<Material />} />
                                 <Route path="exam/:examId" element={<Exam />} />
                             </Route>
-                            <Route path="instructor" element={<Instructor />}>
-                                <Route index element={<Following />}></Route>
-                                <Route path="following" element={<Following />}></Route>
-                                <Route path="pending" element={<Pending />}></Route>
-                                <Route path="history" element={<History />}></Route>
-                            </Route>
-                            <Route path="publisher" element={<Publisher />}>
-                                <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
-                                <Route path="courses" element={<PublisherCourses />}></Route>
-                                <Route path="add-course" element={<AddCourses />}></Route>
-                            </Route>
+                            {checkInstructor && (
+                                <Route path="instructor" element={<Instructor />}>
+                                    <Route index element={<Following />}></Route>
+                                    <Route path="following" element={<Following />}></Route>
+                                    <Route path="pending" element={<Pending />}></Route>
+                                    <Route path="history" element={<History />}></Route>
+                                </Route>
+                            )}
+                            {checkPublisher && (
+                                <Route path="publisher" element={<Publisher />}>
+                                    {/* <Route index element={<PublisherCourses />}></Route> */}
+                                    <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
+                                    {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
+                                    <Route
+                                        path=":PublisherUserId/add-course"
+                                        element={<AddCourses isEditCourse={false} />}
+                                    ></Route>
+                                    <Route
+                                        path=":PublisherUserId/add-course/add-lesson"
+                                        element={<EditLesson />}
+                                    ></Route>
+                                    <Route
+                                        path=":PublisherUserId/add-course/add-lesson/edit-material"
+                                        element={<EditMaterial />}
+                                    ></Route>
+                                    <Route
+                                        path=":PublisherUserId/edit-course/:courseId"
+                                        element={<AddCourses isEditCourse={true} />}
+                                    ></Route>
+                                </Route>
+                            )}
                         </>
                     )}
                 </Route>
