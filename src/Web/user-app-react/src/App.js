@@ -20,12 +20,12 @@ import Topic from './pages/Topic/Topic';
 import Course from './pages/Course/Course/Course';
 import Material from './pages/Course/Material/Material';
 import Exam from './pages/Course/Exam/Exam';
+import MyCourses from './pages/MyCourses/MyCourses';
+import EnrolledCourse from './pages/Course/EnrolledCourse/EnrolledCourse';
 
 import axios from 'axios';
 import config from './config';
-import MyCourses from './pages/MyCourses/MyCourses';
 import getNumberOfDays from './helper/getNumberOfDays';
-import EnrolledCourse from './pages/Course/EnrolledCourse/EnrolledCourse';
 
 function App() {
     let logged = false;
@@ -84,17 +84,15 @@ function App() {
                     <Route index element={<Home logged={logged} />} />
                     <Route path="courses/:id" element={<Course logged={logged} />}>
                     </Route>
-                    <Route>
-                        {/* trang course enrolled */}
-                        {/* <Route path="material/:materialId" element={<Material />} />
-                        <Route path="exam/:examId" element={<Exam />} /> */}
-                    </Route>
                     <Route path="topics/:id" element={<Topic />} />
                     {logged && (
                         <>
                             <Route path="profile" element={<Profile />} />
                             <Route path="my-courses" element={<MyCourses />} />
-                            <Route path='enrolled/course' element={<EnrolledCourse/>}/>
+                            <Route path='enrolled-course/:enrollementId' element={<EnrolledCourse/>}>
+                                <Route path="material/:materialId" element={<Material />} />
+                                <Route path="exam/:examId" element={<Exam />} />
+                            </Route>
                             <Route path="instructor" element={<Instructor />}>
                                 <Route index element={<Following />}></Route>
                                 <Route path="following" element={<Following />}></Route>
