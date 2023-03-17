@@ -259,7 +259,7 @@ namespace Library.API.Controllers
 		{
 			var userId = GetUserId();
 
-			var exam = await _context.Materials
+			var exam = await _context.Exams
 				.FirstOrDefaultAsync(x =>
 					x.UnitId == unitId &&
 					x.Lesson.Course.PublisherUserId == userId);
@@ -392,7 +392,7 @@ namespace Library.API.Controllers
 
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetExam), new { question.ExamUnitId }, null);
+			return NoContent();
 		}
 
 
