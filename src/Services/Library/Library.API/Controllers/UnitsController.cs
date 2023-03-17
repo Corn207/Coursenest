@@ -392,7 +392,7 @@ namespace Library.API.Controllers
 
 			await _context.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetExam), new { question.ExamUnitId }, null);
+			return NoContent();
 		}
 
 
