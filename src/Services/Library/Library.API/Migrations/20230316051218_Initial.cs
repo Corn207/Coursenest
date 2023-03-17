@@ -121,7 +121,7 @@ namespace Library.API.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderNumerator = table.Column<int>(type: "int", nullable: false),
                     OrderDenominator = table.Column<int>(type: "int", nullable: false),
-                    Order = table.Column<decimal>(type: "decimal(18,0)", nullable: false, computedColumnSql: "[OrderNumerator] / [OrderDenominator] * 1.0", stored: true),
+                    Order = table.Column<double>(type: "float", nullable: false, computedColumnSql: "CAST(([OrderNumerator] * 1.0 / [OrderDenominator]) AS float)", stored: true),
                     CourseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -166,7 +166,7 @@ namespace Library.API.Migrations
                     RequiredMinutes = table.Column<int>(type: "int", nullable: false),
                     OrderNumerator = table.Column<int>(type: "int", nullable: false),
                     OrderDenominator = table.Column<int>(type: "int", nullable: false),
-                    Order = table.Column<decimal>(type: "decimal(18,0)", nullable: false, computedColumnSql: "[OrderNumerator] / [OrderDenominator] * 1.0", stored: true),
+                    Order = table.Column<double>(type: "float", nullable: false, computedColumnSql: "CAST(([OrderNumerator] * 1.0 / [OrderDenominator]) AS float)", stored: true),
                     LessonId = table.Column<int>(type: "int", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true)

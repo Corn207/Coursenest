@@ -8,8 +8,7 @@ function ModalDeleteUser(props) {
     const handleSubmitDelUser = () => {
         instance
             .delete(`users/${deletedData.userId}`)
-            .then((res) => {
-                console.log(res);
+            .then(() => {
                 handleClose();
                 fetchListUser();
             });

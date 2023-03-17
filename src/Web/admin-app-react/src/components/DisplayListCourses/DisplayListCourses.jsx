@@ -30,7 +30,7 @@ function DisplayListCourses(props) {
                                         <p>{course.title}</p>
                                     </div>
                                 </td>
-                                <td style={{maxWidth: 300, paddingRight: 20}}>
+                                <td style={{maxWidth: 300, paddingRight: 20, paddingTop: 20}}>
                                     <p>{course.description}</p>
                                 </td>
                                 <td style={{paddingTop: 20}}>

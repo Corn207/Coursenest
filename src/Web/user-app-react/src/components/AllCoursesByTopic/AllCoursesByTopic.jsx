@@ -4,17 +4,11 @@ import StarRatings from 'react-star-ratings';
 import { useNavigate } from 'react-router-dom';
 
 export default function AllCoursesByTopic(props) {
-    const { listCourses, logged } = props;
+    const { listCourses } = props;
 
     const navigate = useNavigate();
     const handleShowCourseDetail = (courseId) => {
-        if(logged) {
-            navigate(`/courses/${courseId}`);
-        }
-        else {
-            alert("You need to login to see this course");
-            navigate(`/sign-in`);
-        }
+        navigate(`/courses/${courseId}`);
     }
 
     return (

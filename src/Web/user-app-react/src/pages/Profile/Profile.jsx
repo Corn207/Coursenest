@@ -8,11 +8,14 @@ import experienceImg from '../../assets/images/experience.png';
 import config from '~/config';
 import axios from 'axios';
 import { isEqual, uniq } from "lodash";
+import LoadingSpinner from '~/components/LoadingSpinner/LoadingSpinner';
 
 export default function Profile() {
 
     const userId = localStorage.getItem("userId")
     const token = localStorage.getItem("accessToken");
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const [userInfo, setUserInfo] = useState({});
     const [userInfoNeedUpdate, setUserInfoNeedUpdate] = useState({});
@@ -48,6 +51,7 @@ export default function Profile() {
     }, []);
 
     const fetchInfoUser = () => {
+        setIsLoading(true);
         axios
             .get(`${config.baseUrl}/api/users/${userId}`)
             .then((res) => {
@@ -64,7 +68,8 @@ export default function Profile() {
                 })
                 setAboutMe({ "aboutMe": res.data.aboutMe });
             })
-            .catch((err) => console.log(err));
+            .catch((err) => console.log(err))
+            .finally(() => setIsLoading(false));
     }
 
     // update basic info
@@ -108,7 +113,6 @@ export default function Profile() {
     const handleConfirmUpdateInfo = (event) => {
         event.preventDefault();
         const update = getUpdatedKeys(userInfoNeedUpdate, currentInfo);
-        console.log(gender);
 
         if (update.length === 0) {
             setShowModalEditInfo(false);
@@ -228,7 +232,6 @@ export default function Profile() {
     }
 
     const handleSubmitDeleteExperience = () => {
-        console.log(deletedExperience);
         axios
             .delete(`${config.baseUrl}/api/users/me/experiences/${deletedExperience}`, {
                 headers: {
@@ -244,6 +247,8 @@ export default function Profile() {
                 console.log(err);
             })
     }
+    
+    if(isLoading) return <LoadingSpinner />
 
     return (
         <div className={styles.container}>

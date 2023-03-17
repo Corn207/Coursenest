@@ -17,12 +17,17 @@ import Publisher from '~/pages/Publisher/Publisher';
 import PublisherCourses from './pages/Publisher/PublisherCourses';
 import AddCourses from './pages/Publisher/AddCourses';
 import Topic from './pages/Topic/Topic';
-import Course from './pages/Course/Course';
+import Course from './pages/Course/Course/Course';
+import Material from './pages/Course/Material/Material';
+import Exam from './pages/Course/Exam/Exam';
+
 import axios from 'axios';
 import config from './config';
 import MyCourses from './pages/MyCourses/MyCourses';
 import EditLesson from './pages/Publisher/AddCourses/EditLesson';
 import EditMaterial from './pages/Publisher/AddCourses/EditLesson/EditMaterial';
+import getNumberOfDays from './helper/getNumberOfDays';
+import EnrolledCourse from './pages/Course/EnrolledCourse/EnrolledCourse';
 
 function App() {
     let logged = false;
@@ -31,6 +36,20 @@ function App() {
 
     const [isInstructor, setIsInstructor] = useState(false);
     const [isPublisher, setIsPublisher] = useState(false);
+
+    const checkInstructor = (role) => {
+        if (role.type === 1 && getNumberOfDays(role.expiry) > 0) {
+            return true;
+        }
+        return false;
+    };
+
+    const checkPublisher = (role) => {
+        if (role.type === 2 && getNumberOfDays(role.expiry) > 0) {
+            return true;
+        }
+        return false;
+    };
 
     const getRoleMe = () => {
         axios
@@ -68,45 +87,30 @@ function App() {
                     element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher} />}
                 >
                     <Route index element={<Home logged={logged} />} />
+                    <Route path="courses/:id" element={<Course logged={logged} />}></Route>
+                    <Route>
+                        {/* trang course enrolled */}
+                        {/* <Route path="material/:materialId" element={<Material />} />
+                        <Route path="exam/:examId" element={<Exam />} /> */}
+                    </Route>
+                    <Route path="topics/:id" element={<Topic />} />
                     {logged && (
                         <>
                             <Route path="profile" element={<Profile />} />
-                            <Route path="courses/:id" element={<Course />} />
                             <Route path="my-courses" element={<MyCourses />} />
-                            {isInstructor && (
-                                <Route path="instructor" element={<Instructor />}>
-                                    <Route index element={<Following />}></Route>
-                                    <Route path="following" element={<Following />}></Route>
-                                    <Route path="pending" element={<Pending />}></Route>
-                                    <Route path="history" element={<History />}></Route>
-                                </Route>
-                            )}
-                            {isPublisher && (
-                                <Route path="publisher" element={<Publisher />}>
-                                    {/* <Route index element={<PublisherCourses />}></Route> */}
-                                    <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
-                                    {/* <Route path="courses" element={<PublisherCourses />}></Route> */}
-                                    <Route
-                                        path=":PublisherUserId/add-course"
-                                        element={<AddCourses isEditCourse={false} />}
-                                    ></Route>
-                                    <Route
-                                        path=":PublisherUserId/add-course/add-lesson"
-                                        element={<EditLesson />}
-                                    ></Route>
-                                    <Route
-                                        path=":PublisherUserId/add-course/add-lesson/edit-material"
-                                        element={<EditMaterial />}
-                                    ></Route>
-                                    <Route
-                                        path=":PublisherUserId/edit-course/:courseId"
-                                        element={<AddCourses isEditCourse={true} />}
-                                    ></Route>
-                                </Route>
-                            )}
+                            <Route path="instructor" element={<Instructor />}>
+                                <Route index element={<Following />}></Route>
+                                <Route path="following" element={<Following />}></Route>
+                                <Route path="pending" element={<Pending />}></Route>
+                                <Route path="history" element={<History />}></Route>
+                            </Route>
+                            <Route path="publisher" element={<Publisher />}>
+                                <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
+                                <Route path="courses" element={<PublisherCourses />}></Route>
+                                <Route path="add-course" element={<AddCourses />}></Route>
+                            </Route>
                         </>
                     )}
-                    <Route path="topics/:id" element={<Topic logged={logged} />} />
                 </Route>
             </Routes>
         </div>

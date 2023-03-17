@@ -34,6 +34,7 @@ public class DefaultProfile : Profile
 
 		CreateProjection<User, UserAdminResult>();
 		CreateMap<CredentialResults.CredentialResult, UserAdminResult>();
+		CreateMap<CredentialResults.RoleResult, RoleResult>();
 
 		CreateMap<User, UserResult>();
 		CreateMap<User, UserProfileResult>();
