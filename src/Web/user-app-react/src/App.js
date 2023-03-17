@@ -97,7 +97,7 @@ function App() {
                                 <Route path="material/:materialId" element={<Material />} />
                                 <Route path="exam/:examId" element={<Exam />} />
                             </Route>
-                            {checkInstructor && (
+                            {isInstructor && (
                                 <Route path="instructor" element={<Instructor />}>
                                     <Route index element={<Following />}></Route>
                                     <Route path="following" element={<Following />}></Route>
@@ -105,7 +105,7 @@ function App() {
                                     <Route path="history" element={<History />}></Route>
                                 </Route>
                             )}
-                            {checkPublisher && (
+                            {isPublisher && (
                                 <Route path="publisher" element={<Publisher />}>
                                     {/* <Route index element={<PublisherCourses />}></Route> */}
                                     <Route path=":PublisherUserId" element={<PublisherCourses />}></Route>
