@@ -96,9 +96,11 @@ function EditMaterial({ chosenMaterial, handleBackStep, handleMaterialsUpdate })
             .then((response) => {
                 handleBackStep();
                 handleMaterialsUpdate(material);
+                console.log(material.unitId);
             })
             .catch((error) => {
-                console.error(error);
+                // console.error(error);
+                console.log(material.unitId);
             });
         // navigate(`/publisher/${params.PublisherUserId}/add-course`);
     };

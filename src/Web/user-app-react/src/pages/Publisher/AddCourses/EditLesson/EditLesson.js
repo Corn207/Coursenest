@@ -26,21 +26,16 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
     const [isEditingDesc, setIsEditingDesc] = useState(false);
     const [timeDefault, setTimeDefault] = useState(45);
 
-    useEffect(() => {
-        axios
-            .get(
-                `${config.baseUrl}/api/units`,
-                {
-                    params: {
-                        lessonId: lesson.lessonId,
-                    },
+    const fetchUnits = async () => {
+        await axios
+            .get(`${config.baseUrl}/api/units`, {
+                params: {
+                    lessonId: lesson.lessonId,
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
                 },
-            )
+            })
             .then((response) => {
                 const filteredDataMate = response.data.filter((item) => !item.isExam);
                 const filteredDataExam = response.data.filter((item) => item.isExam);
@@ -52,7 +47,11 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
             .catch((error) => {
                 console.log(error);
             });
-    }, [lesson]);
+    };
+
+    useEffect(() => {
+        fetchUnits();
+    }, [materials]);
 
     const navigate = useNavigate();
     let params = useParams();
@@ -293,7 +292,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
             });
     };
 
-    const handleEditMaterial = (item) => {
+    const handleEditMaterial = async (item) => {
         if (item.isExam) {
             handleEditExamClick();
             setChosenExam(item);
@@ -466,54 +465,6 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                                     </li>
                                 ))}
                             </ul>
-                            {/* <p className={cx('listTitle')}>Exams</p>
-                            <ul className={cx('listWrapper')}>
-                                {exams.map((item, index) => (
-                                    <li className={cx('itemDiv')} key={index}>
-                                        <p className={cx('itemTitle')}>{item.title}</p>
-                                        <div className={cx('itemAction')}>
-                                            <p className={cx('btnAction')} onClick={() => handleEditExam(item)}>
-                                                Edit
-                                            </p>
-                                            <p
-                                                className={cx('btnAction')}
-                                                onClick={() => handleDeleteMaterial(item.unitId)}
-                                            >
-                                                Delete
-                                            </p>
-                                            <p className={cx('itemOrder')}>{index + 1}</p>
-                                            <div className={cx('moveBtnContainer')}>
-                                                <button
-                                                    className={cx('moveBtn')}
-                                                    style={
-                                                        materials[materials.indexOf(item) - 1] ? activeBtn : disableBtn
-                                                    }
-                                                    onClick={(event) =>
-                                                        materials[materials.indexOf(item) - 1]
-                                                            ? moveItem(item.unitId, -1, event)
-                                                            : console.log('not allowed to click')
-                                                    }
-                                                >
-                                                    <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronUp} />
-                                                </button>
-                                                <button
-                                                    className={cx('moveBtn')}
-                                                    style={
-                                                        materials[materials.indexOf(item) + 1] ? activeBtn : disableBtn
-                                                    }
-                                                    onClick={(event) =>
-                                                        materials[materials.indexOf(item) + 1]
-                                                            ? moveItem(item.unitId, 1, event)
-                                                            : console.log('not allowed to click')
-                                                    }
-                                                >
-                                                    <FontAwesomeIcon className={cx('fontIcon')} icon={faChevronDown} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul> */}
                         </div>
                     </div>
                     <CancelConfirmBtns onConfirm={handleConfirm} onCancel={handleCancel} />

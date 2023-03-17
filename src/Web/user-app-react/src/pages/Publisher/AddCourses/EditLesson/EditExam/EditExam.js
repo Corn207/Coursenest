@@ -95,7 +95,7 @@ function EditExam({ chosenExam, handleBackStep }) {
             })
             .catch((err) => {
                 console.log(err);
-                console.log(chosenExam.unitId);
+                console.log(chosenExam);
                 console.log({
                     title: examTitle,
                     requiredMinutes: timeLimit,
