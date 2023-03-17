@@ -44,7 +44,7 @@ export default function Course(props) {
             // })
             .catch((err) => console.log(err))
             .finally(() => setIsLoading(false))
-    }, []);
+    }, [id]);
 
     // const [open, setOpen] = useState(0);
     // const handleToggleButton = (lesson) => {
@@ -68,26 +68,24 @@ export default function Course(props) {
                 });
                 if ((enrolled.data).find(item => item.courseId == id)) {
                     if (window.confirm("Go to enrolled course ?")) {
-                        navigate(`/enrolled/course`);
+                        navigate(`/my-courses`);
                     }
                 }
                 else {
                     if (window.confirm("Enroll this course ?")) {
-                        if (window.confirm("Enroll this course ?")) {
-                            axios
-                                .post(`${config.baseUrl}/api/enrollments`, id, {
-                                    headers: {
-                                        'Authorization': `Bearer ${tokenStr}`,
-                                        'Content-Type': 'application/json'
-                                    }
-                                })
-                                .then(() => {
-                                    navigate(`/enrolled/course`);
-                                })
-                                .catch((err) => {
-                                    console.log(err);
-                                })
-                        }
+                        axios
+                            .post(`${config.baseUrl}/api/enrollments`, id, {
+                                headers: {
+                                    'Authorization': `Bearer ${tokenStr}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(() => {
+                                navigate(`/my-courses`);
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            })
                     }
                 }
             }
@@ -108,7 +106,7 @@ export default function Course(props) {
                         });
                         if ((enrolled.data).find(item => item.courseId == id)) {
                             if (window.confirm("Go to enrolled course ?")) {
-                                navigate(`/enrolled/course`);
+                                navigate(`/my-courses`);
                             }
                         }
                         else {
@@ -121,7 +119,7 @@ export default function Course(props) {
                                         }
                                     })
                                     .then(() => {
-                                        navigate(`/enrolled/course`);
+                                        navigate(`/my-courses`);
                                     })
                                     .catch((err) => {
                                         console.log(err);
@@ -131,7 +129,6 @@ export default function Course(props) {
                     }
                     else {
                         alert("Go to payment");
-                        //TODO go to payment screen (Tuấn)
                     }
                 })
             }
@@ -155,7 +152,7 @@ export default function Course(props) {
                             <>
                                 <div key={lesson.lessonId} style={{ marginBottom: 20 }}>
                                     <div
-                                        style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
                                     // onClick={() => { handleToggleButton(lesson) }}
                                     >
                                         <h6>{lesson.title}</h6>

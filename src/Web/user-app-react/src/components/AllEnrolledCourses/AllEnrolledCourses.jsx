@@ -35,11 +35,9 @@ export default function AllEnrolledCourses(props) {
         setShowModalReview(true);
     };
 
-    // sửa lại navgate tới enroll-course của userId
     const handleClickGoToCourse = (coursesEnrollment) => {
-        const courseId = coursesEnrollment.courseId;
-        // navigate(`/courses/${courseId}`);
-        navigate(`/enrolled/course`);
+        console.log(coursesEnrollment)
+        navigate(`/enrolled-course/${coursesEnrollment.enrollmentId}`);
     };
 
     // học xong mới đc review nhưng api thì rv đc miễn là đã enroll nên sửa UI theo api

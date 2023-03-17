@@ -15,6 +15,7 @@ const images = {
     userAvatar: require('~/assets/images/user-avatar.png'),
     arrowRight: require('~/assets/images/arrow-right.png'),
     instructorAction: require('~/assets/images/instructor-action.png'),
+    tickIcon: require('~/assets/images/tick-circle.png'),
 };
 
 export default images;
