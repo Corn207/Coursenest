@@ -47,45 +47,41 @@ function PublisherCourses() {
     const navigate = useNavigate();
     const accessToken = localStorage.getItem('accessToken');
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const accessToken = localStorage.getItem('accessToken');
-                const [approvedCoursesResponse, notApprovedCoursesResponse] = await Promise.all([
-                    axios.get(`${config.baseUrl}/api/courses`, {
-                        params: {
-                            PublisherUserId: params.PublisherUserId,
-                            IsApproved: true,
-                            PageSize: 9999,
-                        },
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }),
-                    axios.get(`${config.baseUrl}/api/courses`, {
-                        params: {
-                            PublisherUserId: params.PublisherUserId,
-                            IsApproved: false,
-                            PageSize: 9999,
-                        },
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }),
-                ]);
+    const fetchCourses = async () => {
+        try {
+            const [approvedCoursesResponse, notApprovedCoursesResponse] = await Promise.all([
+                axios.get(`${config.baseUrl}/api/courses`, {
+                    params: {
+                        PublisherUserId: params.PublisherUserId,
+                        IsApproved: true,
+                        PageSize: 9999,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }),
+                axios.get(`${config.baseUrl}/api/courses`, {
+                    params: {
+                        PublisherUserId: params.PublisherUserId,
+                        IsApproved: false,
+                        PageSize: 9999,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }),
+            ]);
 
-                const combinedData = [
-                    ...approvedCoursesResponse.data.queried,
-                    ...notApprovedCoursesResponse.data.queried,
-                ];
-                const sortedData = combinedData.sort((a, b) => a.courseId - b.courseId);
-                setData(sortedData);
-            } catch (error) {
-                console.error(error);
-            }
-        };
+            const combinedData = [...approvedCoursesResponse.data.queried, ...notApprovedCoursesResponse.data.queried];
+            const sortedData = combinedData.sort((a, b) => a.courseId - b.courseId);
+            setData(sortedData);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    useEffect(() => {
         fetchCourses();
-    }, [data]);
+    }, []);
 
     const handleSelectAll = (event) => {
         if (event.target.checked) {
@@ -132,6 +128,7 @@ function PublisherCourses() {
                 Authorization: `Bearer ${accessToken}`,
             },
         });
+        fetchCourses();
     };
 
     const handleChange = (event) => {
