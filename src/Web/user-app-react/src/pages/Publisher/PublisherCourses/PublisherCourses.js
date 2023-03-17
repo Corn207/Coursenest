@@ -44,6 +44,7 @@ function PublisherCourses() {
 
     let params = useParams();
     const navigate = useNavigate();
+    const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -83,7 +84,7 @@ function PublisherCourses() {
             }
         };
         fetchCourses();
-    }, []);
+    }, [data]);
 
     const handleSelectAll = (event) => {
         if (event.target.checked) {
@@ -122,6 +123,14 @@ function PublisherCourses() {
 
     const handleEditCourse = (courseId) => {
         navigate(`/publisher/${params.PublisherUserId}/edit-course/${courseId}`);
+    };
+
+    const handleDeleteCourse = async (courseId) => {
+        await axios.delete(`${config.baseUrl}/api/courses/${courseId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
     };
 
     const handleChange = (event) => {
@@ -172,7 +181,15 @@ function PublisherCourses() {
                                 <TableCell align="right">{row.topicTitle}</TableCell>
                                 <TableCell align="right">{row.tier === 0 ? 'Free' : 'Premium'}</TableCell>
                                 <TableCell align="right">
-                                    <button onClick={() => handleEditCourse(row.courseId)}>Edit</button>
+                                    <button
+                                        style={{ marginRight: '6px' }}
+                                        onClick={() => handleEditCourse(row.courseId)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button style={{ color: 'red' }} onClick={() => handleDeleteCourse(row.courseId)}>
+                                        Delete
+                                    </button>
                                 </TableCell>
                             </TableRow>
                         ))}

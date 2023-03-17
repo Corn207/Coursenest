@@ -4,17 +4,22 @@ import axios from 'axios';
 import classNames from 'classnames/bind';
 import { useState } from 'react';
 import CancelConfirmBtns from '~/components/PublisherPage/CancelConfirmBtns';
+import config from '~/config';
 
 import styles from './EditQuestion.module.scss';
 
 const cx = classNames.bind(styles);
 
-function EditQuestion({ examTitle, chosenQuestion, handleBackStep }) {
+function EditQuestion({ chosenExam, chosenQuestion, handleBackStep }) {
     const [questions, setQuestions] = useState([chosenQuestion]);
     const [question, setQuestion] = useState(chosenQuestion);
-    const [answers, setAnswers] = useState([]);
+    const [answers, setAnswers] = useState(chosenQuestion.choices);
     const [questionEditTitle, setQuestionEditTitle] = useState(questions[0].content);
+    const [questionEditPoint, setQuestionEditPoint] = useState(questions[0].point);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [isEditingPoint, setIsEditingPoint] = useState(false);
+
+    const accessToken = localStorage.getItem('accessToken');
 
     const handleTitleChange = (event) => {
         setQuestionEditTitle(event.target.value);
@@ -27,6 +32,31 @@ function EditQuestion({ examTitle, chosenQuestion, handleBackStep }) {
 
     const handleTitleClick = () => {
         setIsEditingTitle(true);
+    };
+
+    const handlePointChange = (event) => {
+        const newPoint = event.target.value.trim();
+        if (newPoint === '') {
+            setQuestionEditPoint(question.point);
+            return;
+        }
+
+        const parsedPoint = parseInt(newPoint);
+        if (isNaN(parsedPoint)) {
+            alert('Please enter a valid integer value for the point.');
+            return;
+        }
+
+        setQuestionEditPoint(parsedPoint);
+        setQuestion({ ...question, point: parsedPoint });
+    };
+
+    const handlePointBlur = () => {
+        setIsEditingPoint(false);
+    };
+
+    const handlePointClick = () => {
+        setIsEditingPoint(true);
     };
 
     const handleAnswerChange = (questionIndex, answerIndex) => {
@@ -66,6 +96,20 @@ function EditQuestion({ examTitle, chosenQuestion, handleBackStep }) {
         });
     };
 
+    const handleDeleteAnswer = (questionIndex, answerIndex) => {
+        setQuestions((prevQuestionList) => {
+            const newQuestionList = [...prevQuestionList];
+            newQuestionList[questionIndex] = {
+                ...newQuestionList[questionIndex],
+                choices: [
+                    ...newQuestionList[questionIndex].choices.slice(0, answerIndex),
+                    ...newQuestionList[questionIndex].choices.slice(answerIndex + 1),
+                ],
+            };
+            return newQuestionList;
+        });
+    };
+
     const handleChoiceContentEdit = (questionIndex, choiceIndex, newContent) => {
         setQuestions((prevQuestionList) => {
             const questionToUpdate = prevQuestionList[questionIndex];
@@ -94,9 +138,54 @@ function EditQuestion({ examTitle, chosenQuestion, handleBackStep }) {
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 
+    const handleConfirm = async () => {
+        await axios
+            .put(
+                `${config.baseUrl}/api/units/questions/${question.questionId}`,
+                {
+                    content: questionEditTitle,
+                    point: questionEditPoint,
+                    examUnitId: chosenExam.unitId,
+                    choices: questions[0].choices.map(({ content, isCorrect }) => ({ content, isCorrect })),
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                },
+            )
+            .then((res) => {
+                // console.log(res.data);
+                handleBackStep();
+                console.log({
+                    content: questionEditTitle,
+                    point: questionEditPoint,
+                    examUnitId: chosenExam.unitId,
+                    choices: questions[0].choices.map(({ content, isCorrect }) => ({ content, isCorrect })),
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+                console.log({
+                    content: questionEditTitle,
+                    point: questionEditPoint,
+                    examUnitId: chosenExam.unitId,
+                    choices: questions[0].choices.map(({ content, isCorrect }) => ({ content, isCorrect })),
+                });
+            });
+        // console.log({
+        //     content: questionEditTitle,
+        //     point: questionEditPoint,
+        //     examUnitId: chosenExam.unitId,
+        //     choices: answers.map(({ content, isCorrect }) => ({ content, isCorrect })),
+        // });
+        // handleBackStep();
+        // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
+    };
+
     return (
         <div className={cx('wrapper')}>
-            <p className={cx('examTitle')}>{examTitle}</p>
+            <p className={cx('examTitle')}>{chosenExam.title}</p>
             <ul className={cx('body')}>
                 {questions.map((item, questionIndex) => (
                     <li className={cx('question')} key={questionIndex}>
@@ -113,6 +202,22 @@ function EditQuestion({ examTitle, chosenQuestion, handleBackStep }) {
                             ) : (
                                 <p className={cx('questionName')} onClick={handleTitleClick}>
                                     Question {questionIndex + 1}: {question.content}
+                                </p>
+                            )}
+                            {isEditingPoint ? (
+                                <input
+                                    type="text"
+                                    className={cx('titleInput')}
+                                    value={questionEditPoint}
+                                    onChange={handlePointChange}
+                                    onBlur={handlePointBlur}
+                                    autoFocus
+                                />
+                            ) : (
+                                <p className={cx('questionName')} onClick={handlePointClick}>
+                                    {questionEditPoint === null
+                                        ? question.point + ' Point'
+                                        : questionEditPoint + ' Point'}
                                 </p>
                             )}
                         </div>
@@ -133,7 +238,12 @@ function EditQuestion({ examTitle, chosenQuestion, handleBackStep }) {
                                                 {choice.content}
                                             </span>
                                         </label>
-                                        <p className={cx('delete')}>Delete</p>
+                                        <p
+                                            className={cx('delete')}
+                                            onClick={() => handleDeleteAnswer(questionIndex, answerIndex)}
+                                        >
+                                            Delete
+                                        </p>
                                     </div>
                                 </li>
                             ))}
@@ -145,7 +255,7 @@ function EditQuestion({ examTitle, chosenQuestion, handleBackStep }) {
                     </li>
                 ))}
             </ul>
-            <CancelConfirmBtns onCancel={handleCancel} />
+            <CancelConfirmBtns onCancel={handleCancel} onConfirm={handleConfirm} />
         </div>
     );
 }

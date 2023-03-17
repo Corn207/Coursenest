@@ -19,6 +19,8 @@ function EditExam({ chosenExam, handleBackStep }) {
     const [chosenQuestion, setChosenQuestion] = useState(null);
     const [step, setStep] = useState(0);
 
+    const accessToken = localStorage.getItem('accessToken');
+
     const handleEditQuestionClick = (item) => {
         setStep(1);
         setChosenQuestion(item);
@@ -36,7 +38,6 @@ function EditExam({ chosenExam, handleBackStep }) {
     const handleTitleChange = (event) => {
         setExamTitle(event.target.value);
         // setMaterial({ ...material, Title: event.target.value });
-        console.log(event.target.value);
     };
 
     const handleTitleBlur = () => {
@@ -48,7 +49,10 @@ function EditExam({ chosenExam, handleBackStep }) {
     };
 
     const handleTimeChange = (event) => {
-        setTimeLimit(event.target.value);
+        const time = parseInt(event.target.value);
+        if (!isNaN(time)) {
+            setTimeLimit(time);
+        }
         // setMaterial({ ...material, Time: event.target.value }); <----- To-do
     };
 
@@ -67,46 +71,36 @@ function EditExam({ chosenExam, handleBackStep }) {
     };
 
     const handleConfirm = async () => {
-        // await axios
-        //     .post(
-        //         `${config.baseUrl}/api/units/${chosenExam.unitId}/material`,
-        //         {
-        //             content: materialTitle,
-        //             requiredTime: approximateTime,
-        //             content: content,
-        //         },
-        //         {
-        //             headers: {
-        //                 Authorization: `Bearer ${accessToken}`,
-        //             },
-        //         },
-        //     )
-        //     .then((response) => {
-        //         handleBackStep();
-        //         handleMaterialsUpdate(material);
-        //     })
-        //     .catch((error) => {
-        //         console.error(error);
-        //     });
-        //     await axios.post(`${config.baseUrl}/api/units/${material.unitId}/material`,
-        //     {
-        //         title: materialTitle,
-        //         requiredTime: approximateTime,
-        //         content: content,
-        //     },
-        //     {
-        //         headers: {
-        //             Authorization: `Bearer ${accessToken}`,
-        //         },
-        //     },
-        // )
-        // .then((response) => {
-        //     handleBackStep();
-        //     handleMaterialsUpdate(material);
-        // })
-        // .catch((error) => {
-        //     console.error(error);
-        // });
+        await axios
+            .put(
+                `${config.baseUrl}/api/units/${chosenExam.unitId}/exam`,
+                {
+                    title: examTitle,
+                    requiredMinutes: timeLimit,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                },
+            )
+            .then((res) => {
+                // console.log(res.data);
+                handleBackStep();
+                console.log(chosenExam.unitId);
+                console.log({
+                    title: examTitle,
+                    requiredMinutes: timeLimit,
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+                console.log(chosenExam.unitId);
+                console.log({
+                    title: examTitle,
+                    requiredMinutes: timeLimit,
+                });
+            });
         // navigate(`/publisher/${params.PublisherUserId}/add-course/add-lesson`);
     };
 
@@ -153,12 +147,12 @@ function EditExam({ chosenExam, handleBackStep }) {
                             onEditClick={handleEditQuestionClick}
                         />
                     </div>
-                    <CancelConfirmBtns onCancel={handleCancel} />
+                    <CancelConfirmBtns onCancel={handleCancel} onConfirm={handleConfirm} />
                 </div>
             )}
             {step === 1 && (
                 <EditQuestion
-                    examTitle={examTitle}
+                    chosenExam={chosenExam}
                     chosenQuestion={chosenQuestion}
                     handleBackStep={handleCancelQuestion}
                 />
