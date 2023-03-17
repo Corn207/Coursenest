@@ -3,6 +3,7 @@
     background-image: url('../../assets/images/forgot-background-2.png');
     background-color: #c677fc;
     width: 100vw;
+    height: 100vh;
 
     .forgot-form-container {
         display: flex;
@@ -111,6 +112,7 @@
 
                 .signInUp-btn {
                     margin-left: 8px;
+                    margin-top: 0;
 
                     .login-link {
                         text-decoration: none;

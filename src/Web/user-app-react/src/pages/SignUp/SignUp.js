@@ -262,7 +262,7 @@ function SignUp() {
 
                 {page === 1 && (
                     <div className="signUpSecondPage">
-                        <TopicsSearch handleTopicsId={handleGetTopics} />
+                        <TopicsSearch handleTopicsId={handleGetTopics} maxTopics={999} />
                         {error && <p style={{ color: 'red' }}>Some thing wrong</p>}
                         <div className={cx('buttonsDiv')}>
                             <button className={cx('previousPageButton')} onClick={handleClickPreviousPage}>

@@ -17,13 +17,10 @@ import config from '~/config';
 
 const cx = classNames.bind(styles);
 
-function TopicsSearch({ handleTopicsId }) {
-    // const [inputText, setInputText] = useState('');
-    const [allCourses, setAllCourses] = useState([]);
-    const [chosenCourses, setChosenCourses] = useState([]);
+function TopicsSearch({ handleGetTopics, handleTopicsId, chosenTopicId, maxTopics }) {
+    const [chosenTopics, setChosenTopics] = useState([]);
     const [chosenTopicsId, setChosenTopicsId] = useState([]);
     const [searchValue, setSearchValue] = useState('');
-    const [searchResult, setSearchResult] = useState([]);
     const [searchResultFiltered, setSearchResultFiltered] = useState([]);
     const [dropDown, setDropDown] = useState(false);
     const [chosenArr, setChosenArr] = useState([]);
@@ -32,50 +29,50 @@ function TopicsSearch({ handleTopicsId }) {
 
     const inputRef = useRef();
 
-    // let favorCourses = [];
+    const accessToken = localStorage.getItem('accessToken');
 
-    // useEffect(() => {
-    //     const fetchCourses = async () => {
-    //         const TopicsList = await coursesApi.getAll();
-    //         setAllCourses(TopicsList);
-    //         setSearchResult(TopicsList);
-    //     };
-
-    //     fetchCourses();
-    // }, []);
-    useEffect(() => {});
+    useEffect(() => {
+        if (chosenTopicId) {
+            const fetchTopic = async () => {
+                await axios
+                    .get(`${config.baseUrl}/api/topics/${chosenTopicId}`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    })
+                    .then((response) => {
+                        console.log(response.data);
+                        setChosenTopics([response.data]);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            };
+            fetchTopic();
+        } else {
+            setChosenTopics([]);
+        }
+    }, [chosenTopicId]);
 
     useEffect(() => {
         if (!debouncedValue.trim()) {
-            // setSearchResult([]);
             return;
         }
 
-        // const resultsArray = allCourses.filter(
-        //     (post) =>
-        //         post.title.includes(debouncedValue.toLowerCase()) || post.body.includes(debouncedValue.toLowerCase()),
-        // );
-
         const fetchTopics = async () => {
             const response = await axios.get(`${config.baseUrl}/api/topics?Content=${debouncedValue}`);
-            // if (chosenTopicsId.length !== 0 || chosenTopicsId !== undefined) {
             if (chosenTopicsId !== undefined) {
                 await setSearchResultFiltered(response.data.filter((item) => !chosenTopicsId.includes(item.topicId)));
-                // console.log(response.data.filter((item) => item.topicId !== chosenTopicsId[i]));
-                // i++;
-                // setSearchResult(searchResultFiltered);
             } else setSearchResultFiltered(response.data);
-            // setSearchResult(searchResultFiltered);
 
             console.log(response.data);
         };
         fetchTopics();
-        // setSearchResult(resultsArray);
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedValue]);
 
-    const handleDropDownClick = () => {
+    const handleDropDownClick = (e) => {
+        e.preventDefault();
         setDropDown(!dropDown);
     };
 
@@ -91,45 +88,50 @@ function TopicsSearch({ handleTopicsId }) {
         }
     };
 
-    const handleClick = async (courseId) => {
-        const chosenCourse = await topicsApi.get(courseId);
-        const newArr = searchResultFiltered.filter((item) => item.topicId !== courseId);
-        // if (!Array.isArray(chosenTopicsId)) {
-        //     setChosenTopicsId([...[chosenTopicsId]], courseId);
-        // }
+    const handleClick = async (topicId) => {
+        // Check if the limit has been reached
+        if (chosenTopics.length >= maxTopics) {
+            alert(`You can only choose up to ${maxTopics} topics.`);
+            return;
+        }
 
-        // setChosenTopicsId([...[chosenTopicsId]], courseId);
+        const chosenTopic = await topicsApi.get(topicId);
+        const newArr = searchResultFiltered.filter((item) => item.topicId !== topicId);
 
         if (chosenTopicsId !== undefined) {
-            setChosenTopicsId([courseId, ...chosenTopicsId]);
-        } else setChosenTopicsId([courseId]);
+            setChosenTopicsId([topicId, ...chosenTopicsId]);
+        } else setChosenTopicsId([topicId]);
 
-        // setChosenTopicsId([courseId, ...chosenTopicsId]);
-
-        setChosenArr([searchResultFiltered.findIndex((e) => e.topicId === courseId), ...chosenArr]);
-        // setSearchValue('');
+        setChosenArr([searchResultFiltered.findIndex((e) => e.topicId === topicId), ...chosenArr]);
         setDropDown(false);
         setSearchResultFiltered(newArr);
-        setChosenCourses((chosenCourses) => [chosenCourse, ...chosenCourses]);
-        // setChosenTopicsId((chosenCourse) => [chosenCourse.topicId, ...chosenCourses.map((topic) => topic.topicId)]);
-        handleTopicsId(chosenCourses);
-        console.log(chosenCourses);
-        console.log(chosenTopicsId);
+        setChosenTopics((chosenTopics) => [chosenTopic, ...chosenTopics]);
+        if (handleTopicsId) {
+            handleTopicsId(chosenTopics);
+        }
+        if (handleGetTopics) {
+            handleGetTopics(topicId);
+        }
     };
 
     const handleRemoveCourse = async (courseId) => {
         const chosenCourse = await topicsApi.get(courseId);
 
-        const newArr = chosenCourses.filter((item) => item.topicId !== courseId);
+        const newArr = chosenTopics.filter((item) => item.topicId !== courseId);
         const leftSearchArr = searchResultFiltered.slice(0, chosenArr[0]);
         const rightSearchArr = searchResultFiltered.slice(chosenArr[0], searchResultFiltered.length);
         const searchArr = [...leftSearchArr, chosenCourse, ...rightSearchArr];
 
         await setSearchResultFiltered(searchArr);
-        await setChosenCourses(newArr);
+        await setChosenTopics(newArr);
         setChosenTopicsId(...newArr.map((topic) => topic.topicId));
 
-        handleTopicsId(chosenCourses);
+        if (handleTopicsId) {
+            handleTopicsId(chosenTopics);
+        }
+        if (handleGetTopics) {
+            return;
+        }
     };
 
     return (
@@ -154,7 +156,7 @@ function TopicsSearch({ handleTopicsId }) {
                     onClickOutside={handleHideResult}
                 >
                     <div className={cx('wrapper')}>
-                        <label>You want to study...</label>
+                        <label className={cx('searchLabel')}>Chose topic: </label>
                         <div className={cx('searchDiv')}>
                             <FontAwesomeIcon className={cx('searchIcon')} icon={faMagnifyingGlass} />
                             <input
@@ -173,7 +175,7 @@ function TopicsSearch({ handleTopicsId }) {
                     </div>
                 </HeadlessTippy>
             </div>
-            <ChosenTopicsList courses={chosenCourses} onChose={handleRemoveCourse} />
+            <ChosenTopicsList courses={chosenTopics} onChose={handleRemoveCourse} />
         </div>
     );
 }

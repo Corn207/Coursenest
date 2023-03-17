@@ -8,8 +8,10 @@
     color: #8c8c8c;
     margin-bottom: 16px;
 
-    label {
+    .searchLabel {
         margin: 16px 0px 8px 0px;
+        color: rgba(38, 38, 38, 1);
+        font-weight: 600;
     }
 
     .searchDiv {

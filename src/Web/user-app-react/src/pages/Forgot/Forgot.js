@@ -10,6 +10,7 @@ import ImageSliders from '~/components/ImageSliders';
 import styles from './Forgot.module.scss';
 import axios from 'axios';
 import config from '~/config';
+import axiosClient from '~/api/axiosClient';
 
 const cx = classNames.bind(styles);
 

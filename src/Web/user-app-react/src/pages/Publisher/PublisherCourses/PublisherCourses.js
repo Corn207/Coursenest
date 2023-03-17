@@ -17,7 +17,7 @@ import {
 
 import styles from './PublisherCourses.module.scss';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import config from '~/config';
 
 const useStyles = makeStyles({
@@ -36,30 +36,55 @@ const useStyles = makeStyles({
 const cx = classNames.bind(styles);
 
 function PublisherCourses() {
+    const [isChecked, setIsChecked] = useState(false);
     const [data, setData] = useState([]);
     const [selected, setSelected] = useState([]);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(5);
 
     let params = useParams();
+    const navigate = useNavigate();
+    const accessToken = localStorage.getItem('accessToken');
 
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await axios.get(`${config.baseUrl}/api/courses`, {
-                    params: {
-                        PublisherUserId: params.PublisherUserId,
-                    },
-                });
-                setData(response.data.queried);
-                console.log(response.data.queried);
-                console.log(params.PublisherUserId);
+                const accessToken = localStorage.getItem('accessToken');
+                const [approvedCoursesResponse, notApprovedCoursesResponse] = await Promise.all([
+                    axios.get(`${config.baseUrl}/api/courses`, {
+                        params: {
+                            PublisherUserId: params.PublisherUserId,
+                            IsApproved: true,
+                            PageSize: 9999,
+                        },
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }),
+                    axios.get(`${config.baseUrl}/api/courses`, {
+                        params: {
+                            PublisherUserId: params.PublisherUserId,
+                            IsApproved: false,
+                            PageSize: 9999,
+                        },
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }),
+                ]);
+
+                const combinedData = [
+                    ...approvedCoursesResponse.data.queried,
+                    ...notApprovedCoursesResponse.data.queried,
+                ];
+                const sortedData = combinedData.sort((a, b) => a.courseId - b.courseId);
+                setData(sortedData);
             } catch (error) {
                 console.error(error);
             }
         };
         fetchCourses();
-    }, []);
+    }, [data]);
 
     const handleSelectAll = (event) => {
         if (event.target.checked) {
@@ -97,7 +122,19 @@ function PublisherCourses() {
     };
 
     const handleEditCourse = (courseId) => {
-        console.log(courseId);
+        navigate(`/publisher/${params.PublisherUserId}/edit-course/${courseId}`);
+    };
+
+    const handleDeleteCourse = async (courseId) => {
+        await axios.delete(`${config.baseUrl}/api/courses/${courseId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+    };
+
+    const handleChange = (event) => {
+        setIsChecked(event.target.checked);
     };
 
     const classes = useStyles();
@@ -127,11 +164,12 @@ function PublisherCourses() {
                     </TableHead>
                     <TableBody>
                         {currentData.map((row) => (
-                            <TableRow key={row.title}>
+                            <TableRow key={row.courseId}>
                                 <TableCell>
                                     <input
                                         type="checkbox"
                                         checked={selected.includes(row.courseId)}
+                                        onChange={handleChange}
                                         onClick={() => handleSelect(row.courseId)}
                                     />
                                 </TableCell>
@@ -143,7 +181,15 @@ function PublisherCourses() {
                                 <TableCell align="right">{row.topicTitle}</TableCell>
                                 <TableCell align="right">{row.tier === 0 ? 'Free' : 'Premium'}</TableCell>
                                 <TableCell align="right">
-                                    <button onClick={() => handleEditCourse(row.courseId)}>Edit</button>
+                                    <button
+                                        style={{ marginRight: '6px' }}
+                                        onClick={() => handleEditCourse(row.courseId)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button style={{ color: 'red' }} onClick={() => handleDeleteCourse(row.courseId)}>
+                                        Delete
+                                    </button>
                                 </TableCell>
                             </TableRow>
                         ))}

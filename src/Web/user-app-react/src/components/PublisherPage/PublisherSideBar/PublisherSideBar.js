@@ -1,29 +1,59 @@
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
-import { Link, NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useParams } from 'react-router-dom';
 
 import styles from './PublisherSideBar.module.scss';
 
 const cx = classNames.bind(styles);
 
 function PublisherSideBar() {
+    let params = useParams();
+    const [isSelected, setIsSlected] = useState(1);
+    const [isAddCourseActive, setIsAddCourseActive] = useState(false);
+
+    useEffect(() => {
+        const isContain = window.location.href.includes(`add-course`);
+        setIsAddCourseActive(isContain);
+    }, [window.location.href]);
+
+    const handleClick = (id) => {
+        setIsSlected(id);
+        console.log(params.PublisherUserId);
+    };
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('coursesPagesContainer')}>
                 <p className={cx('tabTitle')}>Edit Courses</p>
                 <div className={cx('tabsDiv')}>
                     <NavLink
-                        to="courses"
-                        className={({ isActive }) => (isActive ? cx('activeTab') : cx('noneActiveTab'))}
+                        to={`${params.PublisherUserId}`}
+                        // className={cx('navLink')}
+                        className={isAddCourseActive ? cx('noneActiveTab') : cx('activeTab')}
                     >
-                        <p className={cx('subTab')}>Dashboard</p>
+                        <p
+                            className={cx('subTab')}
+                            style={{ opacity: isSelected === 1 ? 1 : 0.3 }}
+                            onClick={() => handleClick(1)}
+                        >
+                            Dashboard
+                        </p>
                     </NavLink>
                     <NavLink
-                        to="add-course"
-                        className={({ isActive }) => (isActive ? cx('activeTab') : cx('noneActiveTab'))}
+                        to={`${params.PublisherUserId}/add-course`}
+                        // className={cx('navLink')}
+                        className={isAddCourseActive ? cx('activeTab') : cx('noneActiveTab')}
+                        // to="edit-course"
                     >
-                        <p className={cx('subTab')}>Add Course</p>
+                        <p
+                            className={cx('subTab')}
+                            style={{ opacity: isSelected === 2 ? 1 : 0.3 }}
+                            onClick={() => handleClick(2)}
+                        >
+                            Add Course
+                        </p>
                     </NavLink>
                     {/* <NavLink to="/" className={({ isActive }) => (isActive ? cx('activeTab') : cx('noneActiveTab'))}>
                         <p className={cx('subTab')}>Function 2</p>

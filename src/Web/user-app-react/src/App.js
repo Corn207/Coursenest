@@ -25,6 +25,9 @@ import EnrolledCourse from './pages/Course/EnrolledCourse/EnrolledCourse';
 
 import axios from 'axios';
 import config from './config';
+import MyCourses from './pages/MyCourses/MyCourses';
+import EditLesson from './pages/Publisher/AddCourses/EditLesson';
+import EditMaterial from './pages/Publisher/AddCourses/EditLesson/EditMaterial';
 import getNumberOfDays from './helper/getNumberOfDays';
 
 function App() {
@@ -40,33 +43,33 @@ function App() {
             return true;
         }
         return false;
-    }
+    };
 
     const checkPublisher = (role) => {
         if (role.type === 2 && getNumberOfDays(role.expiry) > 0) {
             return true;
         }
         return false;
-    }
+    };
 
     const getRoleMe = () => {
         axios
             .get(`${config.baseUrl}/api/roles/me`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
+                headers: { Authorization: `Bearer ${accessToken}` },
             })
             .then((res) => {
                 const roles = res.data;
-                if (roles.find(role => checkInstructor(role))) {
+                if (roles.find((role) => role.type === 1)) {
                     setIsInstructor(true);
                 }
-                if (roles.find(role => checkPublisher(role))) {
+                if (roles.find((role) => role.type === 2)) {
                     setIsPublisher(true);
                 }
             })
             .catch((err) => {
                 console.log(err);
-            })
-    }
+            });
+    };
 
     if (accessToken && userId) {
         logged = true;
@@ -80,16 +83,18 @@ function App() {
                 <Route path="sign-in" element={<SignIn />} />
                 <Route path="sign-up" element={<SignUp />} />
                 <Route path="forgot-password" element={<Forgot />} />
-                <Route path="/" element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher} />}>
+                <Route
+                    path="/"
+                    element={<Layout logged={logged} isInstructor={isInstructor} isPublisher={isPublisher} />}
+                >
                     <Route index element={<Home logged={logged} />} />
-                    <Route path="courses/:id" element={<Course logged={logged} />}>
-                    </Route>
+                    <Route path="courses/:id" element={<Course logged={logged} />}></Route>
                     <Route path="topics/:id" element={<Topic />} />
                     {logged && (
                         <>
                             <Route path="profile" element={<Profile />} />
                             <Route path="my-courses" element={<MyCourses />} />
-                            <Route path='enrolled-course/:enrollementId' element={<EnrolledCourse/>}>
+                            <Route path="enrolled-course/:enrollementId" element={<EnrolledCourse />}>
                                 <Route path="material/:materialId" element={<Material />} />
                                 <Route path="exam/:examId" element={<Exam />} />
                             </Route>
