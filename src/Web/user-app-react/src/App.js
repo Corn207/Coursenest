@@ -25,7 +25,6 @@ import EnrolledCourse from './pages/Course/EnrolledCourse/EnrolledCourse';
 
 import axios from 'axios';
 import config from './config';
-import MyCourses from './pages/MyCourses/MyCourses';
 import EditLesson from './pages/Publisher/AddCourses/EditLesson';
 import EditMaterial from './pages/Publisher/AddCourses/EditLesson/EditMaterial';
 import getNumberOfDays from './helper/getNumberOfDays';
