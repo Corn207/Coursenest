@@ -124,6 +124,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                     console.error(error);
                 });
         }
+        fetchUnits();
         console.log(materials);
     };
 
@@ -271,6 +272,7 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                     console.error(error);
                 });
         }
+        fetchUnits();
         console.log(materials);
     };
 

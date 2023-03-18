@@ -16,7 +16,7 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
 
     const accessToken = localStorage.getItem('accessToken');
 
-    useEffect(() => {
+    const fetchExam = async () => {
         axios
             .get(`${config.baseUrl}/api/units/${editingExam.unitId}/exam`, {
                 headers: {
@@ -29,6 +29,10 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
             .catch((error) => {
                 console.log(error);
             });
+    };
+
+    useEffect(() => {
+        fetchExam();
     }, [editingExam]);
 
     // const handleEditQuestionClick = () => {
@@ -155,6 +159,7 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
                     console.error(error);
                 });
         }
+        fetchExam();
         // setLessons(addedLessonsList);
     };
 
@@ -169,6 +174,7 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
             newQuestionList.splice(index, 1);
             return newQuestionList;
         });
+        fetchExam();
     };
 
     const handleAddAnswer = (questionIndex) => {
@@ -186,6 +192,7 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
             };
             return newQuestionList;
         });
+        fetchExam();
     };
 
     const handleChoiceContentEdit = (questionIndex, choiceIndex, newContent) => {
