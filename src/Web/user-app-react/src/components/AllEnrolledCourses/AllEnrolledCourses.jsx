@@ -83,7 +83,7 @@ export default function AllEnrolledCourses(props) {
                                 <div className={`styles.child ${styles.childThree}`}>
                                     <h4>{coursesEnrollment.title}</h4>
                                     <p>{coursesEnrollment.description}</p>
-                                    <ProgressBar className={styles.progressBar} now={progress} label={`${progress}%`} />
+                                    <ProgressBar className={styles.progressBar} now={progress} label={`${progress.toFixed(1)}%`} />
                                     <div className={styles.rating}>
                                         <span style={{ color: '#FFC069' }}>{coursesEnrollment.ratingAverage}</span>
                                         <span>

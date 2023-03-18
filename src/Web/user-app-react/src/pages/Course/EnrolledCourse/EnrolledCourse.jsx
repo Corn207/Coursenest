@@ -10,6 +10,7 @@ import { useLocation } from "react-router-dom";
 import Units from "../Units/Units";
 import { useNavigate } from "react-router";
 import _ from "lodash";
+import ModalConfirm from "../Exam/ModalConfirm";
 
 export default function EnrolledCourse() {
     const { enrollementId } = useParams();
@@ -18,11 +19,9 @@ export default function EnrolledCourse() {
     const [enrollement, setEnrollement] = useState({});
     const [courseInfo, setCourseInfo] = useState({});
     const [listLessons, setListLessons] = useState([]);
+    const [show, setShow] = useState(false);
+    const [unit, setUnit] = useState({});
     const pathname = useLocation().pathname;
-
-    // khi click xác nhận đọc xong ở material nào thì gọi api enroll material đó
-    // click exam thì confirm mới hiển thị exam, cancel thì trở về 
-    // exam submit -> đi tới grade
 
     useEffect(() => {
         setIsLoading(true);
@@ -35,7 +34,6 @@ export default function EnrolledCourse() {
             return axios.get(`${config.baseUrl}/api/courses/${res.data.courseId}`);
         })
         .then((res) => {
-            console.log(res.data);
             setCourseInfo(res.data);
             return axios.get(`${config.baseUrl}/api/lessons?courseId=${res.data.courseId}`)
         })
@@ -62,11 +60,13 @@ export default function EnrolledCourse() {
     const handleToggleButton = (lesson) => {
         setOpen(lesson.lessonId)
     }
-
+    
     const navigate = useNavigate();
     const handleOpenDetailUnit = (unit) => {
-        if(unit.isExam)
-            navigate(`exam/${unit.unitId}`)
+        setUnit(unit);
+        if(unit.isExam) {
+            setShow(true);
+        }
         else
             navigate(`material/${unit.unitId}`)
     }
@@ -113,9 +113,10 @@ export default function EnrolledCourse() {
                 {
                     (pathname === `/enrolled-course/${enrollementId}`) ? 
                         <Units courseInfo={courseInfo} listLessons={listLessons} handleOpenDetailUnit={handleOpenDetailUnit} /> 
-                        : <Outlet enrollement={enrollement}/>
+                        : <Outlet/>
                 }
             </div>
+            <ModalConfirm show={show} setShow={setShow} unit={unit}/>
         </div>
     );
 }

@@ -41,7 +41,6 @@ function TopicsSearch({ handleGetTopics, handleTopicsId, chosenTopicId, maxTopic
                         },
                     })
                     .then((response) => {
-                        console.log(response.data);
                         setChosenTopics([response.data]);
                     })
                     .catch((error) => {
@@ -64,8 +63,6 @@ function TopicsSearch({ handleGetTopics, handleTopicsId, chosenTopicId, maxTopic
             if (chosenTopicsId !== undefined) {
                 await setSearchResultFiltered(response.data.filter((item) => !chosenTopicsId.includes(item.topicId)));
             } else setSearchResultFiltered(response.data);
-
-            console.log(response.data);
         };
         fetchTopics();
         // eslint-disable-next-line react-hooks/exhaustive-deps

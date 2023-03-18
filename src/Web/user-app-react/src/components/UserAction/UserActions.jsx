@@ -13,9 +13,6 @@ export default function UserActions() {
         localStorage.clear();
         axios
             .post(`authenticate/logout`)
-            .then((res) => {
-                console.log(res);
-            })
             .catch((err) => {
                 console.log(err);
             })

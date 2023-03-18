@@ -43,7 +43,6 @@ function AddCourses({ isEditCourse }) {
                     },
                 })
                 .then((response) => {
-                    console.log(response.data);
                     setTitleValue(response.data.title);
                     setDescriptionValue(response.data.description);
                     setAboutValue(response.data.about);
@@ -179,13 +178,10 @@ function AddCourses({ isEditCourse }) {
                       })
                     : console.log('No update on Cover'),
             ])
-                .then((responses) => {
-                    // handle success
+                .then(() => {
                     navigate(`/publisher/${urlParams.PublisherUserId}`);
-                    console.log(responses.data);
                 })
                 .catch((errors) => {
-                    // handle errors
                     console.log(errors);
                 });
         } else {

@@ -105,7 +105,6 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedQuestionsList = [defaultNewQuestion];
                     setQuestions(addedQuestionsList);
                     onHandleQuestionList(addedQuestionsList);
@@ -150,7 +149,6 @@ function MultiChoicesQuesTion({ editingExam, title, addBtnName, onHandleQuestion
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedQuestionsList = [...questions, defaultNewQuestion];
                     setQuestions(addedQuestionsList);
                     onHandleQuestionList(addedQuestionsList);

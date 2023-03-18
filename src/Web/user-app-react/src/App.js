@@ -58,10 +58,10 @@ function App() {
             })
             .then((res) => {
                 const roles = res.data;
-                if (roles.find((role) => role.type === 1)) {
+                if (roles.find(role => checkInstructor(role))) {
                     setIsInstructor(true);
                 }
-                if (roles.find((role) => role.type === 2)) {
+                if (roles.find(role => checkPublisher(role))) {
                     setIsPublisher(true);
                 }
             })

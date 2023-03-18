@@ -85,7 +85,6 @@ function EditExam({ chosenExam, handleBackStep }) {
                 },
             )
             .then((res) => {
-                // console.log(res.data);
                 handleBackStep();
                 console.log(chosenExam.unitId);
                 console.log({

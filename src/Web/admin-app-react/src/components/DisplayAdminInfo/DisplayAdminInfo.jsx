@@ -32,7 +32,7 @@ export default function DisplayAdminInfo() {
     const [showModalEditAboutMe, setShowModalEditAboutMe] = useState(false);
     const [showModalAddExperience, setShowModalAddExperience] = useState(false);
     const [showModalDeleteExperience, setShowModalDeleteExperience] = useState(false);
-
+    const token = localStorage.getItem("accessToken");
     const [avatar, setAvatar] = useState(avatarImg);
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState();
@@ -131,7 +131,12 @@ export default function DisplayAdminInfo() {
         const formData = new FormData();
         formData.append("formFile", file);
         instance
-            .put(`users/me/cover`, formData)
+            .put(`/users/me/cover`, formData, {
+                headers: {
+                    'Content-Type': "multipart/form-data",
+                    'Authorization': `Bearer ${token}`
+                }
+            })
             .then(() => {
                 fetchInfoUser();
                 setShowModalChangeAvatar(false);

@@ -10,7 +10,6 @@ import ImageSliders from '~/components/ImageSliders';
 import styles from './Forgot.module.scss';
 import axios from 'axios';
 import config from '~/config';
-import axiosClient from '~/api/axiosClient';
 
 const cx = classNames.bind(styles);
 
@@ -39,18 +38,15 @@ function Forgot() {
                 email: email,
             })
             .then((response) => {
-                console.log(response.data);
                 setNewPassword('Password mới là: ' + response.data);
             })
-            .catch((err) => {
-                // setError(err.response.data.message);
+            .catch(() => {
                 setError('Username or email incorrect');
             });
     };
 
     return (
         <div className={cx('wrapper')}>
-            {/* <ToastContainer /> */}
             <div className={cx('forgot-form-container')}>
                 <div className={cx('forgot-form')}>
                     <div className={cx('form-header')}>
