@@ -21,18 +21,18 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import config from '~/config';
 
-const useStyles = makeStyles({
-    table: {
-        minWidth: 650,
-    },
-    footer: {
-        // display: 'flex',
-    },
-    backBtn: {
-        marginRight: '10',
-    },
-    nextBtn: {},
-});
+// const useStyles = makeStyles({
+//     table: {
+//         minWidth: 650,
+//     },
+//     footer: {
+//         // display: 'flex',
+//     },
+//     backBtn: {
+//         marginRight: '10',
+//     },
+//     nextBtn: {},
+// });
 
 const cx = classNames.bind(styles);
 
@@ -135,14 +135,14 @@ function PublisherCourses() {
         setIsChecked(event.target.checked);
     };
 
-    const classes = useStyles();
+    // const classes = useStyles();
     const currentData = data.slice(page * pageSize, (page + 1) * pageSize);
 
     return (
         <div className={cx('wrapper')}>
             <p className={cx('title')}>Courses</p>
             <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label="custom table">
+                <Table className={cx('table')} aria-label="custom table">
                     <TableHead>
                         <TableRow>
                             <TableCell padding="checkbox">
@@ -193,10 +193,10 @@ function PublisherCourses() {
                         ))}
                     </TableBody>
                     <TableFooter>
-                        <TableRow className={classes.footer}>
+                        <TableRow className={cx('footer')}>
                             <TableCell align="left">*{selected.length} data selected</TableCell>
 
-                            <TableCell className={classes.nextBtn}>
+                            <TableCell className={cx('nextBtn')}>
                                 {page > 0 && <button onClick={handleBackPage}>Prev</button>}
                                 {(page + 1) * pageSize < data.length && <button onClick={handleNextPage}>Next</button>}
                             </TableCell>
