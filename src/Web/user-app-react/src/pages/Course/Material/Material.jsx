@@ -12,6 +12,10 @@ export default function Material() {
     const tokenStr = localStorage.getItem('accessToken');
 
     useEffect(() => {
+        getMaterial();
+    }, [materialId]);
+
+    const getMaterial = () => {
         setIsLoading(true);
         axios.get(`${config.baseUrl}/api/units/${materialId}/material`, {
             headers: { Authorization: `Bearer ${tokenStr}` }
@@ -20,7 +24,7 @@ export default function Material() {
             setMaterial(res.data)
         })
         .finally(() => setIsLoading(false))
-    }, [materialId]);
+    }
 
     const handlePostMaterial = () => {
         const data = {
@@ -37,6 +41,7 @@ export default function Material() {
         .catch((err) => {
             console.log(err);
         })
+        .finally(() => window.location.reload())
     }
 
     if(isLoading) return <LoadingSpinner />

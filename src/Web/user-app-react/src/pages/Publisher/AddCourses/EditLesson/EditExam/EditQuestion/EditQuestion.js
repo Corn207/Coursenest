@@ -155,7 +155,6 @@ function EditQuestion({ chosenExam, chosenQuestion, handleBackStep }) {
                 },
             )
             .then((res) => {
-                // console.log(res.data);
                 handleBackStep();
                 console.log({
                     content: questionEditTitle,

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import "font-awesome/css/font-awesome.min.css";
 import "rsuite/dist/rsuite.min.css";
 import { Pagination } from "rsuite/";
-
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import styles from "./ManageUsers.module.css";
 import DisplayListUser from "../DisplayListUser/DisplayListUser";
 import ModalDeleteUser from "../ModalDeleteUser";
@@ -27,18 +27,22 @@ export default function ManageUsers() {
     const [rolePublisher, setRolePublisher] = useState(null);
     const [roleAdmin, setRoleAdmin] = useState(null);
 
+    const [isLoading, setIsLoading] = useState(false);
+
     useEffect(() => {
         fetchListUser();
     }, [page, pageSize]);
 
     const fetchListUser = () => {
+        setIsLoading(true);
         instance
             .get(`users/admin?PageNumber=${page}&PageSize=${pageSize}`)
             .then((res) => {
                 setListUsers(res.data.queried);
                 setCountUser(res.data.count)
             })
-            .catch((err) => console.log(err));
+            .catch((err) => console.log(err))
+            .finally(() => setIsLoading(false))
     };
 
     function getFilteredListUser() {
@@ -100,6 +104,8 @@ export default function ManageUsers() {
     const handleOnChangePageSize = event => {
         setPageSize(parseInt(event.target.value));
     };
+    
+    if(isLoading) return <LoadingSpinner />
 
     return (
         <div className={styles.container}>

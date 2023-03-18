@@ -54,7 +54,9 @@ export default function InterestedTopics(props) {
     }, []);
 
     useEffect(() => {
-        getListCourse(activeTopic?.topicId);
+        if(activeTopic != undefined) {
+            getListCourse(activeTopic?.topicId);
+        }
     }, [activeTopic]);
 
     const handleClickTopic = (data) => {

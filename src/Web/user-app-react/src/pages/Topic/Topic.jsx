@@ -18,7 +18,7 @@ export default function Topic() {
     const [listCourses, setListCourses] = useState([]);
     const [countCourse, setCountCourse] = useState();
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(2);
+    const [pageSize, setPageSize] = useState(1);
 
     const fetchListCourses = () => {
         axios
