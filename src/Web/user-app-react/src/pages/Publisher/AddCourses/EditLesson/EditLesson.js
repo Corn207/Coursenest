@@ -88,7 +88,6 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedExamsList = [defaultNewExam];
                     setExams(addedExamsList);
                 })
@@ -116,7 +115,6 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedMaterialsList = [...exams, defaultNewExam];
                     setExams(addedMaterialsList);
                 })
@@ -233,7 +231,6 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedMaterialsList = [defaultNewMaterial];
                     setMaterials(addedMaterialsList);
                 })
@@ -263,7 +260,6 @@ function EditLesson({ chosenLesson, titleValue, lessonTitle, handleLessonUpdate,
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedMaterialsList = [...materials, defaultNewMaterial];
                     setMaterials(addedMaterialsList);
                 })

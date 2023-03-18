@@ -3,10 +3,9 @@ export default function Units(props) {
     return (
         <div>
             <h3>{courseInfo.title}</h3>
-            <h5>{courseInfo.description}</h5>
-            <p>{courseInfo.about}</p>
+            <h5 style={{paddingTop: 20}}>{courseInfo.description}</h5>
+            <p style={{paddingTop: 20}}>{courseInfo.about}</p>
             <div style={{marginTop: 20}}>
-            <div>
                 {listLessons && listLessons.map((lesson) => {
                     return (
                         <>
@@ -26,7 +25,6 @@ export default function Units(props) {
                         </>
                     )
                 })}
-                </div>
             </div>
         </div>
     )

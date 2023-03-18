@@ -66,7 +66,6 @@ function SignUp() {
         if (page === 0) {
             setPage(page + 1);
         } else {
-            // e.preventDefault();
             const chosenTopicsId = [...interestedTopicId.map((item) => item.topicId)];
             console.log(chosenTopicsId);
 
@@ -79,7 +78,6 @@ function SignUp() {
                     fullname: fullname,
                     interestedTopicIds: [...chosenTopicsId],
                 });
-                console.log(res.data);
                 window.location.href = '/';
             } catch (error) {
                 setError(error.response.data.message);

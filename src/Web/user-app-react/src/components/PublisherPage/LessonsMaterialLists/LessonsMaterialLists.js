@@ -34,7 +34,6 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
             .then((response) => {
                 const sortedLessons = response.data.sort((a, b) => a.order - b.order);
                 setLessons([...sortedLessons]);
-                console.log(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -116,7 +115,6 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedLessonsList = [defaultNewLesson];
                     setLessons(addedLessonsList);
                     getLessonsListOnAdd(addedLessonsList);
@@ -144,7 +142,6 @@ function LessonsMaterialLists({ lessonsList, handleNextStep, handleTitleValue, g
                     },
                 )
                 .then((response) => {
-                    console.log(response.data);
                     const addedLessonsList = [...lessons, defaultNewLesson];
                     setLessons(addedLessonsList);
                     getLessonsListOnAdd(addedLessonsList);

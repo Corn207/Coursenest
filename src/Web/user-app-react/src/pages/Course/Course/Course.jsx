@@ -15,7 +15,6 @@ export default function Course(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [courseInfo, setCourseInfo] = useState({});
     const [lessonInfo, setLessonInfo] = useState([]);
-    // const [listLessons, setListLessons] = useState([]);
     const tokenStr = localStorage.getItem('accessToken');
 
     useEffect(() => {
@@ -28,28 +27,10 @@ export default function Course(props) {
             })
             .then((res) => {
                 setLessonInfo(res.data);
-                // return res.data;
             })
-            // .then(async (listLessons) => {
-            //     const newListLessons = [];
-            //     await Promise.all(
-            //         (listLessons).map(async (lesson) => {
-            //             const response = await axios.get(`${config.baseUrl}/api/units?lessonId=${lesson.lessonId}`);
-            //             const units = response.data;
-            //             const newLesson = { ...lesson, "units": units }
-            //             newListLessons.push(newLesson);
-            //         }),
-            //     );
-            //     setListLessons(newListLessons);
-            // })
             .catch((err) => console.log(err))
             .finally(() => setIsLoading(false))
     }, [id]);
-
-    // const [open, setOpen] = useState(0);
-    // const handleToggleButton = (lesson) => {
-    //     setOpen(lesson.lessonId)
-    // }
 
     const navigate = useNavigate();
     const handleSeeCourseDetail = async () => {
@@ -153,16 +134,9 @@ export default function Course(props) {
                                 <div key={lesson.lessonId} style={{ marginBottom: 20 }}>
                                     <div
                                         style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                                    // onClick={() => { handleToggleButton(lesson) }}
                                     >
                                         <h6>{lesson.title}</h6>
-                                        {/* <img src={images.dropDownIcon} alt="" style={{ width: 20, height: 10 }} /> */}
                                     </div>
-                                    {/* {open == lesson.lessonId && lesson.units && lesson.units.map((unit) => (
-                                        <div key={unit.unitId} style={{ paddingLeft: 20, marginTop: 12 }}>
-                                            <p onClick={() => handleOpenDetailUnit(unit)} style={{ cursor: "pointer" }}>{unit.title}</p>
-                                        </div>
-                                    ))} */}
                                 </div>
                             </>
                         )
@@ -175,31 +149,8 @@ export default function Course(props) {
             <div className={styles.courseInfo}>
                 <div>
                     <h3>{courseInfo.title}</h3>
-                    <h5>{courseInfo.description}</h5>
-                    <p>{courseInfo.about}</p>
-                    {/* <div style={{ marginTop: 20 }}>
-                        <div>
-                            {listLessons && listLessons.map((lesson) => {
-                                return (
-                                    <>
-                                        <div key={lesson.lessonId} style={{ marginBottom: 20 }}>
-                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                                <h6>{lesson.title}</h6>
-                                            </div>
-                                            {lesson.lessonId && lesson.units && lesson.units.map((unit) => (
-                                                <div key={unit.unitId} style={{ paddingLeft: 20, marginTop: 12 }}>
-                                                    <p onClick={() => handleOpenDetailUnit(unit)}
-                                                        style={{ cursor: "pointer" }}>
-                                                        <strong>{unit.title}</strong> ( {unit.requiredMinutes} mins )
-                                                    </p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                )
-                            })}
-                        </div>
-                    </div> */}
+                    <h5 style={{ paddingTop: 20 }}>{courseInfo.description}</h5>
+                    <p style={{ paddingTop: 20 }}>{courseInfo.about}</p>
                 </div>
             </div>
         </div>
