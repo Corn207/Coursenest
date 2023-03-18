@@ -116,7 +116,7 @@ namespace Library.API.Controllers
 			var isAdmin = IsAdmin();
 
 			var result = await _context.Materials
-				.Where(x => x.UnitId == unitId && isAdmin)
+				.Where(x => x.UnitId == unitId)
 				.ProjectTo<MaterialResult>(_mapper.ConfigurationProvider)
 				.FirstOrDefaultAsync();
 			if (result == null)
@@ -154,8 +154,7 @@ namespace Library.API.Controllers
 
 			var result = await _context.Exams
 				.Where(x =>
-					x.UnitId == unitId &&
-					(isAdmin || x.Lesson.Course.PublisherUserId == userId))
+					x.UnitId == unitId)
 				.ProjectTo<ExamResult>(_mapper.ConfigurationProvider)
 				.FirstOrDefaultAsync();
 			if (result == null)
